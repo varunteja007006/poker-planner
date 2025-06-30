@@ -1,0 +1,17 @@
+Download the Docker
+
+Open terminal:
+
+1. Setup persistent storage by creating volume
+
+```sh
+docker volume create postgres_data
+```
+
+2. Now run the docker image
+
+```sh
+docker run --name my-postgres-db -e POSTGRES_PASSWORD=mysecretpassword -p 5432:5432 -v postgres_data:/var/lib/postgresql/data -d postgres
+```
+
+3. Now test by connecting to it.

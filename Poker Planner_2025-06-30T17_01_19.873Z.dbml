@@ -1,0 +1,193 @@
+Table users {
+	id integer [ pk, increment, not null, unique ]
+	username varchar(255)
+	is_active boolean [ default: true ]
+	created_at date [ default: 'now' ]
+	created_by bigint
+	updated_at date [ default: 'now' ]
+	updated_by bigint
+	deleted_at date [ default: 'now' ]
+	deleted_by bigint
+
+	Note: 'Users who are logged into the platform'
+}
+
+Table client {
+	id integer [ pk, increment, not null, unique ]
+	user_id bigint
+	is_active boolean [ default: true ]
+	created_at date [ default: 'now' ]
+	created_by bigint
+	updated_at date [ default: 'now' ]
+	updated_by bigint
+	deleted_at date [ default: 'now' ]
+	deleted_by bigint
+
+	Note: 'This table gives current socket instance of a user.'
+}
+
+Table rooms {
+	id integer [ pk, increment, not null, unique ]
+	room_code varchar(255) [ unique ]
+	is_active boolean [ default: true ]
+	created_at date [ default: 'now' ]
+	created_by bigint
+	updated_at date [ default: 'now' ]
+	updated_by bigint
+	deleted_at date [ default: 'now' ]
+	deleted_by bigint
+
+	Note: 'User can create a room and share with other users to join and plan their sprint'
+}
+
+Table teams {
+	id integer [ pk, increment, not null, unique ]
+	user_id bigint
+	room_id bigint
+	is_room_owner boolean
+	is_active boolean [ default: true ]
+	created_at date [ default: 'now' ]
+	created_by bigint
+	updated_at date [ default: 'now' ]
+	updated_by bigint
+	deleted_at date [ default: 'now' ]
+	deleted_by bigint
+
+	Note: 'users in a room are combined into a team'
+}
+
+Table story {
+	id integer [ pk, increment, not null, unique ]
+	title varchar(100)
+	description varchar(255)
+	room_id integer
+	finalized_story_point integer
+	is_active boolean [ default: true ]
+	created_at date [ default: 'now' ]
+	created_by bigint
+	updated_at date [ default: 'now' ]
+	updated_by bigint
+	deleted_at date [ default: 'now' ]
+	deleted_by bigint
+}
+
+Table story_points {
+	id integer [ pk, increment, not null, unique ]
+	user_id bigint
+	story_id bigint
+	story_point integer
+	created_at date [ default: 'now' ]
+	created_by bigint
+	updated_at date [ default: 'now' ]
+	updated_by bigint
+	is_active boolean [ default: true ]
+	deleted_at date [ default: 'now' ]
+	deleted_by bigint
+}
+
+Table CREATE NEW TABLE - SELECT > CTRL + D {
+	id integer [ pk, increment, not null, unique ]
+	is_active boolean [ default: true ]
+	created_at date [ default: 'now' ]
+	created_by bigint
+	updated_at date [ default: 'now' ]
+	updated_by bigint
+	deleted_at date [ default: 'now' ]
+	deleted_by bigint
+}
+
+Ref fk_rooms_created_by_users {
+	rooms.created_by - users.id [ delete: no action, update: no action ]
+}
+
+Ref fk_rooms_updated_by_users {
+	rooms.updated_by - users.id [ delete: no action, update: no action ]
+}
+
+Ref fk_guests_room_id_rooms {
+	teams.room_id - rooms.id [ delete: no action, update: no action ]
+}
+
+Ref fk_guests_user_id_users {
+	teams.user_id - users.id [ delete: no action, update: no action ]
+}
+
+Ref fk_client_user_id_users {
+	client.user_id - users.id [ delete: no action, update: no action ]
+}
+
+Ref fk_team_created_by_users {
+	teams.created_by - users.id [ delete: no action, update: no action ]
+}
+
+Ref fk_team_updated_by_users {
+	teams.updated_by - users.id [ delete: no action, update: no action ]
+}
+
+Ref fk_client_created_by_users {
+	client.created_by - users.id [ delete: no action, update: no action ]
+}
+
+Ref fk_client_updated_by_users {
+	client.updated_by - users.id [ delete: no action, update: no action ]
+}
+
+Ref fk_story_created_by_users {
+	story.created_by - users.id [ delete: no action, update: no action ]
+}
+
+Ref fk_story_updated_by_users {
+	story.updated_by - users.id [ delete: no action, update: no action ]
+}
+
+Ref fk_story_point_votes_created_by_users {
+	story_points.created_by - users.id [ delete: no action, update: no action ]
+}
+
+Ref fk_story_point_votes_updated_by_users {
+	story_points.updated_by - users.id [ delete: no action, update: no action ]
+}
+
+Ref fk_story_point_votes_user_id_users {
+	story_points.user_id - users.id [ delete: no action, update: no action ]
+}
+
+Ref fk_story_point_votes_story_id_story {
+	story_points.story_id - story.id [ delete: no action, update: no action ]
+}
+
+Ref fk_story_room_id_rooms {
+	story.room_id - rooms.id [ delete: no action, update: no action ]
+}
+
+Ref fk_users_deleted_by_users {
+	users.deleted_by - users.id [ delete: no action, update: no action ]
+}
+
+Ref fk_users_updated_by_users {
+	users.updated_by - users.id [ delete: no action, update: no action ]
+}
+
+Ref fk_users_created_by_users {
+	users.created_by - users.id [ delete: no action, update: no action ]
+}
+
+Ref fk_rooms_deleted_by_users {
+	rooms.deleted_by - users.id [ delete: no action, update: no action ]
+}
+
+Ref fk_client_deleted_by_users {
+	client.deleted_by - users.id [ delete: no action, update: no action ]
+}
+
+Ref fk_teams_deleted_by_users {
+	teams.deleted_by - users.id [ delete: no action, update: no action ]
+}
+
+Ref fk_story_deleted_by_users {
+	story.deleted_by - users.id [ delete: no action, update: no action ]
+}
+
+Ref fk_story_points_deleted_by_users {
+	story_points.deleted_by - users.id [ delete: no action, update: no action ]
+}
