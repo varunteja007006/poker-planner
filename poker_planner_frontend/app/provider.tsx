@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { ThemeProvider } from "next-themes";
+import { AppProvider } from "@/providers/app-provider";
 
 export function Provider({
   children,
@@ -15,7 +16,7 @@ export function Provider({
       disableTransitionOnChange
       {...props}
     >
-      {children}
+      <AppProvider>{children}</AppProvider>
     </ThemeProvider>
   );
 }
