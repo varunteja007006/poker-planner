@@ -17,6 +17,11 @@ import { StoryPointsModule } from './story_points/story_points.module';
 
 //entities
 import { User as UserEntities } from './users/entities/user.entity';
+import { Client as ClientEntities } from './clients/entities/client.entity';
+import { Room as RoomEntities } from './rooms/entities/room.entity';
+import { Team as TeamEntities } from './teams/entities/team.entity';
+import { Story as StoryEntities } from './stories/entities/story.entity';
+import { StoryPoint as StoryPointEntities } from './story_points/entities/story_point.entity';
 
 @Module({
   imports: [
@@ -31,7 +36,7 @@ import { User as UserEntities } from './users/entities/user.entity';
       username: configuration().database.username,
       password: configuration().database.password,
       database: configuration().database.database,
-      entities: [UserEntities],
+      entities: [UserEntities, ClientEntities, RoomEntities, TeamEntities, StoryEntities, StoryPointEntities],
       synchronize: true,
     }),
     UsersModule,
