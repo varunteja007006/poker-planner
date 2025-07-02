@@ -15,3 +15,39 @@ docker run --name my-postgres-db -e POSTGRES_PASSWORD=mysecretpassword -p 5432:5
 ```
 
 3. Now test by connecting to it.
+
+4. To list all the containers
+
+```sh
+docker ps -a
+```
+
+5. To stop the container
+
+```sh
+docker stop <container_name>
+```
+
+6. To start the container
+
+```sh
+docker start <container_name>
+```
+
+7. To remove the container
+
+```sh
+docker rm <container_name>
+```
+
+8. To remove the volume
+
+```sh
+docker volume rm <volume_name>
+```
+
+9. To remove the image
+
+```sh
+docker rmi <image_name>
+```
