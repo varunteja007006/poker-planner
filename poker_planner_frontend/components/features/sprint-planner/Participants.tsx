@@ -6,7 +6,7 @@ import ParticipantCard from "./ParticipantCard";
 
 export default function Participants() {
   return (
-    <div className="space-y-2 max-w-[270px] border border-primary/20 shadow-md hover:shadow-lg shadow-primary p-2 pl-3 rounded">
+    <div className="space-y-2 max-w-[270px] border border-primary/20 bg-accent shadow-md hover:shadow-lg shadow-primary p-2 pl-3 rounded">
       <div className="flex flex-row gap-1 justify-between items-center">
         <p>Active Participants</p>
         <Badge className="h-5 min-w-5 rounded-full px-1 font-mono tabular-nums">

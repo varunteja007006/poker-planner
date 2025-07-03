@@ -1,12 +1,7 @@
 import { Client } from 'src/clients/entities/client.entity';
 import { StoryPoint } from 'src/story_points/entities/story_point.entity';
 import { Team } from 'src/teams/entities/team.entity';
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  OneToMany,
-} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
 
 @Entity()
@@ -26,7 +21,6 @@ export class User {
     length: 255,
     nullable: false,
     unique: true,
-    default: 'USER__' + uuidv4(),
   })
   user_token: string;
 

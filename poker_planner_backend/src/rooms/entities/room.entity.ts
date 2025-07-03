@@ -21,7 +21,6 @@ export class Room {
     length: 255,
     nullable: false,
     unique: true,
-    default: 'ROOM__' + uuidv4(),
   })
   room_code: string;
 

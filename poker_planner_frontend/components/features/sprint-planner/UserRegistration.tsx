@@ -6,6 +6,9 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { SendHorizontal } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useCreateUser } from "@/api/user/query";
+import { error } from "console";
+import { toast } from "sonner";
 
 export default function UserRegistration() {
   const router = useRouter();
@@ -21,9 +24,20 @@ export default function UserRegistration() {
     setUsername(event.target.value);
   };
 
+  const createUser = useCreateUser({
+    onSuccess: (response) => {
+      console.log(response);
+      toast.success("User created successfully");
+      router.push("/room");
+    },
+    onError: (error) => {
+      console.error(error);
+      toast.error("Something went wrong with creating the user");
+    },
+  });
+
   const handleSubmit = () => {
-    console.log(username);
-    router.push("/room");
+    createUser.mutate(username);
   };
 
   return (

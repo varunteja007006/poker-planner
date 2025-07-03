@@ -2,7 +2,7 @@ import React from "react";
 
 export default function Footer() {
   return (
-    <footer className="border-t-2 border-primary text-primary w-full flex flex-col items-start md:flex-row gap-5 justify-between bg-background p-5 dark:bg-background p-5">
+    <footer className="border-t-2 border-primary text-primary w-full flex flex-col items-start md:flex-row gap-5 justify-between bg-background dark:bg-background py-12 px-10">
       <div>
         <p>{`> Email: support@pokerplanner.com`}</p>
         <p>{`> Phone: +91 1234567890`}</p>
