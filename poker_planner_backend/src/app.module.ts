@@ -22,6 +22,7 @@ import { Room as RoomEntities } from './rooms/entities/room.entity';
 import { Team as TeamEntities } from './teams/entities/team.entity';
 import { Story as StoryEntities } from './stories/entities/story.entity';
 import { StoryPoint as StoryPointEntities } from './story_points/entities/story_point.entity';
+import { WsHealthModule } from './ws_health/ws_health.module';
 
 @Module({
   imports: [
@@ -36,7 +37,14 @@ import { StoryPoint as StoryPointEntities } from './story_points/entities/story_
       username: configuration().database.username,
       password: configuration().database.password,
       database: configuration().database.database,
-      entities: [UserEntities, ClientEntities, RoomEntities, TeamEntities, StoryEntities, StoryPointEntities],
+      entities: [
+        UserEntities,
+        ClientEntities,
+        RoomEntities,
+        TeamEntities,
+        StoryEntities,
+        StoryPointEntities,
+      ],
       synchronize: true,
     }),
     UsersModule,
@@ -45,6 +53,7 @@ import { StoryPoint as StoryPointEntities } from './story_points/entities/story_
     ClientsModule,
     StoriesModule,
     StoryPointsModule,
+    WsHealthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
