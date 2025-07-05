@@ -5,13 +5,24 @@ import {
   Column,
   ManyToOne,
   JoinColumn,
-  OneToMany,
 } from 'typeorm';
 
 @Entity()
 export class Client {
   @PrimaryGeneratedColumn()
   id: number;
+
+  @Column({
+    nullable: false,
+    type: 'varchar',
+  })
+  client_id: string;
+
+  @Column({
+    nullable: false,
+    type: 'varchar',
+  })
+  session_id: string;
 
   // This defines the ManyToOne relationship from Client to User
   // A Client belongs to one User
