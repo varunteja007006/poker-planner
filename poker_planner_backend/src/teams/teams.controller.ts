@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   Headers,
+  Query,
 } from '@nestjs/common';
 import { TeamsService } from './teams.service';
 import { CreateTeamDto } from './dto/create-team.dto';
@@ -24,9 +25,13 @@ export class TeamsController {
     return this.teamsService.create(createTeamDto, token);
   }
 
-  @Get()
-  findAll(@Headers('Authorization') token: string | undefined) {
-    return this.teamsService.findAll(token);
+  @Get()  
+  findAll(
+    @Query('room_code') room_code: string | undefined,
+    @Query('filterByUser') filterByUser: boolean | undefined,
+    @Headers('Authorization') token: string | undefined,
+  ) {
+    return this.teamsService.findAll(room_code, filterByUser, token);
   }
 
   @Get(':id')

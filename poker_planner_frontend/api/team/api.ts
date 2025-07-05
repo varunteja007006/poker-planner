@@ -1,13 +1,21 @@
 import axiosInstance from "../config/axios";
 
 class TeamApi {
-  static async getAllTeams() {
-    const response = await axiosInstance.get("/teams");
+  static async getAllTeams({
+    room_code,
+    filterByUser,
+  }: {
+    room_code?: string;
+    filterByUser?: boolean;
+  }) {
+    const response = await axiosInstance.get("/teams", {
+      params: { room_code, filterByUser },
+    });
     return response.data;
   }
 
   static async createTeam(payload: {
-    room_id: number;
+    room_code: string;
     is_room_owner?: boolean;
   }) {
     const response = await axiosInstance.post("/teams", payload);

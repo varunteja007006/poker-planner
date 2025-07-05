@@ -18,7 +18,9 @@ export default function RoomHistoryList() {
 
   // need to implement all rooms that the user has joined
 
-  const { data, isLoading, isError, isFetching } = useGetAllTeams();
+  const { data, isLoading, isError, isFetching } = useGetAllTeams({
+    filterByUser: true,
+  });
 
   return (
     <>
@@ -39,6 +41,7 @@ export default function RoomHistoryList() {
           {data?.slice(1)?.map((item: Team) => {
             return (
               <RoomHistoryItem
+                key={item.id}
                 label={item.room.room_code as string}
                 roomCode={item.room.room_code as string}
                 isNew={false}

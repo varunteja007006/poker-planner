@@ -1,4 +1,4 @@
 export class CreateTeamDto {
-    room_id: number;
+    room_code: string;
     is_room_owner: boolean;
 }

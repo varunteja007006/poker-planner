@@ -52,7 +52,7 @@ export class RoomsService {
 
       await this.teamsService.create(
         {
-          room_id: savedRoom.id,
+          room_code: savedRoom.room_code,
           is_room_owner: true,
         },
         token,

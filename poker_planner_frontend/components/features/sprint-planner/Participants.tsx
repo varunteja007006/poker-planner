@@ -3,19 +3,32 @@ import React from "react";
 import { Badge } from "@/components/ui/badge";
 
 import ParticipantCard from "./ParticipantCard";
+import { useGetAllTeams } from "@/api/team/query";
+import { useParams } from "next/navigation";
 
 export default function Participants() {
+  const params = useParams();
+  const roomCode = params.roomCode;
+
+  const teamMembers = useGetAllTeams({
+    room_code: roomCode as string,
+  });
+
   return (
-    <div className="space-y-2 max-w-[270px] border border-primary/20 bg-accent shadow-md hover:shadow-lg shadow-primary p-2 pl-3 rounded">
+    <div className="space-y-2 w-[320px] border border-primary/20 bg-accent shadow-md hover:shadow-lg shadow-primary p-2 pl-3 rounded">
       <div className="flex flex-row gap-1 justify-between items-center">
-        <p>Active Participants</p>
+        <p className="text-primary font-semibold text-lg">Participants</p>
         <Badge className="h-5 min-w-5 rounded-full px-1 font-mono tabular-nums">
-          8
+          {teamMembers.data?.length}
         </Badge>
       </div>
-      <div className="w-full grid grid-cols-1 gap-1.5">
-        {[1, 2, 3, 4, 5].map((participant) => (
-          <ParticipantCard key={participant} name={participant.toString()} />
+      <div className="w-full grid grid-cols-1 gap-1.5 max-h-[30vh] overflow-y-scroll scroll-p-2 scrollbar-thin scrollbar-track-primary/10 scrollbar-thumb-primary/20">
+        {teamMembers.data?.map((user) => (
+          <ParticipantCard
+            key={user.id}
+            name={user.user.username}
+            isActive={false} // Here it should be based on client
+          />
         ))}
       </div>
     </div>

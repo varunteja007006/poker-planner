@@ -1,56 +1,38 @@
 "use client";
 import React from "react";
 
-import { useParams } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import RoomCodeCopyBtn from "./RoomCodeCopyBtn";
 
-import { Copy } from "lucide-react";
-import { toast } from "sonner";
+import { useParams } from "next/navigation";
 import Participants from "./Participants";
 import SprintCards from "./sprint-cards";
 import SprintDeck from "./sprint-deck";
+import { useCreateTeam } from "@/api/team/query";
 
 export default function RoomCodeMain() {
   const params = useParams();
   const roomCode = params.roomCode;
 
-  const handleCopyRoomCode = () => {
-    try {
-      navigator.clipboard.writeText(roomCode as string);
-      toast.success("Room code copied to clipboard");
-    } catch (error) {
-      toast.error("Failed to copy room code");
-      console.error("Failed to copy room code: ", error);
-    }
+  const createTeam = useCreateTeam();
+
+  const handleCreateTeam = () => {
+    if (!roomCode) return;
+
+    createTeam.mutate({
+      room_code: roomCode as string,
+    });
   };
+
+  React.useEffect(() => {
+    handleCreateTeam();
+  }, [roomCode]);
 
   return (
     <div className="p-4 flex flex-col w-full gap-5">
       <div className="flex flex-row items-start justify-between gap-2">
         <div></div>
         <div>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant={"default"}
-                className="cursor-pointer"
-                onClick={handleCopyRoomCode}
-              >
-                Room Code: {roomCode}
-                <span className="ml-2">
-                  <Copy />
-                </span>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Copy Room Code</p>
-            </TooltipContent>
-          </Tooltip>
+          <RoomCodeCopyBtn />
         </div>
       </div>
       <div className="flex flex-row gap-5 items-start justify-start">
@@ -58,7 +40,7 @@ export default function RoomCodeMain() {
           <SprintDeck />
           <SprintCards />
         </div>
-        <div className="">
+        <div>
           <Participants />
         </div>
       </div>

@@ -41,7 +41,7 @@ export class TeamsService {
       }
 
       const room = await this.roomRepository.findOne({
-        where: { id: createTeamDto.room_id },
+        where: { room_code: createTeamDto.room_code },
       });
 
       if (!room) {
@@ -50,10 +50,14 @@ export class TeamsService {
 
       const teamExists = await this.teamsRepository.findOne({
         where: { user, room },
+        relations: {
+          room: true,
+          user: true,
+        },
       });
 
       if (teamExists) {
-        throw new Error('Team already exists');
+        return teamExists;
       }
 
       const team = this.teamsRepository.create({
@@ -81,7 +85,11 @@ export class TeamsService {
     }
   }
 
-  async findAll(token: string | undefined): Promise<Team[]> {
+  async findAll(
+    room_code: string | undefined,
+    filterByUser: boolean | undefined,
+    token: string | undefined,
+  ): Promise<Team[]> {
     try {
       if (!token) {
         throw new Error('Token not found');
@@ -98,9 +106,13 @@ export class TeamsService {
       }
 
       const teams = await this.teamsRepository.find({
-        where: { user },
         relations: {
           room: true,
+          user: true,
+        },
+        where: {
+          room: { room_code },
+          user: filterByUser ? { id: user.id } : undefined,
         },
         order: { room: { id: 'DESC' } },
       });

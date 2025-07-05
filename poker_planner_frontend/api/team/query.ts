@@ -3,10 +3,13 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import TeamApi from "./api";
 import { Team } from "@/types/team.types";
 
-export const useGetAllTeams = () => {
+export const useGetAllTeams = (params: {
+  room_code?: string;
+  filterByUser?: boolean;
+}) => {
   return useQuery<Team[]>({
     queryKey: ["teams"],
-    queryFn: TeamApi.getAllTeams,
+    queryFn: () => TeamApi.getAllTeams(params),
   });
 };
 
