@@ -8,16 +8,21 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
 
 import { Dices } from "lucide-react";
 
 import { useRouter } from "next/navigation";
 import { generateRandomRoomCode } from "@/utils/utils";
-import { Label } from "@/components/ui/label";
+import { useCreateRoom } from "@/api/room/query";
+import { Room } from "@/types/room.types";
+import { useAppContext } from "@/providers/app-provider";
 
 export default function CreateRoom() {
   const router = useRouter();
   const [roomCode, setRoomCode] = React.useState(generateRandomRoomCode());
+  const { user, handleSetRoom } = useAppContext();
 
   const handleRoomCodeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
@@ -28,9 +33,28 @@ export default function CreateRoom() {
     setRoomCode(event.target.value);
   };
 
+  const createRoom = useCreateRoom();
+
   const handleSubmit = () => {
-    console.log(roomCode);
-    router.push(`/room/${roomCode}`);
+    if (!user?.id) {
+      toast.error("User not found");
+      return;
+    }
+
+    createRoom.mutate(
+      { room_code: roomCode, user_id: Number(user?.id) },
+      {
+        onSuccess: (response: Room) => {
+          handleSetRoom(response);
+          toast.success("Room created successfully");
+          router.push(`/room/${roomCode}`);
+        },
+        onError: (error) => {
+          console.log(error);
+          toast.error("Something went wrong with creating the room");
+        },
+      }
+    );
   };
 
   const onGenerateRoomCode = () => {

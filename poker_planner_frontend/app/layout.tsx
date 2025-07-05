@@ -19,7 +19,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark">
       <body className={`font-mono antialiased`}>
         <Provider>
           <div className="min-h-screen font-[family-name:var(--font-geist-sans)]">

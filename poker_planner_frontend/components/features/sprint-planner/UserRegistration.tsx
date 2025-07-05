@@ -7,11 +7,13 @@ import { Button } from "@/components/ui/button";
 import { SendHorizontal } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCreateUser } from "@/api/user/query";
-import { error } from "console";
 import { toast } from "sonner";
+import { useAppContext } from "@/providers/app-provider";
+import { User } from "@/types/user.types";
 
 export default function UserRegistration() {
   const router = useRouter();
+  const { handleSetUser } = useAppContext();
 
   const [username, setUsername] = React.useState("");
 
@@ -24,20 +26,20 @@ export default function UserRegistration() {
     setUsername(event.target.value);
   };
 
-  const createUser = useCreateUser({
-    onSuccess: (response) => {
-      console.log(response);
-      toast.success("User created successfully");
-      router.push("/room");
-    },
-    onError: (error) => {
-      console.error(error);
-      toast.error("Something went wrong with creating the user");
-    },
-  });
+  const createUser = useCreateUser();
 
   const handleSubmit = () => {
-    createUser.mutate(username);
+    createUser.mutate(username, {
+      onSuccess: (response: User) => {
+        handleSetUser(response);
+        toast.success("User created successfully");
+        router.push("/room");
+      },
+      onError: (error) => {
+        console.error(error);
+        toast.error("Something went wrong with creating the user");
+      },
+    });
   };
 
   return (

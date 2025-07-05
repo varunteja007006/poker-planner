@@ -15,8 +15,6 @@ import {
 export function ThemeToggleBtn() {
   const { setTheme } = useTheme();
 
-  React.useEffect(() => setTheme("dark"), []);
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>

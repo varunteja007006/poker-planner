@@ -1,26 +1,173 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateTeamDto } from './dto/create-team.dto';
 import { UpdateTeamDto } from './dto/update-team.dto';
+import { extractToken } from 'src/utils/utils';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Team } from './entities/team.entity';
+import { User } from 'src/users/entities/user.entity';
+import { Repository } from 'typeorm';
+import { Room } from 'src/rooms/entities/room.entity';
 
 @Injectable()
 export class TeamsService {
-  create(createTeamDto: CreateTeamDto) {
-    return 'This action adds a new team';
+  constructor(
+    @InjectRepository(Team)
+    private teamsRepository: Repository<Team>,
+
+    @InjectRepository(User)
+    private usersRepository: Repository<User>,
+
+    @InjectRepository(Room)
+    private roomRepository: Repository<Room>,
+  ) {}
+
+  async create(
+    createTeamDto: CreateTeamDto,
+    token: string | undefined,
+  ): Promise<Team> {
+    try {
+      if (!token) {
+        throw new Error('Token not found');
+      }
+
+      const user_token = extractToken(token);
+
+      const user = await this.usersRepository.findOne({
+        where: { user_token },
+      });
+
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      const room = await this.roomRepository.findOne({
+        where: { id: createTeamDto.room_id },
+      });
+
+      if (!room) {
+        throw new Error('Room not found');
+      }
+
+      const teamExists = await this.teamsRepository.findOne({
+        where: { user, room },
+      });
+
+      if (teamExists) {
+        throw new Error('Team already exists');
+      }
+
+      const team = this.teamsRepository.create({
+        user,
+        room,
+        created_by: user,
+        updated_by: user,
+        is_room_owner: createTeamDto.is_room_owner,
+      });
+
+      const savedTeam = await this.teamsRepository.save(team);
+
+      return savedTeam;
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          error: error.message,
+        },
+        HttpStatus.BAD_REQUEST,
+        {
+          cause: error.message,
+        },
+      );
+    }
   }
 
-  findAll() {
-    return `This action returns all teams`;
+  async findAll(token: string | undefined): Promise<Team[]> {
+    try {
+      if (!token) {
+        throw new Error('Token not found');
+      }
+
+      const user_token = extractToken(token);
+
+      const user = await this.usersRepository.findOne({
+        where: { user_token },
+      });
+
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      const teams = await this.teamsRepository.find({
+        where: { user },
+        relations: {
+          room: true,
+        },
+        order: { room: { id: 'DESC' } },
+      });
+
+      return teams;
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          error: error.message,
+        },
+        HttpStatus.BAD_REQUEST,
+        {
+          cause: error.message,
+        },
+      );
+    }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} team`;
+  async findOne(id: number, token: string | undefined): Promise<Team> {
+    try {
+      if (!token) {
+        throw new Error('Token not found');
+      }
+
+      const user_token = extractToken(token);
+
+      const user = await this.usersRepository.findOne({
+        where: { user_token },
+      });
+
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      const team = await this.teamsRepository.findOne({
+        where: { id, user },
+      });
+
+      if (!team) {
+        throw new Error('Team not found');
+      }
+
+      return team;
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          error: error.message,
+        },
+        HttpStatus.BAD_REQUEST,
+        {
+          cause: error.message,
+        },
+      );
+    }
   }
 
-  update(id: number, updateTeamDto: UpdateTeamDto) {
-    return `This action updates a #${id} team`;
+  async update(
+    id: number,
+    updateTeamDto: UpdateTeamDto,
+    token: string | undefined,
+  ): Promise<boolean> {
+    return false;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} team`;
+  async remove(id: number, token: string | undefined): Promise<boolean> {
+    return false;
   }
 }

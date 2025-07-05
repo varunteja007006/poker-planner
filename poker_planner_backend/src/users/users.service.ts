@@ -39,7 +39,7 @@ export class UsersService {
     }
   }
 
-  async findAll() {
+  async findAll(): Promise<User[]> {
     try {
       const users = await this.usersRepository.find();
       return users;
@@ -57,7 +57,7 @@ export class UsersService {
     }
   }
 
-  async findOne(id: number) {
+  async findOne(id: number): Promise<User> {
     try {
       const user = await this.usersRepository.findOne({ where: { id } });
 
@@ -89,13 +89,13 @@ export class UsersService {
     }
   }
 
-  async update(id: number, updateUserDto: UpdateUserDto) {
+  async update(id: number, updateUserDto: UpdateUserDto): Promise<boolean> {
     try {
       const updatedUser = await this.usersRepository.update(id, {
         ...updateUserDto,
         updated_by: updateUserDto['username'],
       });
-      return updatedUser;
+      return !!updatedUser.affected;
     } catch (error) {
       throw new HttpException(
         {
