@@ -10,7 +10,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
-const STORY_POINT_EVALUATION_STATUSES = {
+export const STORY_POINT_EVALUATION_STATUSES = {
   PENDING: 'pending',
   IN_PROGRESS: 'in progress',
   COMPLETED: 'completed',

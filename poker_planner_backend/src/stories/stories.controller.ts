@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   Headers,
+  Query,
 } from '@nestjs/common';
 import { StoriesService } from './stories.service';
 import { CreateStoryDto } from './dto/create-story.dto';
@@ -25,8 +26,11 @@ export class StoriesController {
   }
 
   @Get()
-  findAll(@Headers('Authorization') token: string | undefined) {
-    return this.storiesService.findAll(token);
+  findAll(
+    @Headers('Authorization') token: string | undefined,
+    @Query('room_code') room_code: string | undefined,
+  ) {
+    return this.storiesService.findAll(token, room_code);
   }
 
   @Get(':id')

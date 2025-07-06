@@ -15,7 +15,7 @@ export default function Participants() {
   });
 
   return (
-    <div className="space-y-2 w-[320px] border border-primary/20 bg-accent shadow-md hover:shadow-lg shadow-primary p-2 pl-3 rounded">
+    <div className="space-y-2 w-[320px] bg-accent shadow-md p-2 pl-3 rounded">
       <div className="flex flex-row gap-1 justify-between items-center">
         <p className="text-primary font-semibold text-lg">Participants</p>
         <Badge className="h-5 min-w-5 rounded-full px-1 font-mono tabular-nums">
