@@ -5,10 +5,11 @@ import { Story } from './entities/story.entity';
 import { User } from 'src/users/entities/user.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Room } from 'src/rooms/entities/room.entity';
+import { StoriesGateway } from './stories.gateway';
 
 @Module({
   controllers: [StoriesController],
-  providers: [StoriesService],
+  providers: [StoriesService, StoriesGateway],
   imports: [TypeOrmModule.forFeature([Story, User, Room])],
 })
 export class StoriesModule {}
