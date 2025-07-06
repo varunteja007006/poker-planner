@@ -44,22 +44,17 @@ export default function RoomCodeMain() {
 
   React.useEffect(() => {
     if (!socket) {
-      console.log('Socket not available');
       return;
     }
 
-    console.log('Setting up stories:client:check listener');
-    
     const handleStoriesCheck = (message: string) => {
       console.log("stories:client:check message:", message);
     };
 
     socket.on("stories:client:check", handleStoriesCheck);
-    console.log('Listener set up successfully');
 
     return () => {
       socket.off("stories:client:check", handleStoriesCheck);
-      console.log('Listener removed');
     };
   }, [socket]);
 
@@ -70,7 +65,7 @@ export default function RoomCodeMain() {
           <Button
             onClick={() => {
               console.log("clicked");
-              socket?.emit("stories:check");
+              socket?.emit("stories:check", "true");
             }}
           >
             Click
