@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Headers,
+} from '@nestjs/common';
 import { StoriesService } from './stories.service';
 import { CreateStoryDto } from './dto/create-story.dto';
 import { UpdateStoryDto } from './dto/update-story.dto';
@@ -8,27 +17,40 @@ export class StoriesController {
   constructor(private readonly storiesService: StoriesService) {}
 
   @Post()
-  create(@Body() createStoryDto: CreateStoryDto) {
-    return this.storiesService.create(createStoryDto);
+  create(
+    @Body() createStoryDto: CreateStoryDto,
+    @Headers('Authorization') token: string | undefined,
+  ) {
+    return this.storiesService.create(createStoryDto, token);
   }
 
   @Get()
-  findAll() {
-    return this.storiesService.findAll();
+  findAll(@Headers('Authorization') token: string | undefined) {
+    return this.storiesService.findAll(token);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.storiesService.findOne(+id);
+  findOne(
+    @Param('id') id: string,
+    @Headers('Authorization') token: string | undefined,
+  ) {
+    return this.storiesService.findOne(+id, token);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateStoryDto: UpdateStoryDto) {
-    return this.storiesService.update(+id, updateStoryDto);
+  update(
+    @Param('id') id: string,
+    @Body() updateStoryDto: UpdateStoryDto,
+    @Headers('Authorization') token: string | undefined,
+  ) {
+    return this.storiesService.update(+id, updateStoryDto, token);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.storiesService.remove(+id);
+  remove(
+    @Param('id') id: string,
+    @Headers('Authorization') token: string | undefined,
+  ) {
+    return this.storiesService.remove(+id, token);
   }
 }
