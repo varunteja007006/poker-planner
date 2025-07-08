@@ -8,13 +8,16 @@ import { useParams } from "next/navigation";
 import {
   getStoryFromLocalStorage,
   getTeamFromLocalStorage,
+  setStoryInLocalStorage,
 } from "@/utils/localStorage.utils";
 import { Team } from "@/types/team.types";
+import { useSocketContext } from "@/providers/socket-provider";
 import { Story } from "@/types/story.types";
 
 export default function SprintDeck() {
   const params = useParams();
   const roomCode = params.roomCode as string;
+  const { socket } = useSocketContext();
 
   const [team, setTeam] = React.useState<Team | null>(null);
   const [revealScore, setRevealScore] = React.useState<boolean>(false);
@@ -40,6 +43,7 @@ export default function SprintDeck() {
       {
         onSuccess: (response) => {
           toast.success("Story created successfully");
+          socket?.emit("stories:create", response);
         },
         onError: (error) => {
           console.error(error);
@@ -87,6 +91,30 @@ export default function SprintDeck() {
       setTeam(team);
     }
   }, []);
+
+  React.useEffect(() => {
+    if (!socket) {
+      return;
+    }
+
+    socket.on(
+      "stories:created",
+      (response: { clientId: string; message: string; body: Story }) => {
+        toast.success(response.message);
+        console.log(response);
+        setStoryInLocalStorage(response.body);
+        const isStoryInProgress =
+          response.body.story_point_evaluation_status === "in progress";
+        if (isStoryInProgress) {
+          setRevealScore(true);
+        }
+      }
+    );
+
+    return () => {
+      socket.off("stories:created");
+    };
+  }, [socket]);
 
   return (
     <div>

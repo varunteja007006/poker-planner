@@ -9,19 +9,25 @@ import SprintCards from "./sprint-cards";
 import SprintDeck from "./sprint-deck";
 import AddUserStory from "./add-user-story";
 import { useCreateTeam } from "@/api/team/query";
-import { setTeamInLocalStorage } from "@/utils/localStorage.utils";
-import { Button } from "@/components/ui/button";
-import { useSocketContext } from "@/providers/socket-provider";
+import {
+  getRoomFromLocalStorage,
+  setTeamInLocalStorage,
+} from "@/utils/localStorage.utils";
 
 export default function RoomCodeMain() {
   const params = useParams();
   const roomCode = params.roomCode;
 
   const createTeam = useCreateTeam();
-  const { socket } = useSocketContext();
 
   const handleCreateTeam = () => {
     if (!roomCode) return;
+
+    const localRoomCode = getRoomFromLocalStorage()?.room_code;
+
+    if (localRoomCode === roomCode) {
+      return;
+    }
 
     createTeam.mutate(
       {
@@ -42,35 +48,10 @@ export default function RoomCodeMain() {
     handleCreateTeam();
   }, [roomCode]);
 
-  React.useEffect(() => {
-    if (!socket) {
-      return;
-    }
-
-    const handleStoriesCheck = (message: string) => {
-      console.log("stories:client:check message:", message);
-    };
-
-    socket.on("stories:client:check", handleStoriesCheck);
-
-    return () => {
-      socket.off("stories:client:check", handleStoriesCheck);
-    };
-  }, [socket]);
-
   return (
     <div className="p-4 flex flex-col w-full gap-5">
       <div className="flex flex-row items-start justify-between gap-2">
-        <div>
-          <Button
-            onClick={() => {
-              console.log("clicked");
-              socket?.emit("stories:check", "true");
-            }}
-          >
-            Click
-          </Button>
-        </div>
+        <div></div>
         <div>
           <RoomCodeCopyBtn />
         </div>

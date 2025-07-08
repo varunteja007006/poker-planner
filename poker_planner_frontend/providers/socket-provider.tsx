@@ -5,6 +5,7 @@ import { io, Socket } from "socket.io-client";
 
 import { useParams } from "next/navigation";
 import { getUserFromLocalStorage } from "@/utils/localStorage.utils";
+import { toast } from "sonner";
 
 interface SocketContextType {
   socket: Socket | null;
@@ -31,7 +32,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     }
 
     const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL!, {
-      withCredentials: true,
+      // withCredentials: true,
       auth: {
         token: user_token,
       },
@@ -64,9 +65,24 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
         console.log("socket Id: ", socket.id);
       });
     }
+
+    // let us set the socket instance
     setSocket(socket);
 
+    // let us also emit the room join event
+    socket.emit("room:join", { room_code: roomCode, username });
+
+    // socket to notify people about users joining the room
+    socket.on(
+      "room:joined",
+      (response: { clientId: string; message: string }) => {
+        toast.success(response.message);
+      }
+    );
+
     return () => {
+      socket.off("room:joined");
+
       socket.disconnect();
     };
   }, []);

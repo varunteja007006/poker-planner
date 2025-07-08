@@ -10,8 +10,9 @@ import { Server, Socket } from 'socket.io';
 
 @WebSocketGateway({
   cors: {
-    origin: process.env.WS_ORIGIN ?? 'http://localhost:3000',
-    credentials: true,
+    origin: "*",
+    // origin: "http://localhost:3000",
+    // credentials: true,
   },
 })
 export class WsHealthGateway {
