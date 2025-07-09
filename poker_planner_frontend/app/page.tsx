@@ -1,4 +1,4 @@
-import UserRegistration from "@/components/features/sprint-planner/UserRegistration";
+import UserRegistration from "@/components/features/sprint-planner/user-registration";
 
 export default function Home() {
   return (

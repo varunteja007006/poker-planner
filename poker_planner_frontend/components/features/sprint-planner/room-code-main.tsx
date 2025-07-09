@@ -1,10 +1,10 @@
 "use client";
 import React from "react";
 
-import RoomCodeCopyBtn from "./RoomCodeCopyBtn";
+import RoomCodeCopyBtn from "./room-code-copy-btn";
 
 import { useParams } from "next/navigation";
-import Participants from "./Participants";
+import Participants from "./participants-main";
 import SprintCards from "./sprint-cards";
 import SprintDeck from "./sprint-deck";
 import AddUserStory from "./add-user-story";

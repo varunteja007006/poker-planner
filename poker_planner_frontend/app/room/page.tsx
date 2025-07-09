@@ -1,8 +1,8 @@
 import React from "react";
 
-import CreateRoom from "@/components/features/sprint-planner/CreateRoom";
-import JoinRoom from "@/components/features/sprint-planner/JoinRoom";
-import RoomHistoryList from "@/components/features/sprint-planner/RoomHistoryList";
+import CreateRoom from "@/components/features/sprint-planner/create-room";
+import JoinRoom from "@/components/features/sprint-planner/join-room";
+import RoomHistoryList from "@/components/features/sprint-planner/room-history-list";
 
 export default function Room() {
   return (

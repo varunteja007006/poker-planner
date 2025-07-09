@@ -1,7 +1,7 @@
 import React from "react";
 
 import { ThemeToggleBtn } from "@/components/molecules/theme-toggle-btn";
-import NavUserCard from "./NavUserCard";
+import NavUserCard from "./nav-user-card";
 
 export default function Navbar() {
   return (

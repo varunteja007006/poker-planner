@@ -2,7 +2,7 @@ import React from "react";
 
 import { Badge } from "@/components/ui/badge";
 
-import ParticipantCard from "./ParticipantCard";
+import ParticipantCard from "./participant-card";
 import { useGetAllTeams } from "@/api/team/query";
 import { useParams } from "next/navigation";
 

@@ -25,29 +25,37 @@ export default function RoomHistoryList() {
   return (
     <>
       <h6 className="mb-2 text-primary">Recent Rooms</h6>
-      <RoomHistoryItem
-        label={room?.room_code as string}
-        roomCode={room?.room_code as string}
-        isNew={true}
-      />
+      {room?.id ? (
+        <RoomHistoryItem
+          label={room?.room_code as string}
+          roomCode={room?.room_code as string}
+          isNew={true}
+        />
+      ) : (
+        <p className="text-sm">No recent rooms 😔</p>
+      )}
 
       <h6 className="mb-2 mt-5 text-primary">Previous Rooms</h6>
       {isError ? (
-        "Error fetching teams"
+        <p className="text-sm">Error fetching teams ❌</p>
       ) : isLoading || isFetching ? (
         <ThreeDotLoader />
       ) : (
         <div className="flex flex-col gap-2">
-          {data?.slice(1)?.map((item: Team) => {
-            return (
-              <RoomHistoryItem
-                key={item.id}
-                label={item.room.room_code as string}
-                roomCode={item.room.room_code as string}
-                isNew={false}
-              />
-            );
-          })}
+          {data?.length ? (
+            data?.slice(1)?.map((item: Team) => {
+              return (
+                <RoomHistoryItem
+                  key={item.id}
+                  label={item.room.room_code as string}
+                  roomCode={item.room.room_code as string}
+                  isNew={false}
+                />
+              );
+            })
+          ) : (
+            <p className="text-sm">No previous rooms 😔</p>
+          )}
         </div>
       )}
     </>
