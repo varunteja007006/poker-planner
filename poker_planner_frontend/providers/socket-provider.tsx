@@ -6,6 +6,8 @@ import { io, Socket } from "socket.io-client";
 import { useParams } from "next/navigation";
 import { getUserFromLocalStorage } from "@/utils/localStorage.utils";
 import { toast } from "sonner";
+import { Story } from "@/types/story.types";
+import { StoriesStore } from "@/store/stories/stories.store";
 
 interface SocketContextType {
   socket: Socket | null;
@@ -21,6 +23,9 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 
   const [socket, setSocket] = React.useState<Socket | null>(null);
 
+  const updateStoryInStore = StoriesStore.useUpdateStory();
+
+  // socket setup and listeners
   React.useEffect(() => {
     const user = getUserFromLocalStorage();
     const username = user?.username;
@@ -43,28 +48,26 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       // closeOnBeforeunload: true,
     });
 
-    if (process.env.NEXT_PUBLIC_ENVIRONMENT === "dev") {
-      socket.on("connect", () => {
-        console.log("Connected to ws server");
-        console.log("Is socket active: ", socket.active);
-        console.log("Is socket connected: ", socket.connected);
-        console.log("socket Id: ", socket.id);
-      });
+    socket.on("connect", () => {
+      console.log("Connected to ws server");
+      console.log("Is socket active: ", socket.active);
+      console.log("Is socket connected: ", socket.connected);
+      console.log("socket Id: ", socket.id);
+    });
 
-      socket.on("error", (error) => {
-        console.error("Error from ws server", error);
-        console.log("Is socket active: ", socket.active);
-        console.log("Is socket connected: ", socket.connected);
-        console.log("socket Id: ", socket.id);
-      });
+    socket.on("error", (error) => {
+      console.error("Error from ws server", error);
+      console.log("Is socket active: ", socket.active);
+      console.log("Is socket connected: ", socket.connected);
+      console.log("socket Id: ", socket.id);
+    });
 
-      socket.on("disconnect", () => {
-        console.log("Disconnected from ws server");
-        console.log("Is socket active: ", socket.active);
-        console.log("Is socket connected: ", socket.connected);
-        console.log("socket Id: ", socket.id);
-      });
-    }
+    socket.on("disconnect", () => {
+      console.log("Disconnected from ws server");
+      console.log("Is socket active: ", socket.active);
+      console.log("Is socket connected: ", socket.connected);
+      console.log("socket Id: ", socket.id);
+    });
 
     // let us set the socket instance
     setSocket(socket);
@@ -80,8 +83,27 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       }
     );
 
+    socket.on(
+      "stories:created",
+      (response: { clientId: string; message: string; body: Story }) => {
+        toast.success(response.message);
+        updateStoryInStore(response.body);
+      }
+    );
+
+    socket.on(
+      "stories:updated",
+      (response: { clientId: string; message: string; body: Story }) => {
+        toast.success(response.message);
+        console.log("response", response.body);
+        updateStoryInStore(response.body);
+      }
+    );
+
     return () => {
       socket.off("room:joined");
+      socket.off("stories:created");
+      socket.off("stories:updated");
 
       socket.disconnect();
     };

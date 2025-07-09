@@ -1,3 +1,5 @@
+"use client";
+
 import { Room } from "@/types/room.types";
 import { Team } from "@/types/team.types";
 import { Story } from "@/types/story.types";
@@ -16,6 +18,9 @@ export const setUserInLocalStorage = (user: User): void => {
 };
 
 export const getUserFromLocalStorage = (): User | null => {
+  if (typeof localStorage === "undefined") {
+    return null;
+  }
   const user = localStorage.getItem(USER);
   return user ? JSON.parse(user) : null;
 };
@@ -29,6 +34,9 @@ export const setRoomInLocalStorage = (room: Room): void => {
 };
 
 export const getRoomFromLocalStorage = (): Room | null => {
+  if (typeof localStorage === "undefined") {
+    return null;
+  }
   const room = localStorage.getItem(ROOM);
   return room ? JSON.parse(room) : null;
 };
@@ -42,6 +50,9 @@ export const setTeamInLocalStorage = (team: Team): void => {
 };
 
 export const getTeamFromLocalStorage = (): Team | null => {
+  if (typeof localStorage === "undefined") {
+    return null;
+  }
   const team = localStorage.getItem(TEAM);
   return team ? JSON.parse(team) : null;
 };
@@ -55,6 +66,9 @@ export const setStoryInLocalStorage = (story: Story): void => {
 };
 
 export const getStoryFromLocalStorage = (): Story | null => {
+  if (typeof localStorage === "undefined") {
+    return null;
+  }
   const story = localStorage.getItem(STORY);
   return story ? JSON.parse(story) : null;
 };

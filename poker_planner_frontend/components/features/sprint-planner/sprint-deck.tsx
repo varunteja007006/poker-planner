@@ -8,16 +8,18 @@ import { useParams } from "next/navigation";
 import {
   getStoryFromLocalStorage,
   getTeamFromLocalStorage,
-  setStoryInLocalStorage,
 } from "@/utils/localStorage.utils";
 import { Team } from "@/types/team.types";
 import { useSocketContext } from "@/providers/socket-provider";
-import { Story } from "@/types/story.types";
+import { StoriesStore } from "@/store/stories/stories.store";
 
 export default function SprintDeck() {
   const params = useParams();
   const roomCode = params.roomCode as string;
+
   const { socket } = useSocketContext();
+
+  const story = StoriesStore.useStory();
 
   const [team, setTeam] = React.useState<Team | null>(null);
   const [revealScore, setRevealScore] = React.useState<boolean>(false);
@@ -33,24 +35,26 @@ export default function SprintDeck() {
       return;
     }
 
-    createStory.mutate(
-      {
-        title: "Story__" + uuidv4(),
-        description: "Description__" + uuidv4(),
-        room_code: roomCode,
-        story_point_evaluation_status: "in progress",
+    const payload = {
+      title: "Story__" + uuidv4(),
+      description: "Description__" + uuidv4(),
+      room_code: roomCode,
+      story_point_evaluation_status: "in progress" as
+        | "in progress"
+        | "pending"
+        | "completed",
+    };
+
+    createStory.mutate(payload, {
+      onSuccess: (response) => {
+        toast.success("Story created successfully");
+        socket?.emit("stories:create", response);
       },
-      {
-        onSuccess: (response) => {
-          toast.success("Story created successfully");
-          socket?.emit("stories:create", response);
-        },
-        onError: (error) => {
-          console.error(error);
-          toast.error("Failed to create story");
-        },
-      }
-    );
+      onError: (error) => {
+        console.error(error);
+        toast.error("Failed to create story");
+      },
+    });
   };
 
   const handleUpdateStory = async () => {
@@ -68,7 +72,17 @@ export default function SprintDeck() {
       },
       {
         onSuccess: (response) => {
+          if (!response) {
+            toast.error("Failed to update story");
+            return;
+          }
+
+          let newStory = {
+            ...story,
+            story_point_evaluation_status: "completed",
+          };
           toast.success("Story updated successfully");
+          socket?.emit("stories:update", newStory);
         },
         onError: (error) => {
           console.error(error);
@@ -93,28 +107,10 @@ export default function SprintDeck() {
   }, []);
 
   React.useEffect(() => {
-    if (!socket) {
-      return;
+    if (story) {
+      setRevealScore(story.story_point_evaluation_status === "in progress");
     }
-
-    socket.on(
-      "stories:created",
-      (response: { clientId: string; message: string; body: Story }) => {
-        toast.success(response.message);
-        console.log(response);
-        setStoryInLocalStorage(response.body);
-        const isStoryInProgress =
-          response.body.story_point_evaluation_status === "in progress";
-        if (isStoryInProgress) {
-          setRevealScore(true);
-        }
-      }
-    );
-
-    return () => {
-      socket.off("stories:created");
-    };
-  }, [socket]);
+  }, [story]);
 
   return (
     <div>
@@ -128,11 +124,3 @@ export default function SprintDeck() {
     </div>
   );
 }
-
-const UserCard = () => {
-  return (
-    <div className="w-[80px] h-[100px] rounded-lg bg-accent text-accent-foreground p-2">
-      User
-    </div>
-  );
-};

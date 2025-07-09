@@ -36,10 +36,23 @@ export class StoriesGateway {
 
   @SubscribeMessage('stories:create')
   created(@ConnectedSocket() socket: Socket, @MessageBody() body: Story) {
-    console.log(body);
     this.server.to(body.room.room_code).emit('stories:created', {
       clientId: socket.id,
-      message: `${body.created_by.username} created a new story`,
+      message: `${body.created_by.username} started poker session`,
+      body,
+    });
+  }
+
+  @SubscribeMessage('stories:update')
+  updated(@ConnectedSocket() socket: Socket, @MessageBody() body: Story) {
+    const message =
+      body.story_point_evaluation_status === 'completed'
+        ? 'completed poker session'
+        : 'in progress poker session';
+
+    this.server.to(body.room.room_code).emit('stories:updated', {
+      clientId: socket.id,
+      message: `${body.created_by.username} ${message}`,
       body,
     });
   }
