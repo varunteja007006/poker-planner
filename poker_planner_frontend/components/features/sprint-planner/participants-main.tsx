@@ -1,6 +1,7 @@
 import React from "react";
 
 import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 import ParticipantCard from "./participant-card";
 import { useGetAllTeams } from "@/api/team/query";
@@ -22,15 +23,18 @@ export default function Participants() {
           {teamMembers.data?.length}
         </Badge>
       </div>
-      <div className="w-full grid grid-cols-1 gap-1.5 max-h-[30vh] overflow-y-scroll scroll-p-2 scrollbar-thin scrollbar-track-primary/10 scrollbar-thumb-primary/20">
+      
+      <ScrollArea className="h-[200px] w-full">
         {teamMembers.data?.map((user) => (
-          <ParticipantCard
-            key={user.id}
-            name={user.user.username}
-            isActive={false} // Here it should be based on client
-          />
+          <div className="mb-1 w-[95%]">
+            <ParticipantCard
+              key={user.id}
+              name={user.user.username}
+              isActive={false} // Here it should be based on client
+            />
+          </div>
         ))}
-      </div>
+      </ScrollArea>
     </div>
   );
 }
