@@ -63,9 +63,6 @@ export default function RoomCodeMain() {
         </div>
         <div className="flex flex-col gap-2">
           <Participants />
-          <div className="bg-accent w-[320px] text-primary p-4 rounded shadow-md">
-            <AddUserStory />
-          </div>
         </div>
       </div>
     </div>

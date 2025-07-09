@@ -24,13 +24,24 @@ export class StoriesGateway {
   constructor(private readonly storiesService: StoriesService) {}
 
   @SubscribeMessage('stories:check')
-  check(
-    @ConnectedSocket() socket: Socket,
-    @MessageBody() body: { message: string },
-  ) {
-    this.server.emit('stories:checked', {
+  check(@ConnectedSocket() socket: Socket, @MessageBody() body: string) {
+    let parsedBody: {
+      message: string;
+    } | null = null;
+
+    try {
+      parsedBody = JSON.parse(body);
+    } catch (error) {
+      console.log(error);
+    }
+
+    this.server.emit('stories:check', {
       clientId: socket.id,
-      message: { connected: true, message: 'stories ws ok', body },
+      message: {
+        connected: true,
+        message: 'stories ws ok',
+        body: parsedBody?.message,
+      },
     });
   }
 
