@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Headers,
+} from '@nestjs/common';
 import { StoryPointsService } from './story_points.service';
 import { CreateStoryPointDto } from './dto/create-story_point.dto';
 import { UpdateStoryPointDto } from './dto/update-story_point.dto';
@@ -8,27 +17,40 @@ export class StoryPointsController {
   constructor(private readonly storyPointsService: StoryPointsService) {}
 
   @Post()
-  create(@Body() createStoryPointDto: CreateStoryPointDto) {
-    return this.storyPointsService.create(createStoryPointDto);
+  create(
+    @Body() createStoryPointDto: CreateStoryPointDto,
+    @Headers('Authorization') token: string | undefined,
+  ) {
+    return this.storyPointsService.create(createStoryPointDto, token);
   }
 
   @Get()
-  findAll() {
-    return this.storyPointsService.findAll();
+  findAll(@Headers('Authorization') token: string | undefined) {
+    return this.storyPointsService.findAll(token);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.storyPointsService.findOne(+id);
+  findOne(
+    @Param('id') id: string,
+    @Headers('Authorization') token: string | undefined,
+  ) {
+    return this.storyPointsService.findOne(+id, token);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateStoryPointDto: UpdateStoryPointDto) {
-    return this.storyPointsService.update(+id, updateStoryPointDto);
+  update(
+    @Param('id') id: string,
+    @Body() updateStoryPointDto: UpdateStoryPointDto,
+    @Headers('Authorization') token: string | undefined,
+  ) {
+    return this.storyPointsService.update(+id, updateStoryPointDto, token);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.storyPointsService.remove(+id);
+  remove(
+    @Param('id') id: string,
+    @Headers('Authorization') token: string | undefined,
+  ) {
+    return this.storyPointsService.remove(+id, token);
   }
 }

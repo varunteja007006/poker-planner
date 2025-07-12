@@ -4,10 +4,11 @@ import { StoryPointsController } from './story_points.controller';
 import { StoryPointsGateway } from './story_points.gateway';
 import { StoryPoint } from './entities/story_point.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { User } from 'src/users/entities/user.entity';
 
 @Module({
   controllers: [StoryPointsController],
   providers: [StoryPointsService, StoryPointsGateway],
-  imports: [TypeOrmModule.forFeature([StoryPoint])],
+  imports: [TypeOrmModule.forFeature([StoryPoint, User])],
 })
 export class StoryPointsModule {}

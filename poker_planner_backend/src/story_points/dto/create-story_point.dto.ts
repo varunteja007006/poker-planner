@@ -1,1 +1,3 @@
-export class CreateStoryPointDto {}
+export class CreateStoryPointDto {
+  story_point: number;
+}
