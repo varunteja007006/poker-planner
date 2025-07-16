@@ -7,7 +7,6 @@ import {
 } from '@nestjs/websockets';
 
 import { Server, Socket } from 'socket.io';
-import { StoryPoint } from './entities/story_point.entity';
 import { StoryPointsService } from './story_points.service';
 
 @WebSocketGateway({
@@ -24,44 +23,45 @@ export class StoryPointsGateway {
 
   @SubscribeMessage('story-points:check')
   check(@ConnectedSocket() socket: Socket, @MessageBody() body: string) {
-    let parsedBody: {
-      message: string;
-    } | null = null;
-
-    try {
-      parsedBody = JSON.parse(body);
-    } catch (error) {
-      console.log(error);
-    }
-
     this.server.emit('story-points:check', {
       clientId: socket.id,
       message: {
         connected: true,
         message: 'story points ws ok',
-        body: parsedBody?.message,
+        body: body,
       },
     });
   }
 
-  //   @SubscribeMessage('stories:create')
-  //   created(@ConnectedSocket() socket: Socket, @MessageBody() body: Story) {
-  //     this.server.to(body.room.room_code).emit('stories:created', {
-  //       clientId: socket.id,
-  //       message: `${body.created_by.username} started poker session`,
-  //       body,
-  //     });
-  //   }
-  //   @SubscribeMessage('stories:update')
-  //   updated(@ConnectedSocket() socket: Socket, @MessageBody() body: Story) {
-  //     const message =
-  //       body.story_point_evaluation_status === 'completed'
-  //         ? 'completed poker session'
-  //         : 'in progress poker session';
-  //     this.server.to(body.room.room_code).emit('stories:updated', {
-  //       clientId: socket.id,
-  //       message: `${body.created_by.username} ${message}`,
-  //       body,
-  //     });
-  //   }
+  @SubscribeMessage('story-points:create')
+  async created(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody()
+    body: {
+      story_point: number;
+      story_id: number;
+      room_code: string;
+    } & { token: string | undefined },
+  ) {
+    const storyPointCreated = await this.storyPointsService.create(
+      {
+        story_point: body.story_point,
+        story_id: body.story_id,
+      },
+      body.token,
+    );
+
+    socket.emit('story-points:private:created', {
+      clientId: socket.id,
+      message: 'Story point saved!!!',
+      body: storyPointCreated,
+    });
+
+    // ! This should  send all the story points
+    this.server.to(body.room_code).emit('story-points:created', {
+      clientId: socket.id,
+      message: '',
+      body: storyPointCreated,
+    });
+  }
 }

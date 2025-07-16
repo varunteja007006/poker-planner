@@ -50,7 +50,7 @@ export default function CreateRoom() {
           router.push(`/room/${roomCode}`);
         },
         onError: (error) => {
-          console.log(error);
+          console.error(error);
           toast.error("Something went wrong with creating the room");
         },
       }

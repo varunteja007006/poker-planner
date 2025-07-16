@@ -28,22 +28,12 @@ export class RoomsGateway {
     @ConnectedSocket() socket: Socket,
     @MessageBody() body: string,
   ) {
-    let parsedBody: {
-      message: string;
-    } | null = null;
-
-    try {
-      parsedBody = JSON.parse(body);
-    } catch (error) {
-      console.log(error);
-    }
-
     this.server.emit('room:check', {
       clientId: socket.id,
       message: {
         connected: true,
         message: 'room ws ok',
-        body: parsedBody?.message,
+        body: body,
       },
     });
   }

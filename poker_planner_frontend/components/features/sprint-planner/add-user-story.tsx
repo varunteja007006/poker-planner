@@ -45,7 +45,6 @@ export default function AddUserStory() {
   const createStory = useCreateStory();
 
   const onSubmit = (data: FormSchema) => {
-    console.log(data);
 
     if (!roomCode) {
       toast.error("Room code not found");

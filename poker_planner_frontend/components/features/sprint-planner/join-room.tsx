@@ -21,7 +21,6 @@ export default function JoinRoom() {
   };
 
   const handleSubmit = () => {
-    console.log(roomCode);
     router.push(`/room/${roomCode}`);
   };
 

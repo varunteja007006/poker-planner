@@ -12,6 +12,7 @@ import { StoryPoint } from './entities/story_point.entity';
 import { Repository } from 'typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { extractToken } from 'src/utils/utils';
+import { Story } from 'src/stories/entities/story.entity';
 
 @Injectable()
 export class StoryPointsService {
@@ -21,6 +22,9 @@ export class StoryPointsService {
 
     @InjectRepository(User)
     private usersRepository: Repository<User>,
+
+    @InjectRepository(Story)
+    private storiesRepository: Repository<Story>,
   ) {}
 
   async checkToken(token: string | undefined): Promise<User> {
@@ -55,9 +59,19 @@ export class StoryPointsService {
     token: string | undefined,
   ) {
     const user = await this.checkToken(token);
+    
+    const story = await this.storiesRepository.findOne({
+      where: { id: createStoryPointDto.story_id },
+    });
+    
+    if (!story) {
+      throw new NotFoundException('Story not found');
+    }
 
     const storyPoint = this.storyPointsRepository.create({
       ...createStoryPointDto,
+      user,
+      story,
       created_by: user,
       updated_by: user,
     });

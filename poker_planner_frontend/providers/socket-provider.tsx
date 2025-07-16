@@ -92,10 +92,21 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     );
 
     socket.on(
+      "story-points:created",
+      (response: { clientId: string; message: string; body: Story }) => {}
+    );
+
+    socket.on(
+      "story-points:private:created",
+      (response: { clientId: string; message: string; body: Story }) => {
+        toast.success(response.message);
+      }
+    );
+
+    socket.on(
       "stories:updated",
       (response: { clientId: string; message: string; body: Story }) => {
         toast.success(response.message);
-        console.log("response", response.body);
         updateStoryInStore(response.body);
       }
     );
@@ -104,6 +115,8 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       socket.off("room:joined");
       socket.off("stories:created");
       socket.off("stories:updated");
+      socket.off("story-points:created");
+      socket.off("story-points:private:created");
 
       socket.disconnect();
     };

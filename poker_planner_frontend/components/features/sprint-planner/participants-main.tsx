@@ -26,9 +26,8 @@ export default function Participants() {
       
       <ScrollArea className="h-[200px] w-full">
         {teamMembers.data?.map((user) => (
-          <div className="mb-1 w-[95%]">
+          <div key={user.id} className="mb-1 w-[95%]">
             <ParticipantCard
-              key={user.id}
               name={user.user.username}
               isActive={false} // Here it should be based on client
             />

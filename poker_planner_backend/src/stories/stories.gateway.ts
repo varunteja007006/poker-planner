@@ -25,22 +25,12 @@ export class StoriesGateway {
 
   @SubscribeMessage('stories:check')
   check(@ConnectedSocket() socket: Socket, @MessageBody() body: string) {
-    let parsedBody: {
-      message: string;
-    } | null = null;
-
-    try {
-      parsedBody = JSON.parse(body);
-    } catch (error) {
-      console.log(error);
-    }
-
     this.server.emit('stories:check', {
       clientId: socket.id,
       message: {
         connected: true,
         message: 'stories ws ok',
-        body: parsedBody?.message,
+        body: body,
       },
     });
   }
