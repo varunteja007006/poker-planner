@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   Headers,
+  Query,
 } from '@nestjs/common';
 import { RoomsService } from './rooms.service';
 import { CreateRoomDto } from './dto/create-room.dto';
@@ -25,8 +26,8 @@ export class RoomsController {
   }
 
   @Get()
-  findAll() {
-    return this.roomsService.findAll();
+  findAll(@Query('room_code') room_code: string) {
+    return this.roomsService.findAll(room_code);
   }
 
   @Get(':id')

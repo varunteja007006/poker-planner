@@ -29,7 +29,6 @@ export class TeamsService {
       if (!token) {
         throw new Error('Token not found');
       }
-
       const user_token = extractToken(token);
 
       const user = await this.usersRepository.findOne({

@@ -1,3 +1,8 @@
 export const extractToken = (token: string) => {
-  return token.split(' ')[1];
+
+  if (token.startsWith('Bearer ')) {
+    return token.split(' ')[1];
+  }
+
+  return token;
 };

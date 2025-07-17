@@ -1,4 +1,9 @@
-import { Headers } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import {
   WebSocketGateway,
   SubscribeMessage,
@@ -8,7 +13,11 @@ import {
 } from '@nestjs/websockets';
 
 import { Server, Socket } from 'socket.io';
-// import { StoriesService } from './stories.service';
+import { User } from 'src/users/entities/user.entity';
+import { extractToken } from 'src/utils/utils';
+import { Repository } from 'typeorm';
+import { RoomsService } from './rooms.service';
+import { TeamsService } from 'src/teams/teams.service';
 
 @WebSocketGateway({
   cors: {
@@ -21,13 +30,44 @@ export class RoomsGateway {
   @WebSocketServer()
   server: Server;
 
-  // constructor(private readonly storiesService: StoriesService) {}
+  constructor(
+    @InjectRepository(User)
+    private readonly usersRepository: Repository<User>,
+
+    private readonly roomsService: RoomsService,
+
+    private readonly teamsService: TeamsService,
+  ) {}
+
+  async checkToken(token: string | undefined): Promise<User> {
+    if (!token) {
+      throw new UnauthorizedException('Token not found');
+    }
+
+    const user_token = extractToken(token);
+
+    const user = await this.usersRepository.findOne({
+      where: { user_token },
+    });
+
+    if (!user) {
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          error: 'User not found',
+        },
+        HttpStatus.NOT_FOUND,
+        {
+          cause: 'User not found',
+        },
+      );
+    }
+
+    return user;
+  }
 
   @SubscribeMessage('room:check')
-  check(
-    @ConnectedSocket() socket: Socket,
-    @MessageBody() body: string,
-  ) {
+  check(@ConnectedSocket() socket: Socket, @MessageBody() body: string) {
     this.server.emit('room:check', {
       clientId: socket.id,
       message: {
@@ -39,14 +79,13 @@ export class RoomsGateway {
   }
 
   @SubscribeMessage('room:join')
-  join(
+  async join(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() body: { room_code: string; username: string },
+    @MessageBody() body: { room_code: string; user_token: string },
   ) {
-    if (!body.room_code) {
+    if (!body.room_code || !body.user_token) {
       return;
     }
-
     socket.join(body.room_code);
 
     let rooms: string[] = [];
@@ -55,18 +94,33 @@ export class RoomsGateway {
       rooms.push(room);
     });
 
+    const user = await this.checkToken(body.user_token);
+
+    const room = await this.roomsService.findAll(body.room_code);
+
+    const team = await this.teamsService.create(
+      {
+        room_code: body.room_code,
+      },
+      body.user_token,
+    );
+
     // emit to the whole room with callback
     this.server.to(body.room_code).emit('room:joined', {
       clientId: socket.id,
-      message: `${body.username} joined the room`,
-      rooms,
+      message: `${user.username} joined the room`,
+      joinedRooms: rooms,
+      currentRoomInfo: room,
+      team,
     });
 
     // if there is a callback for emit event it can receive this
     return {
       clientId: socket.id,
-      message: `${body.username} joined the room`,
-      rooms,
+      message: `${user.username} joined the room`,
+      joinedRooms: rooms,
+      currentRoomInfo: room,
+      team,
     };
   }
 }

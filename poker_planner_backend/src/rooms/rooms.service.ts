@@ -1,4 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 
 import { CreateRoomDto } from './dto/create-room.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
@@ -42,6 +47,7 @@ export class RoomsService {
         throw new Error('User not found');
       }
 
+      // Create a room
       const room = this.roomsRepository.create({
         ...createRoomDto,
         created_by: user,
@@ -50,6 +56,7 @@ export class RoomsService {
 
       const savedRoom = await this.roomsRepository.save(room);
 
+      // Create a team and mark this user as the room owner for creating the room
       await this.teamsService.create(
         {
           room_code: savedRoom.room_code,
@@ -74,65 +81,32 @@ export class RoomsService {
     }
   }
 
-  async findAll(): Promise<Room[]> {
-    try {
-      const rooms = await this.roomsRepository.find({
-        relations: {
-          created_by: true,
-          updated_by: true,
-        },
-      });
-      return rooms;
-    } catch (error) {
-      throw new HttpException(
-        {
-          status: HttpStatus.NOT_FOUND,
-          error: 'Something went wrong with finding the rooms',
-        },
-        HttpStatus.NOT_FOUND,
-        {
-          cause: 'Something went wrong with finding the rooms',
-        },
-      );
-    }
+  async findAll(room_code?: string): Promise<Room[]> {
+    const rooms = await this.roomsRepository.find({
+      relations: {
+        created_by: true,
+        updated_by: true,
+      },
+      where: { room_code },
+    });
+
+    return rooms;
   }
 
   async findOne(id: number): Promise<Room> {
-    try {
-      const room = await this.roomsRepository.findOne({
-        relations: {
-          created_by: true,
-          updated_by: true,
-        },
-        where: { id },
-      });
+    const room = await this.roomsRepository.findOne({
+      relations: {
+        created_by: true,
+        updated_by: true,
+      },
+      where: { id },
+    });
 
-      if (!room) {
-        throw new HttpException(
-          {
-            status: HttpStatus.NOT_FOUND,
-            error: 'Room not found',
-          },
-          HttpStatus.NOT_FOUND,
-          {
-            cause: 'Room not found',
-          },
-        );
-      }
-
-      return room;
-    } catch (error) {
-      throw new HttpException(
-        {
-          status: HttpStatus.NOT_FOUND,
-          error: 'Something went wrong with finding the room',
-        },
-        HttpStatus.NOT_FOUND,
-        {
-          cause: 'Something went wrong with finding the room',
-        },
-      );
+    if (!room) {
+      throw new NotFoundException('Room not found');
     }
+
+    return room;
   }
 
   async update(id: number, updateRoomDto: UpdateRoomDto): Promise<boolean> {
