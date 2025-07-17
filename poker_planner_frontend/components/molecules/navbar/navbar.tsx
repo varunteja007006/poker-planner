@@ -2,6 +2,7 @@ import React from "react";
 
 import { ThemeToggleBtn } from "@/components/molecules/theme-toggle-btn";
 import NavUserCard from "./nav-user-card";
+import ResetBtn from "./reset-btn";
 
 export default function Navbar() {
   return (
@@ -13,6 +14,7 @@ export default function Navbar() {
       <div className="flex items-center gap-2">
         <NavUserCard />
         <ThemeToggleBtn />
+        <ResetBtn />
       </div>
     </nav>
   );

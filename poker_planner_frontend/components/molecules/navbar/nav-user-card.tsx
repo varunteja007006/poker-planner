@@ -12,10 +12,6 @@ const avatars = [
     path: "/Unicorn Emoji.webp",
   },
   {
-    name: "cow",
-    path: "/Cow Emoji.webp",
-  },
-  {
     name: "panda",
     path: "/Panda Face Emoji.webp",
   },

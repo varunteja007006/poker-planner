@@ -13,6 +13,10 @@ const TEAM = "team";
 
 const STORY = "story";
 
+export const clearLocalStorage = (): void => {
+  localStorage.clear();
+};
+
 export const setUserInLocalStorage = (user: User): void => {
   localStorage.setItem(USER, JSON.stringify(user));
 };
