@@ -41,7 +41,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       return;
     }
 
-    const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL!, {
+    const socket = io(process.env.NEXT_PUBLIC_SOCKET_BASE_URL!, {
       // withCredentials: true, // enable only when i figure out the issue with cookies and api testing
       auth: {
         token: user_token,
