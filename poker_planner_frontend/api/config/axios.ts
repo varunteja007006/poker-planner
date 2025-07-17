@@ -3,7 +3,7 @@ import axios from "axios";
 import { getUserFromLocalStorage } from "@/utils/localStorage.utils";
 
 const axiosInstance = axios.create({
-  baseURL: "http://localhost:4000",
+  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
 });
 
 axiosInstance.interceptors.request.use(

@@ -10,9 +10,7 @@ import RoomHistoryItem from "./room-history-item";
 
 export default function RoomHistoryList() {
   const { room } = useAppContext();
-  // need to implement all rooms that the user has joined
 
-  // this only filters based on the owner
   const { data, isLoading, isError, isFetching } = useGetAllTeams({
     filterByUser: true,
   });
