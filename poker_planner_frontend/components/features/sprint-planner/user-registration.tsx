@@ -1,18 +1,21 @@
 "use client";
+
 import React from "react";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import { SendHorizontal } from "lucide-react";
+
 import { useRouter } from "next/navigation";
 import { useCreateUser } from "@/api/user/query";
-import { toast } from "sonner";
 import { useAppContext } from "@/providers/app-provider";
 import { User } from "@/types/user.types";
 
 export default function UserRegistration() {
   const router = useRouter();
+
   const { handleSetUser } = useAppContext();
 
   const [username, setUsername] = React.useState("");

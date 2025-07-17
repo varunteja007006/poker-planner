@@ -21,8 +21,10 @@ import { useAppContext } from "@/providers/app-provider";
 
 export default function CreateRoom() {
   const router = useRouter();
-  const [roomCode, setRoomCode] = React.useState(generateRandomRoomCode());
+
   const { user, handleSetRoom } = useAppContext();
+
+  const [roomCode, setRoomCode] = React.useState(generateRandomRoomCode());
 
   const handleRoomCodeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
@@ -42,7 +44,7 @@ export default function CreateRoom() {
     }
 
     createRoom.mutate(
-      { room_code: roomCode, user_id: Number(user?.id) },
+      { room_code: roomCode },
       {
         onSuccess: (response: Room) => {
           handleSetRoom(response);

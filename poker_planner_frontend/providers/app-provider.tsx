@@ -9,15 +9,20 @@ import {
 } from "@/utils/localStorage.utils";
 import { usePathname, useRouter } from "next/navigation";
 import { Room } from "@/types/room.types";
+import { Team } from "@/types/team.types";
 
 interface AppContextType {
   user: User | null;
   handleSetUser: (user: User | null) => void;
   room: Room | null;
   handleSetRoom: (room: Room | null) => void;
+  userTeam: Team | null;
+  handleSetUserTeam: (team: Team | null) => void;
 }
 
 const AppContext = React.createContext<AppContextType | undefined>(undefined);
+
+// To manage the user and room created. Store in context and local storage.
 
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
@@ -25,6 +30,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   const [user, setUser] = React.useState<User | null>(null);
   const [room, setRoom] = React.useState<Room | null>(null);
+  const [userTeam, setUserTeam] = React.useState<Team | null>(null);
 
   const handleSetUser = React.useCallback((user: User | null) => {
     if (user) {
@@ -37,6 +43,12 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     if (room) {
       setRoomInLocalStorage(room);
       setRoom(room);
+    }
+  }, []);
+
+  const handleSetUserTeam = React.useCallback((team: Team | null) => {
+    if (team) {
+      setUserTeam(team);
     }
   }, []);
 
@@ -72,8 +84,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const value = React.useMemo(
-    () => ({ user, handleSetUser, room, handleSetRoom }),
-    [user, room]
+    () => ({ user, handleSetUser, room, handleSetRoom, userTeam, handleSetUserTeam }),
+    [user, room, userTeam]
   );
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

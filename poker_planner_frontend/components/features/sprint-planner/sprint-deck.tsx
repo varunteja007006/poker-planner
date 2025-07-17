@@ -5,23 +5,21 @@ import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
 import { useCreateStory, useUpdateStory } from "@/api/stories/query";
 import { useParams } from "next/navigation";
-import {
-  getStoryFromLocalStorage,
-  getTeamFromLocalStorage,
-} from "@/utils/localStorage.utils";
-import { Team } from "@/types/team.types";
+import { getStoryFromLocalStorage } from "@/utils/localStorage.utils";
 import { useSocketContext } from "@/providers/socket-provider";
 import { StoriesStore } from "@/store/stories/stories.store";
+import { useAppContext } from "@/providers/app-provider";
 
 export default function SprintDeck() {
   const params = useParams();
   const roomCode = params.roomCode as string;
 
+  const { userTeam } = useAppContext();
+
   const { socket } = useSocketContext();
 
   const story = StoriesStore.useStory();
 
-  const [team, setTeam] = React.useState<Team | null>(null);
   const [revealScore, setRevealScore] = React.useState<boolean>(false);
 
   const createStory = useCreateStory();
@@ -30,6 +28,9 @@ export default function SprintDeck() {
   const [isPending, startTransition] = React.useTransition();
 
   const handleCreateStory = async () => {
+
+    // await new Promise((resolve) => setTimeout(resolve, 10000));
+
     if (!roomCode) {
       toast.error("Room code not found");
       return;
@@ -100,13 +101,6 @@ export default function SprintDeck() {
   };
 
   React.useEffect(() => {
-    const team = getTeamFromLocalStorage();
-    if (team) {
-      setTeam(team);
-    }
-  }, []);
-
-  React.useEffect(() => {
     if (story) {
       setRevealScore(story.story_point_evaluation_status === "in progress");
     }
@@ -117,7 +111,7 @@ export default function SprintDeck() {
       <button
         className="disabled:opacity-50 disabled:cursor-not-allowed w-[140px] h-[50px] rounded-lg bg-primary-foreground text-primary cursor-pointer hover:bg-primary-foreground/80 transition-all p-2"
         onClick={() => handleScoreToggle(!revealScore)}
-        disabled={isPending || !team?.is_room_owner}
+        disabled={isPending || !userTeam?.is_room_owner}
       >
         {revealScore ? "Reveal" : "Start"}
       </button>

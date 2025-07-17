@@ -1,13 +1,16 @@
 "use client";
 import React from "react";
 
+import { toast } from "sonner";
+
 import { io, Socket } from "socket.io-client";
 
 import { useParams } from "next/navigation";
-import { getUserFromLocalStorage } from "@/utils/localStorage.utils";
-import { toast } from "sonner";
 import { Story } from "@/types/story.types";
 import { StoriesStore } from "@/store/stories/stories.store";
+import { useAppContext } from "./app-provider";
+import { Room } from "@/types/room.types";
+import { Team } from "@/types/team.types";
 
 interface SocketContextType {
   socket: Socket | null;
@@ -21,13 +24,15 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
   const params = useParams();
   const roomCode = params.roomCode;
 
+  const { user, handleSetRoom, handleSetUserTeam } = useAppContext();
+
   const [socket, setSocket] = React.useState<Socket | null>(null);
+  const [isReconnecting, setIsReconnecting] = React.useState(false);
 
   const updateStoryInStore = StoriesStore.useUpdateStory();
 
   // socket setup and listeners
   React.useEffect(() => {
-    const user = getUserFromLocalStorage();
     const username = user?.username;
 
     const user_token = user?.user_token;
@@ -45,6 +50,10 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
         username: username,
         room_code: roomCode,
       },
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
+      timeout: 5000,
       // closeOnBeforeunload: true,
     });
 
@@ -53,6 +62,23 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       console.log("Is socket active: ", socket.active);
       console.log("Is socket connected: ", socket.connected);
       console.log("socket Id: ", socket.id);
+      setIsReconnecting(false);
+      setSocket(socket);
+    });
+
+    socket.on("connect_error", (error) => {
+      console.error("Connection error:", error);
+      setIsReconnecting(true);
+    });
+
+    socket.on("reconnect", () => {
+      console.log("Reconnected to server");
+      setIsReconnecting(false);
+    });
+
+    socket.on("reconnect_error", (error) => {
+      console.error("Reconnect error:", error);
+      setIsReconnecting(true);
     });
 
     socket.on("error", (error) => {
@@ -67,13 +93,24 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       console.log("Is socket active: ", socket.active);
       console.log("Is socket connected: ", socket.connected);
       console.log("socket Id: ", socket.id);
+      setIsReconnecting(true);
     });
 
-    // let us set the socket instance
-    setSocket(socket);
-
     // let us also emit the room join event
-    socket.emit("room:join", { room_code: roomCode, username });
+    socket.emit(
+      "room:join",
+      { room_code: roomCode, user_token },
+      (data: {
+        clientId: string;
+        message: string;
+        joinedRooms: string[];
+        currentRoomInfo: Room[];
+        team: Team;
+      }) => {
+        handleSetRoom(data.currentRoomInfo?.[0]);
+        handleSetUserTeam(data.team);
+      }
+    );
 
     // socket to notify people about users joining the room
     socket.on(
@@ -112,15 +149,31 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     );
 
     return () => {
+      if (socket) {
+        socket.disconnect();
+        setSocket(null);
+      }
+
       socket.off("room:joined");
       socket.off("stories:created");
       socket.off("stories:updated");
       socket.off("story-points:created");
       socket.off("story-points:private:created");
-
-      socket.disconnect();
     };
-  }, []);
+  }, [
+    user?.user_token,
+    user?.username,
+    roomCode,
+    handleSetRoom,
+    handleSetUserTeam,
+  ]);
+
+  // Reconnect logic when socket disconnects
+  React.useEffect(() => {
+    if (isReconnecting && socket) {
+      socket.connect();
+    }
+  }, [isReconnecting, socket]);
 
   return (
     <socketContext.Provider value={{ socket }}>
