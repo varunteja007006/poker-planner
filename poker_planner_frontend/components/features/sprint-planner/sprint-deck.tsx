@@ -78,7 +78,7 @@ export default function SprintDeck() {
             return;
           }
 
-          let newStory = {
+          const newStory = {
             ...story,
             story_point_evaluation_status: "completed",
           };

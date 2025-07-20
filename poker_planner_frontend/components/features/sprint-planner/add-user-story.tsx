@@ -58,7 +58,7 @@ export default function AddUserStory() {
         room_code: roomCode,
       },
       {
-        onSuccess: (response) => {
+        onSuccess: () => {
           toast.success("Story created successfully");
         },
         onError: (error) => {

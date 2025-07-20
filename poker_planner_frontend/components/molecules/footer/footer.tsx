@@ -1,4 +1,4 @@
-import { Copyright, Facebook, Instagram, Mail, MapPinHouse, Phone } from "lucide-react";
+import { Copyright, Mail, MapPinHouse, Phone } from "lucide-react";
 import React from "react";
 
 export default function Footer() {
