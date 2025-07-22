@@ -3,7 +3,6 @@
 import { create } from "zustand";
 
 import { Story } from "@/types/story.types";
-import { getStoryFromLocalStorage } from "@/utils/localStorage.utils";
 
 type TStoriesStore = {
   story: Story | null;
@@ -11,7 +10,7 @@ type TStoriesStore = {
 };
 
 const useStoriesStore = create<TStoriesStore>((set) => ({
-  story: getStoryFromLocalStorage(),
+  story: null,
   updateStory: (story: Story) => set({ story }),
 }));
 

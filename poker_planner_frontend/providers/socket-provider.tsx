@@ -106,6 +106,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
         joinedRooms: string[];
         currentRoomInfo: Room[];
         team: Team;
+        pendingStory: Story | null;
       }) => {
         handleSetRoom(data.currentRoomInfo?.[0]);
         handleSetUserTeam(data.team);
@@ -115,8 +116,15 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     // socket to notify people about users joining the room
     socket.on(
       "room:joined",
-      (response: { clientId: string; message: string }) => {
+      (response: {
+        clientId: string;
+        message: string;
+        pendingStory: Story | null;
+      }) => {
         toast.success(response.message);
+        if (response.pendingStory) {
+          updateStoryInStore(response.pendingStory);
+        }
       }
     );
 
@@ -145,6 +153,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       (response: { clientId: string; message: string; body: Story }) => {
         toast.success(response.message);
         updateStoryInStore(response.body);
+        console.log(response);
       }
     );
 

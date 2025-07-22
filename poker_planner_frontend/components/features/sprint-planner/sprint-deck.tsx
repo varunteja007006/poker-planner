@@ -5,7 +5,6 @@ import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
 import { useCreateStory, useUpdateStory } from "@/api/stories/query";
 import { useParams } from "next/navigation";
-import { getStoryFromLocalStorage } from "@/utils/localStorage.utils";
 import { useSocketContext } from "@/providers/socket-provider";
 import { StoriesStore } from "@/store/stories/stories.store";
 import { useAppContext } from "@/providers/app-provider";
@@ -59,8 +58,6 @@ export default function SprintDeck() {
   };
 
   const handleUpdateStory = async () => {
-    const story = getStoryFromLocalStorage();
-
     if (!story || !story.id) {
       toast.error("Story not found");
       return;
