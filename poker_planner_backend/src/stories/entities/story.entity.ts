@@ -10,10 +10,15 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
+export type StoryPointEvaluationStatus =
+  | 'pending'
+  | 'in progress'
+  | 'completed';
+
 export const STORY_POINT_EVALUATION_STATUSES = {
-  PENDING: 'pending',
-  IN_PROGRESS: 'in progress',
-  COMPLETED: 'completed',
+  PENDING: 'pending' as const,
+  IN_PROGRESS: 'in progress' as const,
+  COMPLETED: 'completed' as const,
 };
 
 @Entity()
@@ -47,7 +52,7 @@ export class Story {
     nullable: false,
     default: STORY_POINT_EVALUATION_STATUSES.PENDING,
   })
-  story_point_evaluation_status: string;
+  story_point_evaluation_status: StoryPointEvaluationStatus;
 
   @ManyToOne(() => Room, (room) => room.id)
   @JoinColumn({ name: 'room_id' })

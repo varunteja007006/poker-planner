@@ -6,7 +6,7 @@ import { Room } from 'src/rooms/entities/room.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/users/entities/user.entity';
-import { Story } from './entities/story.entity';
+import { Story, StoryPointEvaluationStatus } from './entities/story.entity';
 
 @Injectable()
 export class StoriesService {
@@ -73,6 +73,7 @@ export class StoriesService {
   async findAll(
     token: string | undefined,
     room_code: string | undefined,
+    story_point_evaluation_status: StoryPointEvaluationStatus | undefined,
   ): Promise<Story[]> {
     try {
       if (!token) {
@@ -102,7 +103,7 @@ export class StoriesService {
       }
 
       const stories = await this.storiesRepository.find({
-        where: { room: { id: room.id } },
+        where: { room: { id: room.id }, story_point_evaluation_status },
       });
 
       return stories;

@@ -59,11 +59,11 @@ export class StoryPointsService {
     token: string | undefined,
   ) {
     const user = await this.checkToken(token);
-    
+
     const story = await this.storiesRepository.findOne({
       where: { id: createStoryPointDto.story_id },
     });
-    
+
     if (!story) {
       throw new NotFoundException('Story not found');
     }
@@ -79,10 +79,12 @@ export class StoryPointsService {
     return await this.storyPointsRepository.save(storyPoint);
   }
 
-  async findAll(token: string | undefined) {
+  async findAll(token: string | undefined, storyId?: string ) {
     const user = await this.checkToken(token);
 
-    const storyPoints = await this.storyPointsRepository.find({});
+    const storyPoints = await this.storyPointsRepository.find({
+      where: { story: { id: storyId ? Number(storyId) : undefined } },
+    });
 
     return storyPoints;
   }

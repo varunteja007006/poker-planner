@@ -12,6 +12,10 @@ import {
 import { StoriesService } from './stories.service';
 import { CreateStoryDto } from './dto/create-story.dto';
 import { UpdateStoryDto } from './dto/update-story.dto';
+import {
+  STORY_POINT_EVALUATION_STATUSES,
+  StoryPointEvaluationStatus,
+} from './entities/story.entity';
 
 @Controller('stories')
 export class StoriesController {
@@ -29,8 +33,14 @@ export class StoriesController {
   findAll(
     @Headers('Authorization') token: string | undefined,
     @Query('room_code') room_code: string | undefined,
+    @Query('story_point_evaluation_status')
+    story_point_evaluation_status: StoryPointEvaluationStatus | undefined,
   ) {
-    return this.storiesService.findAll(token, room_code);
+    return this.storiesService.findAll(
+      token,
+      room_code,
+      story_point_evaluation_status,
+    );
   }
 
   @Get(':id')
