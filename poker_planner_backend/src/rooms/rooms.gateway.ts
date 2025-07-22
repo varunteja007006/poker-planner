@@ -18,6 +18,8 @@ import { extractToken } from 'src/utils/utils';
 import { Repository } from 'typeorm';
 import { RoomsService } from './rooms.service';
 import { TeamsService } from 'src/teams/teams.service';
+import { StoriesService } from 'src/stories/stories.service';
+import { Story, STORY_POINT_EVALUATION_STATUSES } from 'src/stories/entities/story.entity';
 
 @WebSocketGateway({
   cors: {
@@ -37,6 +39,8 @@ export class RoomsGateway {
     private readonly roomsService: RoomsService,
 
     private readonly teamsService: TeamsService,
+
+    private readonly storiesService: StoriesService,
   ) {}
 
   async checkToken(token: string | undefined): Promise<User> {
@@ -105,6 +109,16 @@ export class RoomsGateway {
       body.user_token,
     );
 
+    let pendingStory: Story[] | null = null;
+
+    if (room?.[0].id) {
+      pendingStory = await this.storiesService.findAll(
+        body.user_token,
+        body.room_code,
+        STORY_POINT_EVALUATION_STATUSES.IN_PROGRESS,
+      );
+    }
+    
     // emit to the whole room with callback
     this.server.to(body.room_code).emit('room:joined', {
       clientId: socket.id,
@@ -112,6 +126,8 @@ export class RoomsGateway {
       joinedRooms: rooms,
       currentRoomInfo: room,
       team,
+      pendingStory: pendingStory?.[0],
+      pendingStories: pendingStory,
     });
 
     // if there is a callback for emit event it can receive this
@@ -121,6 +137,8 @@ export class RoomsGateway {
       joinedRooms: rooms,
       currentRoomInfo: room,
       team,
+      pendingStory: pendingStory?.[0],
+      pendingStories: pendingStory,
     };
   }
 }
