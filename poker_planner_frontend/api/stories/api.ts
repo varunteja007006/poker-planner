@@ -1,4 +1,4 @@
-import { Story } from "@/types/story.types";
+import { Story, StoryPointEvaluationStatus } from "@/types/story.types";
 import axiosInstance from "../config/axios";
 
 class StoriesApi {
@@ -6,7 +6,7 @@ class StoriesApi {
     title: string;
     description: string;
     room_code: string;
-    story_point_evaluation_status?: "pending" | "in progress" | "completed";
+    story_point_evaluation_status?: StoryPointEvaluationStatus;
   }): Promise<Story> {
     const response = await axiosInstance.post("/stories", payload);
     return response.data;
@@ -16,7 +16,7 @@ class StoriesApi {
     id: number;
     title?: string;
     description?: string;
-    story_point_evaluation_status?: "pending" | "in progress" | "completed";
+    story_point_evaluation_status?: StoryPointEvaluationStatus;
   }): Promise<Story> {
     const { id, ...rest } = payload;
 

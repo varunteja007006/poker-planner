@@ -8,6 +8,7 @@ import { useParams } from "next/navigation";
 import { useSocketContext } from "@/providers/socket-provider";
 import { StoriesStore } from "@/store/stories/stories.store";
 import { useAppContext } from "@/providers/app-provider";
+import { StoryPointEvaluationStatus } from "@/types/story.types";
 
 export default function SprintDeck() {
   const params = useParams();
@@ -27,7 +28,6 @@ export default function SprintDeck() {
   const [isPending, startTransition] = React.useTransition();
 
   const handleCreateStory = async () => {
-
     // await new Promise((resolve) => setTimeout(resolve, 10000));
 
     if (!roomCode) {
@@ -39,10 +39,8 @@ export default function SprintDeck() {
       title: "Story__" + uuidv4(),
       description: "Description__" + uuidv4(),
       room_code: roomCode,
-      story_point_evaluation_status: "in progress" as
-        | "in progress"
-        | "pending"
-        | "completed",
+      story_point_evaluation_status:
+        "in progress" as StoryPointEvaluationStatus,
     };
 
     createStory.mutate(payload, {
