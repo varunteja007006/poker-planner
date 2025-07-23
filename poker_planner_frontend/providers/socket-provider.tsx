@@ -11,6 +11,8 @@ import { StoriesStore } from "@/store/stories/stories.store";
 import { useAppContext } from "./app-provider";
 import { Room } from "@/types/room.types";
 import { Team } from "@/types/team.types";
+import { StoriesPointsStore } from "@/store/story-points/story-points.store";
+import { StoryPoint } from "@/types/story-points.types";
 
 interface SocketContextType {
   socket: Socket | null;
@@ -30,6 +32,8 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
   const [isReconnecting, setIsReconnecting] = React.useState(false);
 
   const updateStoryInStore = StoriesStore.useUpdateStory();
+  const actionsStoryPointStore =
+    StoriesPointsStore.useUpdateStoryPointsActions();
 
   // socket setup and listeners
   React.useEffect(() => {
@@ -133,6 +137,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       (response: { clientId: string; message: string; body: Story }) => {
         toast.success(response.message);
         updateStoryInStore(response.body);
+        actionsStoryPointStore.updateStoryPointsMeta(null);
       }
     );
 
@@ -145,15 +150,23 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       "story-points:private:created",
       (response: { clientId: string; message: string; body: Story }) => {
         toast.success(response.message);
+        actionsStoryPointStore.updateStoryPointsMeta(null);
       }
     );
 
     socket.on(
       "stories:updated",
-      (response: { clientId: string; message: string; body: Story }) => {
+      (response: {
+        clientId: string;
+        message: string;
+        body: Story;
+        storyPoints: StoryPoint[];
+        groupByStoryPoint: Record<number, number>;
+        averageStoryPoint: number;
+      }) => {
         toast.success(response.message);
         updateStoryInStore(response.body);
-        console.log(response);
+        actionsStoryPointStore.updateStoryPointsMeta(response);
       }
     );
 

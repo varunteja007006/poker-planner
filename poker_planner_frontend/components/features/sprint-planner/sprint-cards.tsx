@@ -67,8 +67,21 @@ export default function SprintCards() {
     }
   };
 
-  const btnDisabled =
-    story?.story_point_evaluation_status !== "in progress"
+  const btnDisabled = story?.story_point_evaluation_status !== "in progress";
+
+  React.useEffect(() => {
+    if (socket) {
+      socket.on("stories:created", () => {
+        setSelectedCard(null);
+      });
+    }
+
+    return () => {
+      if (socket) {
+        socket.off("stories:created");
+      }
+    };
+  }, [socket]);
 
   return (
     <div className="flex flex-row flex-wrap gap-5 items-center justify-center">

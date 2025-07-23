@@ -9,6 +9,8 @@ import { useSocketContext } from "@/providers/socket-provider";
 import { StoriesStore } from "@/store/stories/stories.store";
 import { useAppContext } from "@/providers/app-provider";
 import { StoryPointEvaluationStatus } from "@/types/story.types";
+import { StoriesPointsStore } from "@/store/story-points/story-points.store";
+import { ChartBarDefault } from "./sprint-points-barchart";
 
 export default function SprintDeck() {
   const params = useParams();
@@ -24,6 +26,8 @@ export default function SprintDeck() {
 
   const createStory = useCreateStory();
   const updateStory = useUpdateStory();
+
+  const storyPointsMetadata = StoriesPointsStore.useStoryPointsMetadata();
 
   const [isPending, startTransition] = React.useTransition();
 
@@ -101,8 +105,17 @@ export default function SprintDeck() {
     }
   }, [story]);
 
+  const storyPointsGroupBy = storyPointsMetadata
+    ? Object.entries(storyPointsMetadata.groupByStoryPoint).map(
+        ([key, value]) => ({
+          name: `${key}`,
+          value: value,
+        })
+      )
+    : [];
+
   return (
-    <div>
+    <div className="flex flex-col items-center justify-center gap-4">
       <button
         className="disabled:opacity-50 disabled:cursor-not-allowed w-[140px] h-[50px] rounded-lg bg-primary-foreground text-primary cursor-pointer hover:bg-primary-foreground/80 transition-all p-2"
         onClick={() => handleScoreToggle(!revealScore)}
@@ -110,6 +123,15 @@ export default function SprintDeck() {
       >
         {revealScore ? "Reveal" : "Start"}
       </button>
+
+      <div>
+        {storyPointsMetadata && (
+          <ChartBarDefault
+            chartData={storyPointsGroupBy}
+            avgPoints={storyPointsMetadata.averageStoryPoint}
+          />
+        )}
+      </div>
     </div>
   );
 }
