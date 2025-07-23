@@ -5,14 +5,6 @@ import React from "react";
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
   ChartConfig,
   ChartContainer,
   ChartTooltip,
@@ -42,7 +34,10 @@ export function ChartBarDefault({
   chartData,
 }: {
   avgPoints: number;
-  chartData: any[];
+  chartData: {
+    name: string;
+    value: number;
+  }[];
 }) {
   return (
     <Dialog defaultOpen={true}>
