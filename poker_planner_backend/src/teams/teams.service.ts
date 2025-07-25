@@ -86,8 +86,8 @@ export class TeamsService {
 
   async findAll(
     room_code: string | undefined,
-    filterByUser: boolean | undefined,
     token: string | undefined,
+    filterByUser?: boolean,
   ): Promise<Team[]> {
     try {
       if (!token) {

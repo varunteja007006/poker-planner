@@ -19,7 +19,10 @@ import { Repository } from 'typeorm';
 import { RoomsService } from './rooms.service';
 import { TeamsService } from 'src/teams/teams.service';
 import { StoriesService } from 'src/stories/stories.service';
-import { Story, STORY_POINT_EVALUATION_STATUSES } from 'src/stories/entities/story.entity';
+import {
+  Story,
+  STORY_POINT_EVALUATION_STATUSES,
+} from 'src/stories/entities/story.entity';
 
 @WebSocketGateway({
   cors: {
@@ -109,36 +112,36 @@ export class RoomsGateway {
       body.user_token,
     );
 
-    let pendingStory: Story[] | null = null;
+    let inProgressStories: Story[] | null = null;
 
     if (room?.[0].id) {
-      pendingStory = await this.storiesService.findAll(
+      inProgressStories = await this.storiesService.findAll(
         body.user_token,
         body.room_code,
         STORY_POINT_EVALUATION_STATUSES.IN_PROGRESS,
       );
     }
-    
-    // emit to the whole room with callback
-    this.server.to(body.room_code).emit('room:joined', {
+
+    const teamMembers = await this.teamsService.findAll(
+      body.room_code,
+      body.user_token,
+    );
+
+    const result = {
       clientId: socket.id,
       message: `${user.username} joined the room`,
-      joinedRooms: rooms,
-      currentRoomInfo: room,
-      team,
-      pendingStory: pendingStory?.[0],
-      pendingStories: pendingStory,
-    });
+      joinedRooms: rooms, // rooms user has joined
+      currentRoomInfo: room, // current room record
+      team, // inserted team record
+      pendingStory: inProgressStories?.[0], // story in-progress for this room
+      pendingStories: inProgressStories, // all the in-progress stories
+      teamMembers, // all the team members
+    };
+
+    // emit to the whole room with callback
+    this.server.to(body.room_code).emit('room:joined', result);
 
     // if there is a callback for emit event it can receive this
-    return {
-      clientId: socket.id,
-      message: `${user.username} joined the room`,
-      joinedRooms: rooms,
-      currentRoomInfo: room,
-      team,
-      pendingStory: pendingStory?.[0],
-      pendingStories: pendingStory,
-    };
+    return result;
   }
 }

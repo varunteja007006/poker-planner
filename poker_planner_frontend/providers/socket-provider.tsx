@@ -13,6 +13,7 @@ import { Room } from "@/types/room.types";
 import { Team } from "@/types/team.types";
 import { StoriesPointsStore } from "@/store/story-points/story-points.store";
 import { StoryPoint } from "@/types/story-points.types";
+import { TeamStore } from "@/store/team/team.store";
 
 interface SocketContextType {
   socket: Socket | null;
@@ -22,6 +23,16 @@ const socketContext = React.createContext<SocketContextType | undefined>(
   undefined
 );
 
+type SocketRoomResponse = {
+  clientId: string;
+  message: string;
+  joinedRooms: string[];
+  currentRoomInfo: Room[];
+  team: Team;
+  pendingStory: Story | null;
+  teamMembers: Team[];
+};
+
 export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
   const params = useParams();
   const roomCode = params.roomCode;
@@ -30,6 +41,8 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 
   const [socket, setSocket] = React.useState<Socket | null>(null);
   const [isReconnecting, setIsReconnecting] = React.useState(false);
+
+  const updateTeam = TeamStore.useUpdateTeam();
 
   const updateStoryInStore = StoriesStore.useUpdateStory();
   const actionsStoryPointStore =
@@ -104,33 +117,20 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     socket.emit(
       "room:join",
       { room_code: roomCode, user_token },
-      (data: {
-        clientId: string;
-        message: string;
-        joinedRooms: string[];
-        currentRoomInfo: Room[];
-        team: Team;
-        pendingStory: Story | null;
-      }) => {
-        handleSetRoom(data.currentRoomInfo?.[0]);
-        handleSetUserTeam(data.team);
+      (response: SocketRoomResponse) => {
+        handleSetRoom(response.currentRoomInfo?.[0]);
+        handleSetUserTeam(response.team);
       }
     );
 
     // socket to notify people about users joining the room
-    socket.on(
-      "room:joined",
-      (response: {
-        clientId: string;
-        message: string;
-        pendingStory: Story | null;
-      }) => {
-        toast.success(response.message);
-        if (response.pendingStory) {
-          updateStoryInStore(response.pendingStory);
-        }
+    socket.on("room:joined", (response: SocketRoomResponse) => {
+      toast.success(response.message);
+      updateTeam(response.teamMembers);
+      if (response.pendingStory) {
+        updateStoryInStore(response.pendingStory);
       }
-    );
+    });
 
     socket.on(
       "stories:created",

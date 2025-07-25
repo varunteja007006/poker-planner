@@ -25,13 +25,13 @@ export class TeamsController {
     return this.teamsService.create(createTeamDto, token);
   }
 
-  @Get()  
+  @Get()
   findAll(
     @Query('room_code') room_code: string | undefined,
     @Query('filterByUser') filterByUser: boolean | undefined,
     @Headers('Authorization') token: string | undefined,
   ) {
-    return this.teamsService.findAll(room_code, filterByUser, token);
+    return this.teamsService.findAll(room_code, token, filterByUser);
   }
 
   @Get(':id')

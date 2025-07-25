@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import { create } from "zustand";
 
@@ -14,12 +14,11 @@ const useStoriesStore = create<TStoriesStore>((set) => ({
   updateStory: (story: Story) => set({ story }),
 }));
 
-export class StoriesStore {
-  static useStory() {
-    return useStoriesStore((state) => state.story);
-  }
-
-  static useUpdateStory() {
+export const StoriesStore = {
+  useUpdateStory: () => {
     return useStoriesStore((state) => state.updateStory);
-  }
-}
+  },
+  useStory: () => {
+    return useStoriesStore((state) => state.story);
+  },
+};

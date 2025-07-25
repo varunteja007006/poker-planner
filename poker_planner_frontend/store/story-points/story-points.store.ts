@@ -33,16 +33,16 @@ const useStoryPointsStore = create<TStoryPointsStore>((set) => ({
 }));
 
 // subscribe to the store and export them
-export class StoriesPointsStore {
-  static useStoryPoints() {
+export const StoriesPointsStore = {
+  useStoryPoints: () => {
     return useStoryPointsStore((state) => state.storyPoint);
-  }
+  },
 
-  static useStoryPointsMetadata() {
+  useStoryPointsMetadata: () => {
     return useStoryPointsStore((state) => state.storyPointsMetadata);
-  }
+  },
 
-  static useUpdateStoryPointsActions() {
+  useUpdateStoryPointsActions: () => {
     return useStoryPointsStore((state) => state.actions);
-  }
-}
+  },
+};
