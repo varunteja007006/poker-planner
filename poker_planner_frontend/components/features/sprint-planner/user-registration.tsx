@@ -56,6 +56,11 @@ export default function UserRegistration() {
           placeholder="Eg: John Doe"
           value={username}
           onChange={handleUsernameChange}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") {
+              handleSubmit();
+            }
+          }}
         />
         <Button
           size={"icon"}

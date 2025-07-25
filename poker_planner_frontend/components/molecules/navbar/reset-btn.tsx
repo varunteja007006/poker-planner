@@ -7,11 +7,21 @@ import { Power } from "lucide-react";
 
 import { clearLocalStorage } from "@/utils/localStorage.utils";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { useAppContext } from "@/providers/app-provider";
 
 export default function ResetBtn() {
+  const router = useRouter();
+
+  const { handleSetUser, handleSetUserTeam, handleSetRoom } = useAppContext();
+
   const resetBtn = () => {
     clearLocalStorage();
     toast.success("Account reset successful");
+    router.push("/");
+    handleSetUser(null);
+    handleSetUserTeam(null);
+    handleSetRoom(null);
   };
 
   return (

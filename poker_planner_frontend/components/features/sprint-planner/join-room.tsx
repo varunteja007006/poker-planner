@@ -32,6 +32,11 @@ export default function JoinRoom() {
         placeholder="Room code"
         value={roomCode}
         onChange={handleRoomCodeChange}
+        onKeyDown={(event) => {
+          if (event.key === "Enter") {
+            handleSubmit();
+          }
+        }}
       />
       <Button
         variant={"default"}
