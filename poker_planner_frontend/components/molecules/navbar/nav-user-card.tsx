@@ -7,18 +7,20 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAppContext } from "@/providers/app-provider";
 
 const avatars = [
-  {
-    name: "unicorn",
-    path: "/Unicorn Emoji.webp",
-  },
-  {
-    name: "panda",
-    path: "/Panda Face Emoji.webp",
-  },
-  { name: "rabbit", path: "/Rabbit Face Emoji.webp" },
-  { name: "rocket", path: "/Rocket Emoji.webp" },
-
-  { name: "smiley", path: "/Slightly Smiling Face Emoji.webp" },
+  { name: "ape", path: "/ape.png" },
+  { name: "bunny", path: "/bunny.png" },
+  { name: "confused monkey", path: "/confused monkey.png" },
+  { name: "dodge challenger", path: "/dodge challenger.png" },
+  { name: "dolphin", path: "/dolphin.png" },
+  { name: "gollum", path: "/gollum.png" },
+  { name: "kingfisher", path: "/kingfisher.png" },
+  { name: "lab", path: "/lab.png" },
+  { name: "meercat", path: "/meercat.png" },
+  { name: "moodeng", path: "/moodeng.png" },
+  { name: "pup", path: "/pup.png" },
+  { name: "spacemarine", path: "/spacemarine.png" },
+  { name: "teddy", path: "/teddy.png" },
+  { name: "wiz", path: "/wiz.png" },
 ];
 
 export default function NavUserCard() {
