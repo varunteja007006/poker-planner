@@ -15,11 +15,11 @@ export class StoryPoint {
 
   @ManyToOne(() => User, (user) => user.id)
   @JoinColumn({ name: 'user' })
-  user: User
+  user: User;
 
   @ManyToOne(() => Story, (story) => story.id)
   @JoinColumn({ name: 'story' })
-  story: Story
+  story: Story;
 
   @Column({
     type: 'int',

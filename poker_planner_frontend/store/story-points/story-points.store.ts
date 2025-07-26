@@ -54,5 +54,4 @@ export const StoriesPointsStore = {
   useUpdateStoryPointsActions: () => {
     return useStoryPointsStore((state) => state.actions);
   },
-
 };

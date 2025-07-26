@@ -16,5 +16,4 @@ describe('StoriesGateway', () => {
   it('should be defined', () => {
     expect(gateway).toBeDefined();
   });
-
 });

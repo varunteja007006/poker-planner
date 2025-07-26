@@ -137,7 +137,7 @@ export class RoomsGateway {
         inProgressStories[0].id.toString(),
       );
     }
-    
+
     const result = {
       clientId: socket.id,
       message: `${user.username} joined the room`,

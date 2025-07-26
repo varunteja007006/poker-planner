@@ -20,7 +20,7 @@ interface SocketContextType {
 }
 
 const socketContext = React.createContext<SocketContextType | undefined>(
-  undefined
+  undefined,
 );
 
 type SocketRoomResponse = {
@@ -122,7 +122,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
         handleSetRoom(response.currentRoomInfo?.[0]);
         handleSetUserTeam(response.team);
         actionsStoryPointStore.updateStoryPointsData(response.storyPoints);
-      }
+      },
     );
 
     // socket to notify people about users joining the room
@@ -140,7 +140,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
         toast.success(response.message);
         updateStoryInStore(response.body);
         actionsStoryPointStore.updateStoryPointsMeta(null);
-      }
+      },
     );
 
     socket.on(
@@ -152,7 +152,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
         storyPoints: StoryPoint[];
       }) => {
         actionsStoryPointStore.updateStoryPointsData(response.storyPoints);
-      }
+      },
     );
 
     socket.on(
@@ -160,7 +160,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       (response: { clientId: string; message: string; body: Story }) => {
         toast.success(response.message);
         actionsStoryPointStore.updateStoryPointsMeta(null);
-      }
+      },
     );
 
     socket.on(
@@ -176,7 +176,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
         toast.success(response.message);
         updateStoryInStore(response.body);
         actionsStoryPointStore.updateStoryPointsMeta(response);
-      }
+      },
     );
 
     return () => {

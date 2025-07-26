@@ -14,16 +14,16 @@ export default function ParticipantCard({
   hasVoted: boolean;
 }) {
   return (
-    <div className="flex flex-row items-center justify-between gap-2 w-full overflow-hidden p-2 rounded-lg border border-primary/25 shadow bg-white dark:bg-black">
+    <div className="border-primary/25 flex w-full flex-row items-center justify-between gap-2 overflow-hidden rounded-lg border bg-white p-2 shadow dark:bg-black">
       <div className="flex flex-row items-center gap-2">
         <CircleUserRound className={cn("shrink-0")} />
         <p className="truncate overflow-hidden text-ellipsis">{name} </p>
       </div>
       <div>
         {isActive && (
-          <div className="relative w-4 h-4 bg-green-400 rounded-full flex items-center justify-center">
-            <span className="absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75 animate-ping"></span>
-            <span className="relative inline-flex rounded-full h-3 w-3 bg-green-400"></span>
+          <div className="relative flex h-4 w-4 items-center justify-center rounded-full bg-green-400">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75"></span>
+            <span className="relative inline-flex h-3 w-3 rounded-full bg-green-400"></span>
           </div>
         )}
       </div>

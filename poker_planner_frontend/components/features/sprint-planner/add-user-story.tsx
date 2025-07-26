@@ -45,7 +45,6 @@ export default function AddUserStory() {
   const createStory = useCreateStory();
 
   const onSubmit = (data: FormSchema) => {
-
     if (!roomCode) {
       toast.error("Room code not found");
       return;
@@ -65,7 +64,7 @@ export default function AddUserStory() {
           console.error(error);
           toast.error("Failed to create story");
         },
-      }
+      },
     );
   };
 
@@ -109,7 +108,7 @@ export default function AddUserStory() {
           )}
         />
         <Button
-          className="cursor-pointer w-full"
+          className="w-full cursor-pointer"
           variant={"secondary"}
           type="submit"
         >

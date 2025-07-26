@@ -1,4 +1,4 @@
-import { StoryPointEvaluationStatus } from "../entities/story.entity";
+import { StoryPointEvaluationStatus } from '../entities/story.entity';
 
 export class CreateStoryDto {
   title: string;

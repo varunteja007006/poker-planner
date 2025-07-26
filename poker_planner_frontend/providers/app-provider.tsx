@@ -84,8 +84,15 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const value = React.useMemo(
-    () => ({ user, handleSetUser, room, handleSetRoom, userTeam, handleSetUserTeam }),
-    [user, room, userTeam]
+    () => ({
+      user,
+      handleSetUser,
+      room,
+      handleSetRoom,
+      userTeam,
+      handleSetUserTeam,
+    }),
+    [user, room, userTeam],
   );
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

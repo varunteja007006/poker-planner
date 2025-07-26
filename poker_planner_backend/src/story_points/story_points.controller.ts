@@ -26,7 +26,10 @@ export class StoryPointsController {
   }
 
   @Get()
-  findAll(@Headers('Authorization') token: string | undefined, @Query('storyId') storyId?: string ) {
+  findAll(
+    @Headers('Authorization') token: string | undefined,
+    @Query('storyId') storyId?: string,
+  ) {
     return this.storyPointsService.findAll(token, storyId);
   }
 

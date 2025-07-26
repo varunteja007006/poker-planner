@@ -33,7 +33,7 @@ export default function NavUserCard() {
   const avatar = avatars[Math.floor(Math.random() * avatars.length)];
 
   return (
-    <div className="mr-5 flex items-center gap-2 flex-row">
+    <div className="mr-5 flex flex-row items-center gap-2">
       <Avatar className="text-primary">
         <AvatarImage src={avatar.path} />
         <AvatarFallback>

@@ -84,14 +84,14 @@ export default function SprintDeck() {
           console.error(error);
           toast.error("Failed to update story");
         },
-      }
+      },
     );
   };
 
   const handleScoreToggle = async (newPrev: boolean) => {
     setRevealScore(newPrev);
     startTransition(() =>
-      newPrev ? handleCreateStory() : handleUpdateStory()
+      newPrev ? handleCreateStory() : handleUpdateStory(),
     );
   };
 
@@ -104,7 +104,7 @@ export default function SprintDeck() {
   return (
     <div className="flex flex-col items-center justify-center gap-4">
       <button
-        className="disabled:opacity-50 disabled:cursor-not-allowed w-[140px] h-[50px] rounded-lg bg-primary-foreground text-primary cursor-pointer hover:bg-primary-foreground/80 transition-all p-2"
+        className="bg-primary-foreground text-primary hover:bg-primary-foreground/80 h-[50px] w-[140px] cursor-pointer rounded-lg p-2 transition-all disabled:cursor-not-allowed disabled:opacity-50"
         onClick={() => handleScoreToggle(!revealScore)}
         disabled={isPending || !userTeam?.is_room_owner}
       >

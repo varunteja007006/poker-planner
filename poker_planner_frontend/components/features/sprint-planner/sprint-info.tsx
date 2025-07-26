@@ -12,7 +12,7 @@ export default function SprintInfo() {
         ([key, value]) => ({
           name: `${key}`,
           value: value,
-        })
+        }),
       )
     : [];
 

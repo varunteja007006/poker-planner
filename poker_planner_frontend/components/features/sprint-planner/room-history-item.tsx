@@ -16,8 +16,8 @@ export default function RoomHistoryItem({
   isNew: boolean;
 }) {
   return (
-    <div className="flex text-primary flex-row gap-2 justify-between bg-accent max-w-xl p-2 items-center rounded">
-      <div className="flex flex-row gap-2 justify-between items-center">
+    <div className="text-primary bg-accent flex max-w-xl flex-row items-center justify-between gap-2 rounded p-2">
+      <div className="flex flex-row items-center justify-between gap-2">
         <Users className="size-5" />
         {label}
         {isNew && (

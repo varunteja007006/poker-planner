@@ -25,7 +25,7 @@ export default function JoinRoom() {
   };
 
   return (
-    <div className="flex flex-col gap-2 max-w-lg mx-auto">
+    <div className="mx-auto flex max-w-lg flex-col gap-2">
       <Label className="text-primary" htmlFor="roomCode">{`> Join Room`}</Label>
       <Input
         name="roomCode"

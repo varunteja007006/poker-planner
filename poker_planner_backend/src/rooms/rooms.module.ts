@@ -16,10 +16,15 @@ import { StoryPoint } from 'src/story_points/entities/story_point.entity';
 
 import { RoomsGateway } from './rooms.gateway';
 
-
 @Module({
   controllers: [RoomsController],
-  providers: [RoomsService, TeamsService, RoomsGateway, StoriesService, StoryPointsService],
+  providers: [
+    RoomsService,
+    TeamsService,
+    RoomsGateway,
+    StoriesService,
+    StoryPointsService,
+  ],
   imports: [TypeOrmModule.forFeature([Room, User, Team, Story, StoryPoint])],
 })
 export class RoomsModule {}

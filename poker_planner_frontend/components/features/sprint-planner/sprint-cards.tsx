@@ -89,7 +89,7 @@ export default function SprintCards() {
   React.useEffect(() => {
     if (storyPointsData) {
       const storyPoint = storyPointsData.find(
-        (storyPoint) => storyPoint.user.username === user?.username
+        (storyPoint) => storyPoint.user.username === user?.username,
       );
       if (storyPoint) {
         setSelectedCard(storyPoint?.story_point);
@@ -98,13 +98,13 @@ export default function SprintCards() {
   }, [storyPointsData]);
 
   return (
-    <div className="flex flex-row flex-wrap gap-5 items-center justify-center">
+    <div className="flex flex-row flex-wrap items-center justify-center gap-5">
       {sprintCards.map((card) => (
         <button
           key={card.value}
           className={cn(
-            "disabled:opacity-50 disabled:cursor-not-allowed w-[60px] h-[80px] scale-[0.9] hover:shadow-md rounded-lg bg-primary-foreground hover:scale-[1] transition-all border border-primary/30 flex flex-col items-center justify-center cursor-pointer",
-            selectedCard === card.value && "bg-primary text-primary-foreground"
+            "bg-primary-foreground border-primary/30 flex h-[80px] w-[60px] scale-[0.9] cursor-pointer flex-col items-center justify-center rounded-lg border transition-all hover:scale-[1] hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50",
+            selectedCard === card.value && "bg-primary text-primary-foreground",
           )}
           onClick={() => onClick(card.value)}
           disabled={btnDisabled}

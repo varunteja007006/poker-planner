@@ -55,7 +55,7 @@ export default function CreateRoom() {
           console.error(error);
           toast.error("Something went wrong with creating the room");
         },
-      }
+      },
     );
   };
 
@@ -64,7 +64,7 @@ export default function CreateRoom() {
   };
 
   return (
-    <div className="flex flex-col gap-2 max-w-lg mx-auto">
+    <div className="mx-auto flex max-w-lg flex-col gap-2">
       <Label
         className="text-primary"
         htmlFor="roomCode"

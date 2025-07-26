@@ -17,7 +17,7 @@ export default function RoomHistoryList() {
 
   return (
     <>
-      <h6 className="mb-2 text-primary">Recent Rooms</h6>
+      <h6 className="text-primary mb-2">Recent Rooms</h6>
       {room?.id ? (
         <RoomHistoryItem
           label={room?.room_code as string}
@@ -28,7 +28,7 @@ export default function RoomHistoryList() {
         <p className="text-sm">No recent rooms 😔</p>
       )}
 
-      <h6 className="mb-2 mt-5 text-primary">Previous Rooms</h6>
+      <h6 className="text-primary mt-5 mb-2">Previous Rooms</h6>
       {isError ? (
         <p className="text-sm">Error fetching teams ❌</p>
       ) : isLoading || isFetching ? (
