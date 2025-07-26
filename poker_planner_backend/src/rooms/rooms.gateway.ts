@@ -117,7 +117,7 @@ export class RoomsGateway {
 
     let inProgressStories: Story[] | null = null;
 
-    if (room?.[0].id) {
+    if (room?.[0]?.id) {
       inProgressStories = await this.storiesService.findAll(
         body.user_token,
         body.room_code,
@@ -130,10 +130,13 @@ export class RoomsGateway {
       body.user_token,
     );
 
-    const storyPoints = await this.storyPointsService.findAll(
-      body.user_token,
-      inProgressStories?.[0].id.toString(),
-    );
+    let storyPoints: any[] = [];
+    if (inProgressStories?.[0]?.id) {
+      storyPoints = await this.storyPointsService.findAll(
+        body.user_token,
+        inProgressStories[0].id.toString(),
+      );
+    }
     
     const result = {
       clientId: socket.id,

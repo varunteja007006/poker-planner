@@ -91,7 +91,9 @@ export default function SprintCards() {
       const storyPoint = storyPointsData.find(
         (storyPoint) => storyPoint.user.username === user?.username
       );
-      storyPoint ? setSelectedCard(storyPoint?.story_point) : null;
+      if (storyPoint) {
+        setSelectedCard(storyPoint?.story_point);
+      }
     }
   }, [storyPointsData]);
 

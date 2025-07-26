@@ -80,6 +80,11 @@ export class StoriesGateway {
         return acc + storyPoint.story_point;
       }, 0) / storyPoints.length;
 
+    if (!body.room?.room_code) {
+      console.error('Room code is missing in the request body');
+      return;
+    }
+
     this.server.to(body.room.room_code).emit('stories:updated', {
       clientId: socket.id,
       message: `${body.created_by.username} ${message}`,
