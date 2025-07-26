@@ -51,17 +51,24 @@ export class StoryPointsGateway {
       body.token,
     );
 
+    const storyPoints = await this.storyPointsService.findAll(
+      body.token,
+      body.story_id.toString(),
+    );
+
     socket.emit('story-points:private:created', {
       clientId: socket.id,
       message: 'Story point saved!!!',
-      body: storyPointCreated,
+      storyPoint: storyPointCreated,
+      storyPoints,
     });
 
     // ! This should  send all the story points
     this.server.to(body.room_code).emit('story-points:created', {
       clientId: socket.id,
       message: '',
-      body: storyPointCreated,
+      storyPoint: storyPointCreated,
+      storyPoints,
     });
   }
 }

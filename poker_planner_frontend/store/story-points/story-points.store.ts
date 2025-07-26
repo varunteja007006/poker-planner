@@ -16,9 +16,11 @@ type StoryPointMetadata = {
 type TStoryPointsStore = {
   storyPoint: StoryPoint | null;
   storyPointsMetadata: StoryPointMetadata | null;
+  storyPointsData: StoryPoint[];
   actions: {
     updateStoryPoints: (story: StoryPoint) => void;
     updateStoryPointsMeta: (story: StoryPointMetadata | null) => void;
+    updateStoryPointsData: (story: StoryPoint[]) => void;
   };
 };
 
@@ -26,9 +28,11 @@ type TStoryPointsStore = {
 const useStoryPointsStore = create<TStoryPointsStore>((set) => ({
   storyPoint: null,
   storyPointsMetadata: null,
+  storyPointsData: [],
   actions: {
     updateStoryPoints: (story) => set({ storyPoint: story }),
     updateStoryPointsMeta: (payload) => set({ storyPointsMetadata: payload }),
+    updateStoryPointsData: (story) => set({ storyPointsData: story }),
   },
 }));
 
@@ -42,7 +46,13 @@ export const StoriesPointsStore = {
     return useStoryPointsStore((state) => state.storyPointsMetadata);
   },
 
+  useStoryPointsData: () => {
+    return useStoryPointsStore((state) => state.storyPointsData);
+  },
+
+  // actions
   useUpdateStoryPointsActions: () => {
     return useStoryPointsStore((state) => state.actions);
   },
+
 };

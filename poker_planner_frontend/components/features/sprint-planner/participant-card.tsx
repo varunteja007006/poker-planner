@@ -7,16 +7,16 @@ import { cn } from "@/lib/utils";
 export default function ParticipantCard({
   name,
   isActive,
+  hasVoted,
 }: {
   name: string;
   isActive: boolean;
+  hasVoted: boolean;
 }) {
   return (
     <div className="flex flex-row items-center justify-between gap-2 w-full overflow-hidden p-2 rounded-lg border border-primary/25 shadow bg-white dark:bg-black">
       <div className="flex flex-row items-center gap-2">
-        <CircleUserRound
-          className={cn("shrink-0")}
-        />
+        <CircleUserRound className={cn("shrink-0")} />
         <p className="truncate overflow-hidden text-ellipsis">{name} </p>
       </div>
       <div>
@@ -27,6 +27,7 @@ export default function ParticipantCard({
           </div>
         )}
       </div>
+      <div>{hasVoted && `👍`}</div>
     </div>
   );
 }

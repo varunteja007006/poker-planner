@@ -23,6 +23,7 @@ import {
   Story,
   STORY_POINT_EVALUATION_STATUSES,
 } from 'src/stories/entities/story.entity';
+import { StoryPointsService } from 'src/story_points/story_points.service';
 
 @WebSocketGateway({
   cors: {
@@ -44,6 +45,8 @@ export class RoomsGateway {
     private readonly teamsService: TeamsService,
 
     private readonly storiesService: StoriesService,
+
+    private readonly storyPointsService: StoryPointsService,
   ) {}
 
   async checkToken(token: string | undefined): Promise<User> {
@@ -127,6 +130,11 @@ export class RoomsGateway {
       body.user_token,
     );
 
+    const storyPoints = await this.storyPointsService.findAll(
+      body.user_token,
+      inProgressStories?.[0].id.toString(),
+    );
+    
     const result = {
       clientId: socket.id,
       message: `${user.username} joined the room`,
@@ -136,6 +144,7 @@ export class RoomsGateway {
       pendingStory: inProgressStories?.[0], // story in-progress for this room
       pendingStories: inProgressStories, // all the in-progress stories
       teamMembers, // all the team members
+      storyPoints, // if already voted for the story
     };
 
     // emit to the whole room with callback

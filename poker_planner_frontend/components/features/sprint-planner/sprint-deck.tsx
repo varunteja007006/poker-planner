@@ -9,8 +9,6 @@ import { useSocketContext } from "@/providers/socket-provider";
 import { StoriesStore } from "@/store/stories/stories.store";
 import { useAppContext } from "@/providers/app-provider";
 import { StoryPointEvaluationStatus } from "@/types/story.types";
-import { StoriesPointsStore } from "@/store/story-points/story-points.store";
-import { ChartBarDefault } from "./sprint-points-barchart";
 
 export default function SprintDeck() {
   const params = useParams();
@@ -26,8 +24,6 @@ export default function SprintDeck() {
 
   const createStory = useCreateStory();
   const updateStory = useUpdateStory();
-
-  const storyPointsMetadata = StoriesPointsStore.useStoryPointsMetadata();
 
   const [isPending, startTransition] = React.useTransition();
 
@@ -105,15 +101,6 @@ export default function SprintDeck() {
     }
   }, [story]);
 
-  const storyPointsGroupBy = storyPointsMetadata
-    ? Object.entries(storyPointsMetadata.groupByStoryPoint).map(
-        ([key, value]) => ({
-          name: `${key}`,
-          value: value,
-        })
-      )
-    : [];
-
   return (
     <div className="flex flex-col items-center justify-center gap-4">
       <button
@@ -124,14 +111,13 @@ export default function SprintDeck() {
         {revealScore ? "Reveal" : "Start"}
       </button>
 
-      <div>
-        {storyPointsMetadata && (
-          <ChartBarDefault
-            chartData={storyPointsGroupBy}
-            avgPoints={storyPointsMetadata.averageStoryPoint}
-          />
-        )}
-      </div>
+      {!!userTeam && (
+        <p className="text-sm">
+          {userTeam?.is_room_owner
+            ? "You can start the story"
+            : "Only owner can start the story"}
+        </p>
+      )}
     </div>
   );
 }

@@ -79,11 +79,15 @@ export class StoryPointsService {
     return await this.storyPointsRepository.save(storyPoint);
   }
 
-  async findAll(token: string | undefined, storyId?: string ) {
+  async findAll(token: string | undefined, storyId?: string) {
     const user = await this.checkToken(token);
 
     const storyPoints = await this.storyPointsRepository.find({
       where: { story: { id: storyId ? Number(storyId) : undefined } },
+      relations: {
+        story: true,
+        user: true,
+      },
     });
 
     return storyPoints;
@@ -94,6 +98,10 @@ export class StoryPointsService {
 
     const storyPoint = await this.storyPointsRepository.findOne({
       where: { id },
+      relations: {
+        story: true,
+        user: true,
+      },
     });
 
     if (!storyPoint) {

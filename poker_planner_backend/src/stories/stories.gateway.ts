@@ -54,8 +54,8 @@ export class StoriesGateway {
     const isCompleted = body.story_point_evaluation_status === 'completed';
 
     const message = isCompleted
-      ? 'completed poker session'
-      : 'in progress poker session';
+      ? 'ended poker session'
+      : 'started poker session';
 
     const storyPoints = isCompleted
       ? await this.storyPointsService.findAll(

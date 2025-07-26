@@ -6,6 +6,7 @@ import { useSocketContext } from "@/providers/socket-provider";
 import { getUserFromLocalStorage } from "@/utils/localStorage.utils";
 import { StoriesStore } from "@/store/stories/stories.store";
 import { useParams } from "next/navigation";
+import { StoriesPointsStore } from "@/store/story-points/story-points.store";
 
 const sprintCards = [
   {
@@ -52,6 +53,8 @@ export default function SprintCards() {
 
   const story = StoriesStore.useStory();
 
+  const storyPointsData = StoriesPointsStore.useStoryPointsData();
+
   const user = getUserFromLocalStorage();
 
   const onClick = (value: number) => {
@@ -82,6 +85,15 @@ export default function SprintCards() {
       }
     };
   }, [socket]);
+
+  React.useEffect(() => {
+    if (storyPointsData) {
+      const storyPoint = storyPointsData.find(
+        (storyPoint) => storyPoint.user.username === user?.username
+      );
+      storyPoint ? setSelectedCard(storyPoint?.story_point) : null;
+    }
+  }, [storyPointsData]);
 
   return (
     <div className="flex flex-row flex-wrap gap-5 items-center justify-center">

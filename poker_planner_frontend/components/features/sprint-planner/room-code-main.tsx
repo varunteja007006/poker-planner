@@ -5,12 +5,15 @@ import RoomCodeCopyBtn from "./room-code-copy-btn";
 import Participants from "./participants-main";
 import SprintCards from "./sprint-cards";
 import SprintDeck from "./sprint-deck";
+import SprintInfo from "./sprint-info";
 
 export default function RoomCodeMain() {
   return (
     <div className="p-4 flex flex-col w-full gap-5">
       <div className="flex flex-row items-start justify-between gap-2">
-        <div></div>
+        <div>
+          <SprintInfo />
+        </div>
         <div>
           <RoomCodeCopyBtn />
         </div>

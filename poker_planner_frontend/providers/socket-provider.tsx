@@ -31,6 +31,7 @@ type SocketRoomResponse = {
   team: Team;
   pendingStory: Story | null;
   teamMembers: Team[];
+  storyPoints: StoryPoint[];
 };
 
 export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
@@ -120,6 +121,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       (response: SocketRoomResponse) => {
         handleSetRoom(response.currentRoomInfo?.[0]);
         handleSetUserTeam(response.team);
+        actionsStoryPointStore.updateStoryPointsData(response.storyPoints);
       }
     );
 
@@ -143,7 +145,14 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 
     socket.on(
       "story-points:created",
-      (response: { clientId: string; message: string; body: Story }) => {}
+      (response: {
+        clientId: string;
+        message: string;
+        storyPoint: StoryPoint;
+        storyPoints: StoryPoint[];
+      }) => {
+        actionsStoryPointStore.updateStoryPointsData(response.storyPoints);
+      }
     );
 
     socket.on(

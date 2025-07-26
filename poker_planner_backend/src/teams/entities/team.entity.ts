@@ -51,6 +51,17 @@ export class Team {
   })
   deleted_at: Date;
 
+  @Column({
+    nullable: false,
+    default: false,
+  })
+  is_online: boolean;
+
+  @Column({
+    nullable: true,
+  })
+  last_active: Date;
+
   @ManyToOne(() => User, (user) => user.id)
   @JoinColumn({ name: 'deleted_by' })
   deleted_by: User;
