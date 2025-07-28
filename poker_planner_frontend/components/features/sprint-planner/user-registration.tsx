@@ -32,6 +32,11 @@ export default function UserRegistration() {
   const createUser = useCreateUser();
 
   const handleSubmit = () => {
+    if (!username) {
+      toast.error("Username is required");
+      return;
+    }
+
     createUser.mutate(username, {
       onSuccess: (response: User) => {
         handleSetUser(response);
