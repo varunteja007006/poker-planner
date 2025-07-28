@@ -95,7 +95,7 @@ export default function SprintCards() {
         setSelectedCard(storyPoint?.story_point);
       }
     }
-  }, [storyPointsData]);
+  }, [storyPointsData, user?.username]);
 
   return (
     <div className="flex flex-row flex-wrap items-center justify-center gap-5">

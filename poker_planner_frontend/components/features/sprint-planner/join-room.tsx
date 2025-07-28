@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 
 import { useRouter } from "next/navigation";
 import { Label } from "@/components/ui/label";
+import RoomApi from "@/api/room/api";
+import { toast } from "sonner";
 
 export default function JoinRoom() {
   const router = useRouter();
@@ -20,8 +22,19 @@ export default function JoinRoom() {
     setRoomCode(event.target.value);
   };
 
-  const handleSubmit = () => {
-    router.push(`/room/${roomCode}`);
+  const handleSubmit = async () => {
+    if (!roomCode) {
+      toast.error("Room code is required");
+      return;
+    }
+
+    const data = await RoomApi.getAllRooms({ room_code: roomCode });
+
+    if (data.length > 0 && data[0].room_code === roomCode) {
+      router.push(`/room/${roomCode}`);
+    } else {
+      toast.error("Room not found");
+    }
   };
 
   return (
