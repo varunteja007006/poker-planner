@@ -15,6 +15,8 @@ import { StoriesPointsStore } from "@/store/story-points/story-points.store";
 import { StoryPoint } from "@/types/story-points.types";
 import { TeamStore } from "@/store/team/team.store";
 
+const HEART_BEAT_INTERVAL = 5000; // 5 seconds
+
 interface SocketContextType {
   socket: Socket | null;
 }
@@ -103,6 +105,11 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       console.error("Error from ws server", error);
       console.log("Is socket active: ", socket.active);
       console.log("Is socket connected: ", socket.connected);
+      socket.emit("teams:heart-beat", {
+        room_code: roomCode,
+        user_token,
+        is_online: false,
+      });
       console.log("socket Id: ", socket.id);
     });
 
@@ -111,6 +118,11 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       console.log("Is socket active: ", socket.active);
       console.log("Is socket connected: ", socket.connected);
       console.log("socket Id: ", socket.id);
+      socket.emit("teams:heart-beat", {
+        room_code: roomCode,
+        user_token,
+        is_online: false,
+      });
       setIsReconnecting(true);
     });
 
@@ -179,6 +191,10 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       },
     );
 
+    socket.on("teams:team_updated", (teamList: Team[]) => {
+      updateTeam(teamList);
+    });
+
     return () => {
       if (socket) {
         socket.disconnect();
@@ -190,6 +206,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       socket.off("stories:updated");
       socket.off("story-points:created");
       socket.off("story-points:private:created");
+      socket.off("teams:team_updated");
     };
   }, [
     user?.user_token,
@@ -205,6 +222,20 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       socket.connect();
     }
   }, [isReconnecting, socket]);
+
+  React.useEffect(() => {
+    const user_token = user?.user_token;
+    const interval = setInterval(() => {
+      if (socket && roomCode && user_token) {
+        socket.emit("teams:heart-beat", {
+          room_code: roomCode,
+          user_token,
+          is_online: true,
+        });
+      }
+    }, HEART_BEAT_INTERVAL);
+    return () => clearInterval(interval);
+  }, [socket, roomCode, user?.user_token]);
 
   return (
     <socketContext.Provider value={{ socket }}>

@@ -13,4 +13,6 @@ export interface Team {
   created_by: User;
   updated_by: User;
   deleted_by: User | null;
+  is_online: boolean;
+  last_active: Date;
 }

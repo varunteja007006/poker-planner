@@ -31,7 +31,8 @@ export default function Participants() {
             <div key={user.id} className="mb-1 w-[95%]">
               <ParticipantCard
                 name={user.user.username}
-                isActive={false} // Here it should be based on client
+                isOwner={user.is_room_owner}
+                isActive={user.is_online} // Here it should be based on client
                 hasVoted={storyPoint?.user.username === user.user.username}
               />
             </div>
