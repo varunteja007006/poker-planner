@@ -18,7 +18,7 @@ export default function ResetBtn() {
   const resetBtn = () => {
     clearLocalStorage();
     toast.success("Account reset successful");
-    router.push("/");
+    window.location.href = "/";
     handleSetUser(null);
     handleSetUserTeam(null);
     handleSetRoom(null);

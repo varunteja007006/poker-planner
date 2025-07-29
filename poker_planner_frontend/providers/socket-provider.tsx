@@ -82,6 +82,11 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       console.log("Is socket active: ", socket.active);
       console.log("Is socket connected: ", socket.connected);
       console.log("socket Id: ", socket.id);
+      socket.emit("teams:heart-beat", {
+        room_code: roomCode,
+        user_token,
+        is_online: true,
+      });
       setIsReconnecting(false);
       setSocket(socket);
     });

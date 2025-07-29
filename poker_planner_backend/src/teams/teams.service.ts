@@ -148,7 +148,7 @@ export class TeamsService {
           room: { room_code },
           user: filterByUser ? { id: user.id } : undefined,
         },
-        order: { room: { id: 'DESC' }, is_online: 'DESC' },
+        order: { room: { id: 'DESC' } },
       });
 
       return teams;
@@ -252,31 +252,6 @@ export class TeamsService {
       team.last_active = new Date();
       updatedTeam = await this.teamsRepository.save(team);
     }
-
-    // ! Heartbeat logic to handle disconnected users (NEED TO IMPROVE)
-    // --- Update other users in the room ---
-    const twentySecondsAgo = new Date(Date.now() - 20 * 1000);
-
-    // Find all other teams in the same room that are currently online
-    // and whose last_active timestamp is older than 20 seconds
-    const inactiveTeams = await this.teamsRepository.find({
-      where: {
-        room,
-        is_online: true,
-        last_active: LessThan(twentySecondsAgo),
-        user: Not(Equal(user.id)), // Exclude the current user
-      },
-    });
-
-    // Update these inactive teams to is_online: false
-    if (inactiveTeams.length > 0) {
-      const updatedInactiveTeams = inactiveTeams.map((t) => {
-        t.is_online = false;
-        return t;
-      });
-      await this.teamsRepository.save(updatedInactiveTeams);
-    }
-    // ! ----------------------HEART BEAT LOGIC END-------------------------
 
     return updatedTeam;
   }

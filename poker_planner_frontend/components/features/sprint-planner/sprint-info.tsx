@@ -1,8 +1,7 @@
 import React from "react";
 import { ChartBarDefault } from "./sprint-points-barchart";
 import { StoriesPointsStore } from "@/store/story-points/story-points.store";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
+import RoomDisconnectBtn from "./room-disconnect-btn";
 
 export default function SprintInfo() {
   const storyPointsData = StoriesPointsStore.useStoryPointsData();
@@ -34,11 +33,7 @@ export default function SprintInfo() {
         </div>
       </div>
       <div>
-        <Link href="/room">
-          <Button className="cursor-pointer" variant="destructive">
-            Leave Room
-          </Button>
-        </Link>
+        <RoomDisconnectBtn />
       </div>
     </div>
   );

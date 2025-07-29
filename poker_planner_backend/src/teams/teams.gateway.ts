@@ -52,6 +52,12 @@ export class TeamsGateway {
       body.user_token,
     );
 
-    this.server.emit('teams:team_updated', teams);
+    this.server.emit(
+      'teams:team_updated',
+      teams
+        .sort((a, b) => a.id - b.id)
+        .sort((a, b) => (a.is_online ? -1 : 1))
+        .sort((a, b) => (a.is_room_owner ? -1 : 1)),
+    );
   }
 }
