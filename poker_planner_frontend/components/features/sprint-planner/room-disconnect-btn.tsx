@@ -26,7 +26,7 @@ export default function RoomDisconnectBtn() {
         user_token: user?.user_token,
         is_online: false,
       });
-      router.push("/");
+      router.push("/room");
     }
   };
 

@@ -8,27 +8,43 @@ import {
 
 import { Server, Socket } from 'socket.io';
 import { StoryPointsService } from './story_points.service';
+import { StoryPoint } from './entities/story_point.entity';
+import { Story } from 'src/stories/entities/story.entity';
+import { User } from 'src/users/entities/user.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Injectable } from '@nestjs/common';
 
 @WebSocketGateway({
   cors: {
     origin: '*',
-    // origin: "http://localhost:3000",
-    // credentials: true,
   },
 })
+@Injectable()
 export class StoryPointsGateway {
   @WebSocketServer()
   server: Server;
-  constructor(private readonly storyPointsService: StoryPointsService) {}
+
+  constructor(
+    private storyPointsService: StoryPointsService,
+
+    @InjectRepository(StoryPoint)
+    private storyPointsRepository: Repository<StoryPoint>,
+
+    @InjectRepository(User)
+    private usersRepository: Repository<User>,
+
+    @InjectRepository(Story)
+    private storiesRepository: Repository<Story>,
+  ) {}
 
   @SubscribeMessage('story-points:check')
-  check(@ConnectedSocket() socket: Socket, @MessageBody() body: string) {
+  check(@ConnectedSocket() socket: Socket) {
     this.server.emit('story-points:check', {
       clientId: socket.id,
       message: {
         connected: true,
         message: 'story points ws ok',
-        body: body,
       },
     });
   }
@@ -43,6 +59,7 @@ export class StoryPointsGateway {
       room_code: string;
     } & { token: string | undefined },
   ) {
+    // create token by calling the create service
     const storyPointCreated = await this.storyPointsService.create(
       {
         story_point: body.story_point,
@@ -51,19 +68,24 @@ export class StoryPointsGateway {
       body.token,
     );
 
-    const storyPoints = await this.storyPointsService.findAll(
-      body.token,
-      body.story_id.toString(),
-    );
-
-    socket.emit('story-points:private:created', {
-      clientId: socket.id,
-      message: 'Story point saved!!!',
-      storyPoint: storyPointCreated,
-      storyPoints,
+    // using find all we will try to get the story points for particular story
+    const storyPoints = await this.storyPointsRepository.find({
+      where: { story: { id: body.story_id } },
+      relations: {
+        story: true,
+        user: true,
+      },
     });
 
-    // ! This should  send all the story points
+    // ! I have no idea why this event is used
+    // socket.emit('story-points:private:created', {
+    //   clientId: socket.id,
+    //   message: 'Story point saved!!!',
+    //   storyPoint: storyPointCreated,
+    //   storyPoints,
+    // });
+
+    // send the newly created story point and all story points to the room
     this.server.to(body.room_code).emit('story-points:created', {
       clientId: socket.id,
       message: '',

@@ -3,10 +3,10 @@ import React from "react";
 import { cn } from "@/lib/utils";
 import { Coffee } from "lucide-react";
 import { useSocketContext } from "@/providers/socket-provider";
-import { getUserFromLocalStorage } from "@/utils/localStorage.utils";
 import { StoriesStore } from "@/store/stories/stories.store";
 import { useParams } from "next/navigation";
 import { StoriesPointsStore } from "@/store/story-points/story-points.store";
+import { useAppContext } from "@/providers/app-provider";
 
 const sprintCards = [
   {
@@ -53,10 +53,13 @@ export default function SprintCards() {
 
   const story = StoriesStore.useStory();
 
+  const btnDisabled = story?.story_point_evaluation_status !== "in progress";
+
   const storyPointsData = StoriesPointsStore.useStoryPointsData();
 
-  const user = getUserFromLocalStorage();
+  const { user } = useAppContext();
 
+  // create a story point
   const onClick = (value: number) => {
     setSelectedCard(value);
 
@@ -70,8 +73,7 @@ export default function SprintCards() {
     }
   };
 
-  const btnDisabled = story?.story_point_evaluation_status !== "in progress";
-
+  // Whenever a story is created reset the selected card
   React.useEffect(() => {
     if (socket) {
       socket.on("stories:created", () => {
@@ -86,11 +88,18 @@ export default function SprintCards() {
     };
   }, [socket]);
 
+  // Whenever a story point is created update the selected card
   React.useEffect(() => {
-    if (storyPointsData) {
+    if (
+      storyPointsData &&
+      user?.username &&
+      Array.isArray(storyPointsData) &&
+      storyPointsData.length > 0
+    ) {
       const storyPoint = storyPointsData.find(
         (storyPoint) => storyPoint.user.username === user?.username,
       );
+
       if (storyPoint) {
         setSelectedCard(storyPoint?.story_point);
       }

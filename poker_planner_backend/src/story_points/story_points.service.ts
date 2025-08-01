@@ -129,6 +129,7 @@ export class StoryPointsService {
     const updatedStoryPoint = await this.storyPointsRepository.update(id, {
       ...updateStoryPointDto,
       updated_by: user,
+      updated_at: new Date(),
     });
 
     return !!updatedStoryPoint.affected;

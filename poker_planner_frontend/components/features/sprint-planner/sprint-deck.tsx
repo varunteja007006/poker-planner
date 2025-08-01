@@ -28,8 +28,6 @@ export default function SprintDeck() {
   const [isPending, startTransition] = React.useTransition();
 
   const handleCreateStory = async () => {
-    // await new Promise((resolve) => setTimeout(resolve, 10000));
-
     if (!roomCode) {
       toast.error("Room code not found");
       return;
@@ -45,19 +43,19 @@ export default function SprintDeck() {
 
     createStory.mutate(payload, {
       onSuccess: (response) => {
-        toast.success("Story created successfully");
+        toast.success("Started the game successfully");
         socket?.emit("stories:create", response);
       },
       onError: (error) => {
         console.error(error);
-        toast.error("Failed to create story");
+        toast.error("Failed to start the game");
       },
     });
   };
 
   const handleUpdateStory = async () => {
     if (!story || !story.id) {
-      toast.error("Story not found");
+      toast.error("Unable to process the game");
       return;
     }
 
@@ -69,7 +67,7 @@ export default function SprintDeck() {
       {
         onSuccess: (response) => {
           if (!response) {
-            toast.error("Failed to update story");
+            toast.error("Failed to update the game");
             return;
           }
 
@@ -77,12 +75,12 @@ export default function SprintDeck() {
             ...story,
             story_point_evaluation_status: "completed",
           };
-          toast.success("Story updated successfully");
+          toast.success("Game ended successfully");
           socket?.emit("stories:update", newStory);
         },
         onError: (error) => {
           console.error(error);
-          toast.error("Failed to update story");
+          toast.error("Failed to end the game");
         },
       },
     );
@@ -108,14 +106,14 @@ export default function SprintDeck() {
         onClick={() => handleScoreToggle(!revealScore)}
         disabled={isPending || !userTeam?.is_room_owner}
       >
-        {revealScore ? "Reveal" : "Start"}
+        {revealScore ? "End Game" : "Start Game"}
       </button>
 
       {!!userTeam && (
         <p className="text-sm">
           {userTeam?.is_room_owner
-            ? "You can start the story"
-            : "Only owner can start the story"}
+            ? "You can start the game"
+            : "Only owner can start the game"}
         </p>
       )}
     </div>

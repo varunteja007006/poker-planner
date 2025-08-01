@@ -3,14 +3,18 @@ import React from "react";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-
-import { useRouter } from "next/navigation";
-import { Label } from "@/components/ui/label";
-import RoomApi from "@/api/room/api";
 import { toast } from "sonner";
+import { Label } from "@/components/ui/label";
+
+import RoomApi from "@/api/room/api";
+import { useRouter } from "next/navigation";
+import { useAppContext } from "@/providers/app-provider";
 
 export default function JoinRoom() {
   const router = useRouter();
+
+  const { handleSetRoom } = useAppContext();
+
   const [roomCode, setRoomCode] = React.useState("");
 
   const handleRoomCodeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -31,6 +35,7 @@ export default function JoinRoom() {
     const data = await RoomApi.getAllRooms({ room_code: roomCode });
 
     if (data.length > 0 && data[0].room_code === roomCode) {
+      handleSetRoom(data[0]);
       router.push(`/room/${roomCode}`);
     } else {
       toast.error("Room not found");

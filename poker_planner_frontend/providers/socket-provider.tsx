@@ -151,15 +151,19 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       }
     });
 
+    // socket to notify people about new story being added and clear the prev story points metadata
     socket.on(
       "stories:created",
       (response: { clientId: string; message: string; body: Story }) => {
         toast.success(response.message);
+        //  new story added in the state
         updateStoryInStore(response.body);
+        // reset the story points meta which is the old one
         actionsStoryPointStore.updateStoryPointsMeta(null);
       },
     );
 
+    // socket to notify people about story points being added
     socket.on(
       "story-points:created",
       (response: {
@@ -172,13 +176,13 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       },
     );
 
-    socket.on(
-      "story-points:private:created",
-      (response: { clientId: string; message: string; body: Story }) => {
-        toast.success(response.message);
-        actionsStoryPointStore.updateStoryPointsMeta(null);
-      },
-    );
+    // socket.on(
+    //   "story-points:private:created",
+    //   (response: { clientId: string; message: string; body: Story }) => {
+    //     toast.success(response.message);
+    //     actionsStoryPointStore.updateStoryPointsMeta(null);
+    //   },
+    // );
 
     socket.on(
       "stories:updated",
@@ -191,7 +195,9 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
         averageStoryPoint: number;
       }) => {
         toast.success(response.message);
+        // update the story in the store
         updateStoryInStore(response.body);
+        // update the story points meta in the store
         actionsStoryPointStore.updateStoryPointsMeta(response);
       },
     );
@@ -210,7 +216,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       socket.off("stories:created");
       socket.off("stories:updated");
       socket.off("story-points:created");
-      socket.off("story-points:private:created");
+      // socket.off("story-points:private:created");
       socket.off("teams:team_updated");
     };
   }, [
@@ -228,6 +234,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [isReconnecting, socket]);
 
+  // send heart beat to the server to keep the connection alive
   React.useEffect(() => {
     const user_token = user?.user_token;
     const interval = setInterval(() => {
