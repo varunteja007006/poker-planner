@@ -13,10 +13,11 @@ import { toast } from "sonner";
 
 import { Dices } from "lucide-react";
 
+import { Room } from "@/types/room.types";
+
 import { useRouter } from "next/navigation";
 import { generateRandomRoomCode } from "@/utils/utils";
 import { useCreateRoom } from "@/api/room/query";
-import { Room } from "@/types/room.types";
 import { useAppContext } from "@/providers/app-provider";
 
 export default function CreateRoom() {
