@@ -7,10 +7,11 @@ import {
 } from '@nestjs/websockets';
 
 import { Server, Socket } from 'socket.io';
-import { StoriesService } from './stories.service';
 import { Story } from './entities/story.entity';
-import { StoryPointsService } from 'src/story_points/story_points.service';
 import { StoryPoint } from 'src/story_points/entities/story_point.entity';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Injectable } from '@nestjs/common';
 
 @WebSocketGateway({
   cors: {
@@ -19,23 +20,23 @@ import { StoryPoint } from 'src/story_points/entities/story_point.entity';
     // credentials: true,
   },
 })
+@Injectable()
 export class StoriesGateway {
   @WebSocketServer()
   server: Server;
 
   constructor(
-    private readonly storiesService: StoriesService,
-    private readonly storyPointsService: StoryPointsService,
+    @InjectRepository(StoryPoint)
+    private storyPointsRepository: Repository<StoryPoint>,
   ) {}
 
   @SubscribeMessage('stories:check')
-  check(@ConnectedSocket() socket: Socket, @MessageBody() body: string) {
+  check(@ConnectedSocket() socket: Socket) {
     this.server.emit('stories:check', {
       clientId: socket.id,
       message: {
         connected: true,
         message: 'stories ws ok',
-        body: body,
       },
     });
   }
@@ -44,7 +45,7 @@ export class StoriesGateway {
   created(@ConnectedSocket() socket: Socket, @MessageBody() body: Story) {
     this.server.to(body.room.room_code).emit('stories:created', {
       clientId: socket.id,
-      message: `${body.created_by.username} started poker session`,
+      message: `${body.created_by.username} started the game`,
       body,
     });
   }
@@ -53,17 +54,22 @@ export class StoriesGateway {
   async updated(@ConnectedSocket() socket: Socket, @MessageBody() body: Story) {
     const isCompleted = body.story_point_evaluation_status === 'completed';
 
-    const message = isCompleted
-      ? 'ended poker session'
-      : 'started poker session';
+    const message = isCompleted ? 'ended game' : 'started game';
 
-    const storyPoints = isCompleted
-      ? await this.storyPointsService.findAll(
-          socket.handshake.auth.token,
-          body.id.toString(),
-        )
-      : [];
+    let storyPoints = await this.storyPointsRepository.find({
+      where: { story: { id: body.id } },
+      relations: {
+        story: true,
+        user: true,
+      },
+    });
 
+    // if storyPoints is not an array or is empty, set it to an empty array
+    if (!storyPoints || !Array.isArray(storyPoints)) {
+      storyPoints = [];
+    }
+
+    // key is the story point number and value is the count
     const groupByStoryPoint = storyPoints.reduce(
       (acc, storyPoint) => {
         if (!acc[storyPoint.story_point]) {
@@ -75,6 +81,7 @@ export class StoriesGateway {
       {} as { [key: string]: number },
     );
 
+    // average story point
     const averageStoryPoint =
       storyPoints.reduce((acc, storyPoint) => {
         return acc + storyPoint.story_point;
@@ -85,6 +92,7 @@ export class StoriesGateway {
       return;
     }
 
+    // emit the updated story to the room
     this.server.to(body.room.room_code).emit('stories:updated', {
       clientId: socket.id,
       message: `${body.created_by.username} ${message}`,

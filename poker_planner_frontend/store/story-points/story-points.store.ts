@@ -16,7 +16,7 @@ type StoryPointMetadata = {
 type TStoryPointsStore = {
   storyPoint: StoryPoint | null;
   storyPointsMetadata: StoryPointMetadata | null;
-  storyPointsData: StoryPoint[];
+  storyPointsData: StoryPoint[]; // list of all story points of the room
   actions: {
     updateStoryPoints: (story: StoryPoint) => void;
     updateStoryPointsMeta: (story: StoryPointMetadata | null) => void;

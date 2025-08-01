@@ -53,10 +53,13 @@ export default function SprintCards() {
 
   const story = StoriesStore.useStory();
 
+  const btnDisabled = story?.story_point_evaluation_status !== "in progress";
+
   const storyPointsData = StoriesPointsStore.useStoryPointsData();
 
   const { user } = useAppContext();
 
+  // create a story point
   const onClick = (value: number) => {
     setSelectedCard(value);
 
@@ -70,8 +73,7 @@ export default function SprintCards() {
     }
   };
 
-  const btnDisabled = story?.story_point_evaluation_status !== "in progress";
-
+  // Whenever a story is created reset the selected card
   React.useEffect(() => {
     if (socket) {
       socket.on("stories:created", () => {
@@ -86,11 +88,18 @@ export default function SprintCards() {
     };
   }, [socket]);
 
+  // Whenever a story point is created update the selected card
   React.useEffect(() => {
-    if (storyPointsData) {
+    if (
+      storyPointsData &&
+      user?.username &&
+      Array.isArray(storyPointsData) &&
+      storyPointsData.length > 0
+    ) {
       const storyPoint = storyPointsData.find(
         (storyPoint) => storyPoint.user.username === user?.username,
       );
+
       if (storyPoint) {
         setSelectedCard(storyPoint?.story_point);
       }
