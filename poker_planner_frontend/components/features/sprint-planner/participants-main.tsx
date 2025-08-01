@@ -17,7 +17,7 @@ export default function Participants() {
     <div className="w-[320px] space-y-2 rounded p-2 pl-3">
       <div className="flex flex-row items-center justify-between gap-1">
         <p className="text-primary text-lg font-semibold">Participants</p>
-        <Badge className="h-5 min-w-5 rounded-full px-1 font-mono tabular-nums">
+        <Badge className="mr-5 h-5 min-w-5 rounded-full px-1 font-mono tabular-nums">
           {team?.length}
         </Badge>
       </div>

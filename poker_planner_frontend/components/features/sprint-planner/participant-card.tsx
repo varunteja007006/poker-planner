@@ -20,7 +20,9 @@ export default function ParticipantCard({
       <div className="flex flex-row items-center gap-2">
         <CircleUserRound className={cn("shrink-0")} />
         <div className="flex flex-col items-start">
-          <p className="truncate overflow-hidden text-ellipsis">{name}</p>
+          <p className="truncate overflow-hidden text-ellipsis capitalize">
+            {name}
+          </p>
 
           {isOwner && <p className="text-primary text-xs">(Room Owner👑)</p>}
         </div>
