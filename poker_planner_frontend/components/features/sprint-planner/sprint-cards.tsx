@@ -3,10 +3,10 @@ import React from "react";
 import { cn } from "@/lib/utils";
 import { Coffee } from "lucide-react";
 import { useSocketContext } from "@/providers/socket-provider";
-import { getUserFromLocalStorage } from "@/utils/localStorage.utils";
 import { StoriesStore } from "@/store/stories/stories.store";
 import { useParams } from "next/navigation";
 import { StoriesPointsStore } from "@/store/story-points/story-points.store";
+import { useAppContext } from "@/providers/app-provider";
 
 const sprintCards = [
   {
@@ -55,7 +55,7 @@ export default function SprintCards() {
 
   const storyPointsData = StoriesPointsStore.useStoryPointsData();
 
-  const user = getUserFromLocalStorage();
+  const { user } = useAppContext();
 
   const onClick = (value: number) => {
     setSelectedCard(value);
