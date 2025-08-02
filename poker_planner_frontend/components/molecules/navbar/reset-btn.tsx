@@ -10,13 +10,11 @@ import { toast } from "sonner";
 import { useAppContext } from "@/providers/app-provider";
 
 export default function ResetBtn() {
-  const { handleSetUser, handleSetUserTeam, handleSetRoom } = useAppContext();
+  const { handleSetUser } = useAppContext();
 
   const resetBtn = () => {
     clearLocalStorage();
     handleSetUser(null);
-    handleSetUserTeam(null);
-    handleSetRoom(null);
     toast.success("Account reset successful");
     window.location.href = "/";
   };

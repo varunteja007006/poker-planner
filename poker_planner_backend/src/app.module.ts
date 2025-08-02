@@ -14,6 +14,7 @@ import { TeamsModule } from './teams/teams.module';
 import { ClientsModule } from './clients/clients.module';
 import { StoriesModule } from './stories/stories.module';
 import { StoryPointsModule } from './story_points/story_points.module';
+import { CommonModule } from './common/common.module';
 
 //entities
 import { User as UserEntities } from './users/entities/user.entity';
@@ -22,7 +23,6 @@ import { Room as RoomEntities } from './rooms/entities/room.entity';
 import { Team as TeamEntities } from './teams/entities/team.entity';
 import { Story as StoryEntities } from './stories/entities/story.entity';
 import { StoryPoint as StoryPointEntities } from './story_points/entities/story_point.entity';
-import { WsHealthModule } from './ws_health/ws_health.module';
 
 @Module({
   imports: [
@@ -53,7 +53,7 @@ import { WsHealthModule } from './ws_health/ws_health.module';
     ClientsModule,
     StoriesModule,
     StoryPointsModule,
-    WsHealthModule,
+    CommonModule,
   ],
   controllers: [AppController],
   providers: [AppService],

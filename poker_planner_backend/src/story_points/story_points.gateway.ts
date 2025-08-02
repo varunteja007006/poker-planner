@@ -77,14 +77,6 @@ export class StoryPointsGateway {
       },
     });
 
-    // ! I have no idea why this event is used
-    // socket.emit('story-points:private:created', {
-    //   clientId: socket.id,
-    //   message: 'Story point saved!!!',
-    //   storyPoint: storyPointCreated,
-    //   storyPoints,
-    // });
-
     // send the newly created story point and all story points to the room
     this.server.to(body.room_code).emit('story-points:created', {
       clientId: socket.id,
@@ -92,5 +84,7 @@ export class StoryPointsGateway {
       storyPoint: storyPointCreated,
       storyPoints,
     });
+
+    return storyPointCreated;
   }
 }

@@ -6,19 +6,18 @@ import { v4 as uuidv4 } from "uuid";
 import { useCreateStory, useUpdateStory } from "@/api/stories/query";
 import { useParams } from "next/navigation";
 import { useSocketContext } from "@/providers/socket-provider";
-import { StoriesStore } from "@/store/stories/stories.store";
-import { useAppContext } from "@/providers/app-provider";
-import { StoryPointEvaluationStatus } from "@/types/story.types";
+import { Story, StoryPointEvaluationStatus } from "@/types/story.types";
+import { CommonStore } from "@/store/common/common.store";
 
 export default function SprintDeck() {
   const params = useParams();
   const roomCode = params.roomCode as string;
 
-  const { userTeam } = useAppContext();
+  const { socket, emitMetadata } = useSocketContext();
 
-  const { socket } = useSocketContext();
-
-  const story = StoriesStore.useStory();
+  const commonStoreMetadata = CommonStore.useMetadata();
+  const myTeamRecord = commonStoreMetadata?.team;
+  const story = commonStoreMetadata?.inProgressStory;
 
   const [revealScore, setRevealScore] = React.useState<boolean>(false);
 
@@ -42,9 +41,16 @@ export default function SprintDeck() {
     };
 
     createStory.mutate(payload, {
-      onSuccess: (response) => {
+      onSuccess: (response: Story) => {
         toast.success("Started the game successfully");
-        socket?.emit("stories:create", response);
+        emitMetadata(() => {
+          if (socket) {
+            socket.emit("common:story-created", {
+              room_code: roomCode,
+              story: response,
+            });
+          }
+        });
       },
       onError: (error) => {
         console.error(error);
@@ -59,31 +65,32 @@ export default function SprintDeck() {
       return;
     }
 
-    updateStory.mutate(
-      {
-        id: story.id,
-        story_point_evaluation_status: "completed",
-      },
-      {
-        onSuccess: (response) => {
-          if (!response) {
-            toast.error("Failed to update the game");
-            return;
-          }
+    const updatePayload = {
+      id: story.id,
+      story_point_evaluation_status: "completed" as StoryPointEvaluationStatus,
+    };
 
-          const newStory = {
-            ...story,
-            story_point_evaluation_status: "completed",
-          };
-          toast.success("Game ended successfully");
-          socket?.emit("stories:update", newStory);
-        },
-        onError: (error) => {
-          console.error(error);
-          toast.error("Failed to end the game");
-        },
+    updateStory.mutate(updatePayload, {
+      onSuccess: (response) => {
+        if (!response) {
+          toast.error("Failed to update the game");
+          return;
+        }
+        toast.success("Game ended successfully");
+        emitMetadata(() => {
+          if (socket) {
+            socket.emit("common:story-updated", {
+              room_code: roomCode,
+              storyId: updatePayload.id,
+            });
+          }
+        });
       },
-    );
+      onError: (error) => {
+        console.error(error);
+        toast.error("Failed to end the game");
+      },
+    });
   };
 
   const handleScoreToggle = async (newPrev: boolean) => {
@@ -96,6 +103,8 @@ export default function SprintDeck() {
   React.useEffect(() => {
     if (story) {
       setRevealScore(story.story_point_evaluation_status === "in progress");
+    } else {
+      setRevealScore(false);
     }
   }, [story]);
 
@@ -104,14 +113,14 @@ export default function SprintDeck() {
       <button
         className="bg-primary-foreground text-primary hover:bg-primary-foreground/80 h-[50px] w-[140px] cursor-pointer rounded-lg p-2 transition-all disabled:cursor-not-allowed disabled:opacity-50"
         onClick={() => handleScoreToggle(!revealScore)}
-        disabled={isPending || !userTeam?.is_room_owner}
+        disabled={isPending || !myTeamRecord?.is_room_owner}
       >
         {revealScore ? "End Game" : "Start Game"}
       </button>
 
-      {!!userTeam && (
+      {!!myTeamRecord && (
         <p className="text-sm">
-          {userTeam?.is_room_owner
+          {myTeamRecord?.is_room_owner
             ? "You can start the game"
             : "Only owner can start the game"}
         </p>

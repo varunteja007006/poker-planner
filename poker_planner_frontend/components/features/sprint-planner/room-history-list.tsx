@@ -3,14 +3,15 @@
 import React from "react";
 
 import { ThreeDotLoader } from "@/components/atoms/loaders";
-import { useAppContext } from "@/providers/app-provider";
 import { useGetAllTeams } from "@/api/team/query";
 import { Team } from "@/types/team.types";
 import RoomHistoryItem from "./room-history-item";
+import { getRoomFromLocalStorage } from "@/utils/localStorage.utils";
 
 export default function RoomHistoryList() {
-  const { room } = useAppContext();
+  const room = getRoomFromLocalStorage();
 
+  // gets all the team records resulting in rooms he joined
   const { data, isLoading, isError, isFetching } = useGetAllTeams({
     filterByUser: true,
   });

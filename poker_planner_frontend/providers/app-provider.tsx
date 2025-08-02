@@ -2,22 +2,14 @@ import React from "react";
 
 import { User } from "@/types/user.types";
 import {
-  getRoomFromLocalStorage,
   getUserFromLocalStorage,
-  setRoomInLocalStorage,
   setUserInLocalStorage,
 } from "@/utils/localStorage.utils";
 import { usePathname, useRouter } from "next/navigation";
-import { Room } from "@/types/room.types";
-import { Team } from "@/types/team.types";
 
 interface AppContextType {
   user: User | null;
   handleSetUser: (user: User | null) => void;
-  room: Room | null;
-  handleSetRoom: (room: Room | null) => void;
-  userTeam: Team | null;
-  handleSetUserTeam: (team: Team | null) => void;
 }
 
 const AppContext = React.createContext<AppContextType | undefined>(undefined);
@@ -29,26 +21,11 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
 
   const [user, setUser] = React.useState<User | null>(null);
-  const [room, setRoom] = React.useState<Room | null>(null);
-  const [userTeam, setUserTeam] = React.useState<Team | null>(null);
 
   const handleSetUser = React.useCallback((user: User | null) => {
     if (user) {
       setUserInLocalStorage(user);
       setUser(user);
-    }
-  }, []);
-
-  const handleSetRoom = React.useCallback((room: Room | null) => {
-    if (room) {
-      setRoomInLocalStorage(room);
-      setRoom(room);
-    }
-  }, []);
-
-  const handleSetUserTeam = React.useCallback((team: Team | null) => {
-    if (team) {
-      setUserTeam(team);
     }
   }, []);
 
@@ -69,30 +46,16 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }
 
-  // To load the room from localstorage
-  function loadRoom() {
-    const room = getRoomFromLocalStorage();
-    // if room is available from localstorage then set it
-    if (room) {
-      setRoom(room);
-    }
-  }
-
   React.useEffect(() => {
     loadUser();
-    loadRoom();
   }, []);
 
   const value = React.useMemo(
     () => ({
       user,
       handleSetUser,
-      room,
-      handleSetRoom,
-      userTeam,
-      handleSetUserTeam,
     }),
-    [user, room, userTeam],
+    [user],
   );
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
