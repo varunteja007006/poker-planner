@@ -162,14 +162,12 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
         story_id: story ? story.id : undefined,
       },
       (response: TMetadata) => {
-        console.log("Returned value", response);
         setRoomInLocalStorage(response.room);
         useCommonStoreMetadataActions.updateMetadata(response);
       },
     );
 
     socket.on("common:room-metadata-update", (response: Partial<TMetadata>) => {
-      console.log("Common Metadata: ", response);
       useCommonStoreMetadataActions.updateMetadataPartially(response);
     });
 

@@ -81,7 +81,6 @@ export default function SprintCards() {
             (response: StoryPoint) => {
               emitMetadata(() => {
                 resolve(response);
-                console.log("Metadata updated");
               });
             },
           );
