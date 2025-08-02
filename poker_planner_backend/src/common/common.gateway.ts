@@ -81,6 +81,60 @@ export class CommonGateway {
     return user;
   }
 
+  async storyPointsStats(storyId: number) {
+    let result = {
+      averageStoryPoint: 0,
+      groupByStoryPointArray: [] as { name: string; value: number }[],
+    };
+
+    if (!storyId) {
+      return;
+    }
+
+    const storyPoints = await this.storyPointsRepository.find({
+      where: {
+        story: { id: storyId },
+      },
+      relations: {
+        story: true,
+        user: true,
+      },
+    });
+
+    // grouped as object with key for sprint point and value for no of votes
+    const groupByStoryPoint = storyPoints.reduce(
+      (acc, storyPoint) => {
+        if (!acc[storyPoint.story_point]) {
+          acc[storyPoint.story_point] = 0;
+        }
+        acc[storyPoint.story_point] += 1;
+        return acc;
+      },
+      {} as { [key: string]: number },
+    );
+
+    // grouped as array of objects with key for sprint point and value for no of votes
+    const groupByStoryPointArray = groupByStoryPoint
+      ? Object.entries(groupByStoryPoint).map(([key, value]) => ({
+          name: `${key}`,
+          value: value,
+        }))
+      : [];
+
+    // average story point
+    const averageStoryPoint =
+      storyPoints.reduce((acc, storyPoint) => {
+        return acc + storyPoint.story_point;
+      }, 0) / storyPoints.length;
+
+    result = {
+      averageStoryPoint,
+      groupByStoryPointArray,
+    };
+
+    return result;
+  }
+
   @SubscribeMessage('common:check')
   check(@ConnectedSocket() socket: Socket) {
     this.server.emit('common:check', {
@@ -130,25 +184,26 @@ export class CommonGateway {
       order: { room: { id: 'DESC' } },
     });
 
-    let inProgressStories: Story[] | null = null;
+    // find all stories in progress for this room
+    const inProgressStories: Story[] = await this.storiesRepository.find({
+      where: {
+        room: { room_code: body.room_code },
+        story_point_evaluation_status:
+          STORY_POINT_EVALUATION_STATUSES.IN_PROGRESS,
+      },
+      order: { id: 'DESC' },
+    });
+
     let inProgressStoryPoints: StoryPoint[] | null = null;
 
-    if (body.story_id) {
-      // find all stories in progress for this room
-
-      const stories = await this.storiesRepository.find({
-        where: {
-          room: { room_code: body.room_code },
-          story_point_evaluation_status:
-            STORY_POINT_EVALUATION_STATUSES.IN_PROGRESS,
-        },
-      });
-
-      inProgressStories = stories;
+    if (body.story_id || inProgressStories?.length > 0) {
+      const storyId = body.story_id
+        ? Number(body.story_id)
+        : inProgressStories?.[0]?.id;
 
       const storyPoints = await this.storyPointsRepository.find({
         where: {
-          story: { id: body.story_id ? Number(body.story_id) : undefined },
+          story: { id: storyId },
         },
         relations: {
           story: true,
@@ -181,5 +236,42 @@ export class CommonGateway {
 
     // if there is a callback for emit event it can receive this
     return result;
+  }
+
+  @SubscribeMessage('common:story-created')
+  async storyCreated(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody()
+    body: { room_code?: string; story: Story },
+  ) {
+    if (!body.room_code) {
+      return;
+    }
+
+    this.server.to(body.room_code).emit('story:created', {
+      clientId: socket.id,
+      message: 'story created',
+      story: body.story,
+    });
+  }
+
+  @SubscribeMessage('common:story-updated')
+  async storyUpdated(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody()
+    body: { room_code?: string; storyId: number },
+  ) {
+    if (!body.room_code) {
+      return;
+    }
+
+    const storyPointsStats = await this.storyPointsStats(body.storyId);
+
+    this.server.to(body.room_code).emit('story:updated', {
+      clientId: socket.id,
+      message: 'story updated',
+      storyId: body.storyId,
+      ...storyPointsStats,
+    });
   }
 }

@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
-export const description = "A bar chart";
+import { useSocketContext } from "@/providers/socket-provider";
 
 const chartConfig = {
   value: {
@@ -29,16 +29,50 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function ChartBarDefault({
-  avgPoints = 0,
-  chartData,
-}: {
-  avgPoints: number;
-  chartData: {
-    name: string;
-    value: number;
-  }[];
-}) {
+export function ChartBarDefault() {
+  const [stats, setStats] = React.useState<{
+    chartData: { name: string; value: number }[] | [];
+    avgPoints: number;
+  } | null>({
+    chartData: [],
+    avgPoints: 0,
+  });
+
+  const { socket } = useSocketContext();
+
+  // Whenever a story is created reset the selected card
+  React.useEffect(() => {
+    if (socket) {
+      socket.on("story:updated", (res) => {
+        setStats({
+          chartData: res.groupByStoryPointArray,
+          avgPoints: res.averageStoryPoint,
+        });
+      });
+      socket.on("story:created", (res) => {
+        setStats({
+          chartData: [],
+          avgPoints: 0,
+        });
+      });
+    }
+
+    return () => {
+      if (socket) {
+        socket.off("story:updated");
+        socket.off("story:created");
+      }
+    };
+  }, [socket]);
+
+  if (
+    !stats ||
+    !Array.isArray(stats?.chartData) ||
+    stats.chartData.length === 0
+  ) {
+    return null;
+  }
+
   return (
     <Dialog defaultOpen={true}>
       <DialogTrigger asChild>
@@ -54,7 +88,7 @@ export function ChartBarDefault({
         </DialogHeader>
 
         <ChartContainer className="h-[240px]" config={chartConfig}>
-          <BarChart accessibilityLayer data={chartData}>
+          <BarChart accessibilityLayer data={stats.chartData}>
             <CartesianGrid vertical={false} />
             <XAxis
               dataKey="name"
@@ -71,7 +105,7 @@ export function ChartBarDefault({
                     x: 0,
                     y: 0,
                   }}
-                  payload={chartData}
+                  payload={stats.chartData}
                   accessibilityLayer
                   active
                   hideLabel
@@ -82,7 +116,7 @@ export function ChartBarDefault({
           </BarChart>
         </ChartContainer>
         <div className="flex gap-2 leading-none font-medium">
-          Average points: {avgPoints}
+          Average points: {stats.avgPoints}
         </div>
       </DialogContent>
     </Dialog>

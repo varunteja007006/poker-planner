@@ -24,6 +24,7 @@ import {
   STORY_POINT_EVALUATION_STATUSES,
 } from 'src/stories/entities/story.entity';
 import { StoryPointsService } from 'src/story_points/story_points.service';
+import { Team } from 'src/teams/entities/team.entity';
 
 @WebSocketGateway({
   cors: {
@@ -96,17 +97,29 @@ export class RoomsGateway {
     if (!body.room_code || !body.user_token) {
       return;
     }
-    socket.join(body.room_code);
-
-    let rooms: string[] = [];
-
-    socket.rooms.forEach((room: string) => {
-      rooms.push(room);
-    });
-
     const user = await this.checkToken(body.user_token);
 
     const room = await this.roomsService.findAll(body.room_code);
+
+    let result: {
+      clientId: string;
+      message: string;
+      success: boolean;
+      myTeamRecord: Team | null;
+    };
+
+    result = {
+      clientId: socket.id,
+      message: `room does not exist`,
+      success: false,
+      myTeamRecord: null, // inserted team record
+    };
+
+    if (!room || room.length === 0) {
+      return result;
+    }
+
+    socket.join(body.room_code);
 
     const team = await this.teamsService.create(
       {
@@ -115,45 +128,14 @@ export class RoomsGateway {
       body.user_token,
     );
 
-    let inProgressStories: Story[] | null = null;
-
-    if (room?.[0]?.id) {
-      inProgressStories = await this.storiesService.findAll(
-        body.user_token,
-        body.room_code,
-        STORY_POINT_EVALUATION_STATUSES.IN_PROGRESS,
-      );
-    }
-
-    const teamMembers = await this.teamsService.findAll(
-      body.room_code,
-      body.user_token,
-    );
-
-    let storyPoints: any[] = [];
-    if (inProgressStories?.[0]?.id) {
-      storyPoints = await this.storyPointsService.findAll(
-        body.user_token,
-        inProgressStories[0].id.toString(),
-      );
-    }
-
-    const result = {
+    result = {
       clientId: socket.id,
-      message: `${user.username} joined the room`,
-      joinedRooms: rooms, // rooms user has joined
-      currentRoomInfo: room, // current room record
-      team, // inserted team record
-      pendingStory: inProgressStories?.[0], // story in-progress for this room
-      pendingStories: inProgressStories, // all the in-progress stories
-      teamMembers, // all the team members
-      storyPoints, // if already voted for the story
+      message: `room joined successfully`,
+      success: true,
+      myTeamRecord: team,
     };
 
-    // emit to the whole room with callback
-    this.server.to(body.room_code).emit('room:joined', result);
-
-    // if there is a callback for emit event it can receive this
+    this.server.to(body.room_code).emit('room:joined');
     return result;
   }
 }

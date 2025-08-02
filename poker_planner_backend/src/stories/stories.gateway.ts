@@ -81,6 +81,13 @@ export class StoriesGateway {
       {} as { [key: string]: number },
     );
 
+    const groupByStoryPointArray = groupByStoryPoint
+      ? Object.entries(groupByStoryPoint).map(([key, value]) => ({
+          name: `${key}`,
+          value: value,
+        }))
+      : [];
+
     // average story point
     const averageStoryPoint =
       storyPoints.reduce((acc, storyPoint) => {
@@ -101,5 +108,12 @@ export class StoriesGateway {
       groupByStoryPoint,
       averageStoryPoint,
     });
+
+    return {
+      storyPoints,
+      groupByStoryPoint,
+      groupByStoryPointArray,
+      averageStoryPoint,
+    };
   }
 }

@@ -1,18 +1,10 @@
 "use client";
 import React from "react";
 
-import { toast } from "sonner";
-
 import { io, Socket } from "socket.io-client";
 
-import { useParams } from "next/navigation";
-import { Story } from "@/types/story.types";
-import { StoriesStore } from "@/store/stories/stories.store";
+import { useParams, useRouter } from "next/navigation";
 import { useAppContext } from "./app-provider";
-import { Room } from "@/types/room.types";
-import { Team } from "@/types/team.types";
-import { StoriesPointsStore } from "@/store/story-points/story-points.store";
-import { StoryPoint } from "@/types/story-points.types";
 import { CommonStore, TMetadata } from "@/store/common/common.store";
 import { setRoomInLocalStorage } from "@/utils/localStorage.utils";
 
@@ -20,26 +12,18 @@ const HEART_BEAT_INTERVAL = 5000; // 5 seconds
 
 interface SocketContextType {
   socket: Socket | null;
+  emitMetadata: (cb?: (response: TMetadata) => void) => void;
+  emitLeaveRoom: (cb?: () => void) => void;
 }
 
 const socketContext = React.createContext<SocketContextType | undefined>(
   undefined,
 );
 
-type SocketRoomResponse = {
-  clientId: string;
-  message: string;
-  joinedRooms: string[];
-  currentRoomInfo: Room[];
-  team: Team;
-  pendingStory: Story | null;
-  teamMembers: Team[];
-  storyPoints: StoryPoint[];
-};
-
 export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
   const params = useParams();
   const roomCode = params.roomCode;
+  const router = useRouter();
 
   const { user } = useAppContext();
 
@@ -47,11 +31,36 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
   const [isReconnecting, setIsReconnecting] = React.useState(false);
 
   const useCommonStoreMetadataActions = CommonStore.useUpdateMetadataActions();
+  const story = CommonStore.useMetadata()?.inProgressStory;
 
-  const story = StoriesStore.useStory();
-  const updateStoryInStore = StoriesStore.useUpdateStory();
-  const actionsStoryPointStore =
-    StoriesPointsStore.useUpdateStoryPointsActions();
+  const emitMetadata = (cb?: (response: TMetadata) => void) => {
+    if (socket) {
+      socket.emit(
+        "common:room-metadata",
+        {
+          room_code: roomCode,
+          user_token: user?.user_token,
+          story_id: story?.id ? story.id : undefined,
+        },
+        cb,
+      );
+    }
+  };
+
+  const emitLeaveRoom = (cb?: () => void) => {
+    if (socket) {
+      socket.emit(
+        "teams:heart-beat",
+        {
+          room_code: roomCode,
+          user_token: user?.user_token,
+          is_online: false,
+        },
+        cb,
+      );
+      router.push("/room");
+    }
+  };
 
   // socket setup and listeners
   React.useEffect(() => {
@@ -142,13 +151,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     });
 
     // let us also emit the room join event
-    socket.emit(
-      "room:join",
-      { room_code: roomCode, user_token },
-      (response: SocketRoomResponse) => {
-        actionsStoryPointStore.updateStoryPointsData(response.storyPoints);
-      },
-    );
+    socket.emit("room:join", { room_code: roomCode, user_token });
 
     // room metadata
     socket.emit(
@@ -165,57 +168,6 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       },
     );
 
-    // socket to notify people about users joining the room
-    socket.on("room:joined", (response: SocketRoomResponse) => {
-      toast.success(response.message);
-      if (response.pendingStory) {
-        updateStoryInStore(response.pendingStory);
-      }
-    });
-
-    // socket to notify people about new story being added and clear the prev story points metadata
-    socket.on(
-      "stories:created",
-      (response: { clientId: string; message: string; body: Story }) => {
-        toast.success(response.message);
-        //  new story added in the state
-        updateStoryInStore(response.body);
-        // reset the story points meta which is the old one
-        actionsStoryPointStore.updateStoryPointsMeta(null);
-      },
-    );
-
-    // socket to notify people about story points being added
-    socket.on(
-      "story-points:created",
-      (response: {
-        clientId: string;
-        message: string;
-        storyPoint: StoryPoint;
-        storyPoints: StoryPoint[];
-      }) => {
-        actionsStoryPointStore.updateStoryPointsData(response.storyPoints);
-      },
-    );
-
-    socket.on(
-      "stories:updated",
-      (response: {
-        clientId: string;
-        message: string;
-        body: Story;
-        storyPoints: StoryPoint[];
-        groupByStoryPoint: Record<number, number>;
-        averageStoryPoint: number;
-      }) => {
-        toast.success(response.message);
-        // update the story in the store
-        updateStoryInStore(response.body);
-        // update the story points meta in the store
-        actionsStoryPointStore.updateStoryPointsMeta(response);
-      },
-    );
-
     socket.on("common:room-metadata-update", (response: Partial<TMetadata>) => {
       console.log("Common Metadata: ", response);
       useCommonStoreMetadataActions.updateMetadataPartially(response);
@@ -226,11 +178,6 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
         socket.disconnect();
         setSocket(null);
       }
-
-      socket.off("room:joined");
-      socket.off("stories:created");
-      socket.off("stories:updated");
-      socket.off("story-points:created");
       socket.off("common:room-metadata-update");
     };
   }, [user?.user_token, user?.username, roomCode]);
@@ -258,7 +205,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
   }, [socket, roomCode, user?.user_token]);
 
   return (
-    <socketContext.Provider value={{ socket }}>
+    <socketContext.Provider value={{ socket, emitMetadata, emitLeaveRoom }}>
       {children}
     </socketContext.Provider>
   );
