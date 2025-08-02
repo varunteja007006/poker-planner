@@ -14,6 +14,8 @@ import { Team } from "@/types/team.types";
 import { StoriesPointsStore } from "@/store/story-points/story-points.store";
 import { StoryPoint } from "@/types/story-points.types";
 import { TeamStore } from "@/store/team/team.store";
+import { CommonStore, TMetadata } from "@/store/common/common.store";
+import { setRoomInLocalStorage } from "@/utils/localStorage.utils";
 
 const HEART_BEAT_INTERVAL = 5000; // 5 seconds
 
@@ -40,13 +42,16 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
   const params = useParams();
   const roomCode = params.roomCode;
 
-  const { user, handleSetRoom, handleSetUserTeam } = useAppContext();
+  const { user } = useAppContext();
 
   const [socket, setSocket] = React.useState<Socket | null>(null);
   const [isReconnecting, setIsReconnecting] = React.useState(false);
 
+  const useCommonStoreMetadataActions = CommonStore.useUpdateMetadataActions();
+
   const updateTeam = TeamStore.useUpdateTeam();
 
+  const story = StoriesStore.useStory();
   const updateStoryInStore = StoriesStore.useUpdateStory();
   const actionsStoryPointStore =
     StoriesPointsStore.useUpdateStoryPointsActions();
@@ -82,13 +87,17 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       console.log("Is socket active: ", socket.active);
       console.log("Is socket connected: ", socket.connected);
       console.log("socket Id: ", socket.id);
+      setSocket(socket);
+
+      // internal reconnection logic
+      setIsReconnecting(false);
+
+      // heart beat start
       socket.emit("teams:heart-beat", {
         room_code: roomCode,
         user_token,
         is_online: true,
       });
-      setIsReconnecting(false);
-      setSocket(socket);
     });
 
     socket.on("connect_error", (error) => {
@@ -123,12 +132,16 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       console.log("Is socket active: ", socket.active);
       console.log("Is socket connected: ", socket.connected);
       console.log("socket Id: ", socket.id);
+
+      // reconnection logic handled here
+      setIsReconnecting(true);
+
+      // heart beat logic
       socket.emit("teams:heart-beat", {
         room_code: roomCode,
         user_token,
         is_online: false,
       });
-      setIsReconnecting(true);
     });
 
     // let us also emit the room join event
@@ -136,9 +149,22 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       "room:join",
       { room_code: roomCode, user_token },
       (response: SocketRoomResponse) => {
-        handleSetRoom(response.currentRoomInfo?.[0]);
-        handleSetUserTeam(response.team);
         actionsStoryPointStore.updateStoryPointsData(response.storyPoints);
+      },
+    );
+
+    // room metadata
+    socket.emit(
+      "common:room-metadata",
+      {
+        room_code: roomCode,
+        user_token,
+        story_id: story ? story.id : undefined,
+      },
+      (response: TMetadata) => {
+        console.log("Returned value", response);
+        setRoomInLocalStorage(response.room);
+        useCommonStoreMetadataActions.updateMetadata(response);
       },
     );
 
@@ -176,14 +202,6 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       },
     );
 
-    // socket.on(
-    //   "story-points:private:created",
-    //   (response: { clientId: string; message: string; body: Story }) => {
-    //     toast.success(response.message);
-    //     actionsStoryPointStore.updateStoryPointsMeta(null);
-    //   },
-    // );
-
     socket.on(
       "stories:updated",
       (response: {
@@ -206,6 +224,11 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       updateTeam(teamList);
     });
 
+    socket.on("common:room-metadata-update", (response: Partial<TMetadata>) => {
+      console.log("Common Metadata: ", response);
+      useCommonStoreMetadataActions.updateMetadataPartially(response);
+    });
+
     return () => {
       if (socket) {
         socket.disconnect();
@@ -216,16 +239,10 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       socket.off("stories:created");
       socket.off("stories:updated");
       socket.off("story-points:created");
-      // socket.off("story-points:private:created");
       socket.off("teams:team_updated");
+      socket.off("common:room-metadata-update");
     };
-  }, [
-    user?.user_token,
-    user?.username,
-    roomCode,
-    handleSetRoom,
-    handleSetUserTeam,
-  ]);
+  }, [user?.user_token, user?.username, roomCode]);
 
   // Reconnect logic when socket disconnects
   React.useEffect(() => {

@@ -1,20 +1,16 @@
 "use client";
 
 import { Room } from "@/types/room.types";
-import { Team } from "@/types/team.types";
-import { Story } from "@/types/story.types";
 import { User } from "@/types/user.types";
 
 const USER = "user";
 
 const ROOM = "room";
 
-const TEAM = "team";
-
-const STORY = "story";
-
 export const clearLocalStorage = (): void => {
-  localStorage.clear();
+  removeUserFromLocalStorage();
+  removeRoomFromLocalStorage();
+  // localStorage.clear() // ! Maybe we do not want to reset users preferences
 };
 
 export const setUserInLocalStorage = (user: User): void => {
@@ -47,36 +43,4 @@ export const getRoomFromLocalStorage = (): Room | null => {
 
 export const removeRoomFromLocalStorage = (): void => {
   localStorage.removeItem(ROOM);
-};
-
-export const setTeamInLocalStorage = (team: Team): void => {
-  localStorage.setItem(TEAM, JSON.stringify(team));
-};
-
-export const getTeamFromLocalStorage = (): Team | null => {
-  if (typeof localStorage === "undefined") {
-    return null;
-  }
-  const team = localStorage.getItem(TEAM);
-  return team ? JSON.parse(team) : null;
-};
-
-export const removeTeamFromLocalStorage = (): void => {
-  localStorage.removeItem(TEAM);
-};
-
-export const setStoryInLocalStorage = (story: Story): void => {
-  localStorage.setItem(STORY, JSON.stringify(story));
-};
-
-export const getStoryFromLocalStorage = (): Story | null => {
-  if (typeof localStorage === "undefined") {
-    return null;
-  }
-  const story = localStorage.getItem(STORY);
-  return story ? JSON.parse(story) : null;
-};
-
-export const removeStoryFromLocalStorage = (): void => {
-  localStorage.removeItem(STORY);
 };

@@ -23,7 +23,7 @@ import { useAppContext } from "@/providers/app-provider";
 export default function CreateRoom() {
   const router = useRouter();
 
-  const { user, handleSetRoom } = useAppContext();
+  const { user } = useAppContext();
 
   const [roomCode, setRoomCode] = React.useState(generateRandomRoomCode());
 
@@ -39,7 +39,7 @@ export default function CreateRoom() {
   const createRoom = useCreateRoom();
 
   const handleSubmit = () => {
-    if (!user?.id) {
+    if (!user?.id || !user.user_token) {
       toast.error("User not found");
       return;
     }
@@ -47,8 +47,7 @@ export default function CreateRoom() {
     createRoom.mutate(
       { room_code: roomCode },
       {
-        onSuccess: (response: Room) => {
-          handleSetRoom(response);
+        onSuccess: () => {
           toast.success("Room created successfully");
           router.push(`/room/${roomCode}`);
         },

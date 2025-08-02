@@ -7,14 +7,15 @@ import { useCreateStory, useUpdateStory } from "@/api/stories/query";
 import { useParams } from "next/navigation";
 import { useSocketContext } from "@/providers/socket-provider";
 import { StoriesStore } from "@/store/stories/stories.store";
-import { useAppContext } from "@/providers/app-provider";
 import { StoryPointEvaluationStatus } from "@/types/story.types";
+import { CommonStore } from "@/store/common/common.store";
 
 export default function SprintDeck() {
   const params = useParams();
   const roomCode = params.roomCode as string;
 
-  const { userTeam } = useAppContext();
+  const useCommonStoreMetadata = CommonStore.useMetadata();
+  const myTeamRecord = useCommonStoreMetadata?.team;
 
   const { socket } = useSocketContext();
 
@@ -104,14 +105,14 @@ export default function SprintDeck() {
       <button
         className="bg-primary-foreground text-primary hover:bg-primary-foreground/80 h-[50px] w-[140px] cursor-pointer rounded-lg p-2 transition-all disabled:cursor-not-allowed disabled:opacity-50"
         onClick={() => handleScoreToggle(!revealScore)}
-        disabled={isPending || !userTeam?.is_room_owner}
+        disabled={isPending || !myTeamRecord?.is_room_owner}
       >
         {revealScore ? "End Game" : "Start Game"}
       </button>
 
-      {!!userTeam && (
+      {!!myTeamRecord && (
         <p className="text-sm">
-          {userTeam?.is_room_owner
+          {myTeamRecord?.is_room_owner
             ? "You can start the game"
             : "Only owner can start the game"}
         </p>

@@ -104,7 +104,7 @@ export class CommonGateway {
 
     const user = await this.checkToken(body.user_token);
 
-    const room = await this.roomsRepository.find({
+    const room = await this.roomsRepository.findOne({
       relations: {
         created_by: true,
         updated_by: true,
@@ -166,12 +166,18 @@ export class CommonGateway {
       team, // user's record from team
       teamMembers, // all the team members
       inProgressStories, // all the in-progress stories
-      inProgressStory: inProgressStories?.[0], // story in-progress for this room
+      inProgressStory: inProgressStories?.[0] ?? null, // story in-progress for this room
       storyPoints: inProgressStoryPoints, // if already voted for the story
     };
 
     // emit to the whole room with callback
-    this.server.to(body.room_code).emit('common:room-metadata-update', result);
+    this.server.to(body.room_code).emit('common:room-metadata-update', {
+      clientId: result.clientId,
+      teamMembers: result.teamMembers,
+      inProgressStories: result.inProgressStories,
+      inProgressStory: result.inProgressStory,
+      storyPoints: result.storyPoints,
+    });
 
     // if there is a callback for emit event it can receive this
     return result;
