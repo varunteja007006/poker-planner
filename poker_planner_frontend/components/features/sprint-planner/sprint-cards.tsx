@@ -62,25 +62,33 @@ export default function SprintCards() {
   const btnDisabled = story?.story_point_evaluation_status !== "in progress";
 
   // create a story point
-  const onClick = (value: number) => {
+  const onClick = async (value: number) => {
     setSelectedCard(value);
 
     if (socket && story?.story_point_evaluation_status === "in progress") {
-      socket.emit(
-        "story-points:create",
-        {
-          story_point: value,
-          story_id: story.id,
-          token: user?.user_token,
-          room_code: roomCode,
-        },
-        (response: StoryPoint) => {
-          console.log("Response from server for story point", response);
-          if (response.id) {
-            emitMetadata();
-          }
-        },
-      );
+      const payload = {
+        story_point: value,
+        story_id: story.id,
+        token: user?.user_token,
+        room_code: roomCode,
+      };
+
+      await new Promise((resolve, reject) => {
+        try {
+          socket.emit(
+            "story-points:create",
+            payload,
+            (response: StoryPoint) => {
+              emitMetadata(() => {
+                resolve(response);
+                console.log("Metadata updated");
+              });
+            },
+          );
+        } catch (error) {
+          reject(error);
+        }
+      });
     }
   };
 
