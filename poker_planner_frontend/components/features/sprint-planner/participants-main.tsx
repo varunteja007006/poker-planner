@@ -5,11 +5,11 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 
 import ParticipantCard from "./participant-card";
 
-import { TeamStore } from "@/store/team/team.store";
 import { StoriesPointsStore } from "@/store/story-points/story-points.store";
+import { CommonStore } from "@/store/common/common.store";
 
 export default function Participants() {
-  const team = TeamStore.useTeam();
+  const team = CommonStore.useMetadata()?.teamMembers;
 
   const storyPointsData = StoriesPointsStore.useStoryPointsData();
 
@@ -23,21 +23,23 @@ export default function Participants() {
       </div>
 
       <ScrollArea className="h-[70vh] w-full">
-        {team?.map((user) => {
-          const storyPoint = storyPointsData?.find(
-            (storyPoint) => storyPoint.user.username === user.user.username,
-          );
-          return (
-            <div key={user.id} className="mb-1 w-[95%]">
-              <ParticipantCard
-                name={user.user.username}
-                isOwner={user.is_room_owner}
-                isActive={user.is_online} // Here it should be based on client
-                hasVoted={storyPoint?.user.username === user.user.username}
-              />
-            </div>
-          );
-        })}
+        {team
+          ?.sort((a, b) => (a.is_room_owner ? -1 : 1))
+          ?.map((user) => {
+            const storyPoint = storyPointsData?.find(
+              (storyPoint) => storyPoint.user.username === user.user.username,
+            );
+            return (
+              <div key={user.id} className="mb-1 w-[95%]">
+                <ParticipantCard
+                  name={user.user.username}
+                  isOwner={user.is_room_owner}
+                  isActive={user.is_online}
+                  hasVoted={storyPoint?.user.username === user.user.username}
+                />
+              </div>
+            );
+          })}
       </ScrollArea>
     </div>
   );

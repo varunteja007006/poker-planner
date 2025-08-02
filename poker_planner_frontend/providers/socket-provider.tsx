@@ -13,7 +13,6 @@ import { Room } from "@/types/room.types";
 import { Team } from "@/types/team.types";
 import { StoriesPointsStore } from "@/store/story-points/story-points.store";
 import { StoryPoint } from "@/types/story-points.types";
-import { TeamStore } from "@/store/team/team.store";
 import { CommonStore, TMetadata } from "@/store/common/common.store";
 import { setRoomInLocalStorage } from "@/utils/localStorage.utils";
 
@@ -48,8 +47,6 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
   const [isReconnecting, setIsReconnecting] = React.useState(false);
 
   const useCommonStoreMetadataActions = CommonStore.useUpdateMetadataActions();
-
-  const updateTeam = TeamStore.useUpdateTeam();
 
   const story = StoriesStore.useStory();
   const updateStoryInStore = StoriesStore.useUpdateStory();
@@ -171,7 +168,6 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     // socket to notify people about users joining the room
     socket.on("room:joined", (response: SocketRoomResponse) => {
       toast.success(response.message);
-      updateTeam(response.teamMembers);
       if (response.pendingStory) {
         updateStoryInStore(response.pendingStory);
       }
@@ -220,10 +216,6 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       },
     );
 
-    socket.on("teams:team_updated", (teamList: Team[]) => {
-      updateTeam(teamList);
-    });
-
     socket.on("common:room-metadata-update", (response: Partial<TMetadata>) => {
       console.log("Common Metadata: ", response);
       useCommonStoreMetadataActions.updateMetadataPartially(response);
@@ -239,7 +231,6 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       socket.off("stories:created");
       socket.off("stories:updated");
       socket.off("story-points:created");
-      socket.off("teams:team_updated");
       socket.off("common:room-metadata-update");
     };
   }, [user?.user_token, user?.username, roomCode]);
