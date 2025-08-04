@@ -58,7 +58,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
         },
         cb,
       );
-      emitMetadata(()=>{});
+      ()=>emitMetadata(()=>{});
       router.push("/room");
     }
   };
