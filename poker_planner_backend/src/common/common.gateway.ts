@@ -26,6 +26,27 @@ import {
 } from 'src/stories/entities/story.entity';
 import { StoryPoint } from 'src/story_points/entities/story_point.entity';
 
+type Action =
+  | {
+      type: 'update-heartbeat';
+      payload: {
+        is_online: boolean;
+      };
+    }
+  | {
+      type: 'send-message';
+      payload: {
+        message: string;
+        to: string;
+      };
+    }
+  | {
+      type: 'delete-user';
+      payload: {
+        user_id: string;
+      };
+    };
+
 @WebSocketGateway({
   cors: {
     origin: '*',
@@ -150,7 +171,12 @@ export class CommonGateway {
   async roomMetadata(
     @ConnectedSocket() socket: Socket,
     @MessageBody()
-    body: { room_code?: string; user_token?: string; story_id?: string },
+    body: {
+      room_code?: string;
+      user_token?: string;
+      story_id?: string;
+      action?: Action;
+    },
   ) {
     if (!body.room_code || !body.user_token) {
       return;
@@ -166,12 +192,32 @@ export class CommonGateway {
       where: { room_code: body.room_code },
     });
 
-    const team = await this.teamsRepository.findOne({
+    if (!room) {
+      return;
+    }
+
+    let team = await this.teamsRepository.findOne({
       where: {
         room: { room_code: body.room_code },
         user: { user_token: body.user_token },
       },
     });
+
+    if (!team) {
+      return;
+    }
+
+    if (body?.action?.type === 'update-heartbeat' && body.action.payload) {
+      if (body.action.payload.is_online !== team.is_online) {
+        team.is_online = body.action.payload.is_online;
+        team.last_active = new Date();
+        team = await this.teamsRepository.save(team);
+      } else if (body.action.payload.is_online) {
+        // If user is online and status hasn't changed, just update last_active
+        team.last_active = new Date();
+        team = await this.teamsRepository.save(team);
+      }
+    }
 
     const teamMembers = await this.teamsRepository.find({
       relations: {
@@ -196,6 +242,7 @@ export class CommonGateway {
 
     let inProgressStoryPoints: StoryPoint[] | null = null;
 
+    // Get the story points for the in-progress stories
     if (body.story_id || inProgressStories?.length > 0) {
       const storyId = body.story_id
         ? Number(body.story_id)

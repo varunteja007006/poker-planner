@@ -11,7 +11,7 @@ import { extractToken } from 'src/utils/utils';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Team } from './entities/team.entity';
 import { User } from 'src/users/entities/user.entity';
-import { Equal, LessThan, Not, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Room } from 'src/rooms/entities/room.entity';
 
 @Injectable()

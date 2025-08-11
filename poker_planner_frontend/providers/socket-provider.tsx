@@ -13,7 +13,7 @@ const HEART_BEAT_INTERVAL = 5000; // 5 seconds
 interface SocketContextType {
   socket: Socket | null;
   emitMetadata: (cb?: (response: TMetadata) => void) => void;
-  emitLeaveRoom: (cb?: () => void) => void;
+  emitLeaveRoom: () => void;
 }
 
 const socketContext = React.createContext<SocketContextType | undefined>(
@@ -47,18 +47,23 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const emitLeaveRoom = (cb?: () => void) => {
+  const emitLeaveRoom = () => {
     if (socket) {
       socket.emit(
-        "teams:heart-beat",
+        "common:room-metadata",
         {
           room_code: roomCode,
           user_token: user?.user_token,
-          is_online: false,
+          story_id: story?.id ? story.id : undefined,
+          action: {
+            type: "update-heartbeat",
+            payload: {
+              is_online: false,
+            },
+          },
         },
-        cb,
+        () => router.push("/room"),
       );
-      emitMetadata(() => router.push("/room"));
     }
   };
 

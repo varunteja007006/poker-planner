@@ -49,7 +49,7 @@ export function ChartBarDefault() {
           avgPoints: res.averageStoryPoint,
         });
       });
-      socket.on("story:created", (res) => {
+      socket.on("story:created", (_res) => {
         setStats({
           chartData: [],
           avgPoints: 0,
