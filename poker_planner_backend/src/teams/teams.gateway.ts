@@ -1,10 +1,4 @@
 import {
-  HttpException,
-  HttpStatus,
-  UnauthorizedException,
-} from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import {
   WebSocketGateway,
   SubscribeMessage,
   WebSocketServer,
@@ -13,9 +7,6 @@ import {
 } from '@nestjs/websockets';
 
 import { Server, Socket } from 'socket.io';
-import { User } from 'src/users/entities/user.entity';
-import { extractToken } from 'src/utils/utils';
-import { Repository } from 'typeorm';
 import { TeamsService } from './teams.service';
 
 @WebSocketGateway({
