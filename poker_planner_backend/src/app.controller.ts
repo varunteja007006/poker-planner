@@ -5,8 +5,13 @@ import { AppService } from './app.service';
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @Get()
-  check(): string {
+  @Get('health/backend')
+  check(): { message: string } {
     return this.appService.check();
+  }
+
+  @Get('health/db')
+  async checkDatabase(): Promise<{ status: string; message: string }> {
+    return this.appService.checkDatabase();
   }
 }

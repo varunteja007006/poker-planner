@@ -6,6 +6,10 @@ import {
   setUserInLocalStorage,
 } from "@/utils/localStorage.utils";
 import { usePathname, useRouter } from "next/navigation";
+import {
+  useCheckBackendHealth,
+  useCheckDatabaseHealth,
+} from "@/api/health/query";
 
 interface AppContextType {
   user: User | null;
@@ -19,6 +23,12 @@ const AppContext = React.createContext<AppContextType | undefined>(undefined);
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
   const router = useRouter();
+
+  const { data: backendHealth } = useCheckBackendHealth();
+  const { data: databaseHealth } = useCheckDatabaseHealth();
+
+  console.log("Backend Health:", backendHealth);
+  console.log("Database Health:", databaseHealth);
 
   const [user, setUser] = React.useState<User | null>(null);
 
