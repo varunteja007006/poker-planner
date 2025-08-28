@@ -5,6 +5,7 @@ import { ThemeProvider } from "next-themes";
 import { AppProvider } from "@/providers/app-provider";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 const queryClient = new QueryClient();
 
@@ -21,7 +22,13 @@ export function Provider({
       {...props}
     >
       <QueryClientProvider client={queryClient}>
-        <AppProvider>{children}</AppProvider>
+        <AppProvider>
+          {children}
+          <ReactQueryDevtools
+            initialIsOpen={false}
+            buttonPosition="bottom-right"
+          />
+        </AppProvider>
       </QueryClientProvider>
     </ThemeProvider>
   );

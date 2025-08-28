@@ -1,14 +1,61 @@
 {
-  "v": 8,
+  "v": 9,
   "name": "poker planner collection",
+  "requests": [
+    {
+      "v": "15",
+      "endpoint": "http://localhost:4000/health/backend",
+      "name": "health backend",
+      "params": [],
+      "headers": [],
+      "method": "GET",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "preRequestScript": "",
+      "testScript": "",
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "endpoint": "http://localhost:4000/health/db",
+      "name": "health database",
+      "params": [],
+      "headers": [],
+      "method": "GET",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "preRequestScript": "",
+      "testScript": "",
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {}
+    }
+  ],
+  "auth": {
+    "authType": "none",
+    "authActive": true
+  },
+  "headers": [],
+  "_ref_id": "coll_mcnm115f_d677d749-9a88-4473-8c33-2d9e0f3a2f48",
   "folders": [
     {
-      "v": 8,
+      "v": 9,
       "name": "rooms",
-      "folders": [],
       "requests": [
         {
-          "v": "14",
+          "v": "15",
           "name": "rooms",
           "method": "GET",
           "endpoint": "http://localhost:4000/rooms",
@@ -28,7 +75,7 @@
           "responses": {}
         },
         {
-          "v": "14",
+          "v": "15",
           "name": "room",
           "method": "POST",
           "endpoint": "http://localhost:4000/rooms",
@@ -48,7 +95,7 @@
           "responses": {}
         },
         {
-          "v": "14",
+          "v": "15",
           "name": "room",
           "method": "GET",
           "endpoint": "http://localhost:4000/rooms/1",
@@ -68,7 +115,7 @@
           "responses": {}
         },
         {
-          "v": "14",
+          "v": "15",
           "name": "room",
           "method": "PATCH",
           "endpoint": "http://localhost:4000/rooms/1",
@@ -88,7 +135,7 @@
           "responses": {}
         },
         {
-          "v": "14",
+          "v": "15",
           "name": "room",
           "method": "DELETE",
           "endpoint": "http://localhost:4000/rooms/1",
@@ -113,15 +160,15 @@
         "authActive": true
       },
       "headers": [],
-      "_ref_id": "coll_mcodmps8_2e9e7ccd-2ee1-4f0e-b6d9-91f44dbadfea"
+      "_ref_id": "coll_mcodmps8_2e9e7ccd-2ee1-4f0e-b6d9-91f44dbadfea",
+      "folders": []
     },
     {
-      "v": 8,
+      "v": 9,
       "name": "users",
-      "folders": [],
       "requests": [
         {
-          "v": "14",
+          "v": "15",
           "name": "users",
           "method": "PATCH",
           "endpoint": "http://localhost:4000/users/4",
@@ -141,7 +188,7 @@
           "responses": {}
         },
         {
-          "v": "14",
+          "v": "15",
           "name": "user",
           "method": "DELETE",
           "endpoint": "http://localhost:4000/users/2",
@@ -161,7 +208,7 @@
           "responses": {}
         },
         {
-          "v": "14",
+          "v": "15",
           "name": "user",
           "method": "POST",
           "endpoint": "http://localhost:4000/users",
@@ -181,7 +228,7 @@
           "responses": {}
         },
         {
-          "v": "14",
+          "v": "15",
           "name": "user",
           "method": "GET",
           "endpoint": "http://localhost:4000/users/5",
@@ -201,7 +248,7 @@
           "responses": {}
         },
         {
-          "v": "14",
+          "v": "15",
           "name": "users",
           "method": "GET",
           "endpoint": "http://localhost:4000/users",
@@ -226,15 +273,15 @@
         "authActive": true
       },
       "headers": [],
-      "_ref_id": "coll_mcodmud5_1c042d49-74d8-4894-8155-6e81f9c603c6"
+      "_ref_id": "coll_mcodmud5_1c042d49-74d8-4894-8155-6e81f9c603c6",
+      "folders": []
     },
     {
-      "v": 8,
+      "v": 9,
       "name": "teams",
-      "folders": [],
       "requests": [
         {
-          "v": "14",
+          "v": "15",
           "name": "teams",
           "method": "GET",
           "endpoint": "http://localhost:4000/teams",
@@ -255,7 +302,7 @@
           "responses": {}
         },
         {
-          "v": "14",
+          "v": "15",
           "name": "team",
           "method": "GET",
           "endpoint": "http://localhost:4000/teams/1",
@@ -276,7 +323,7 @@
           "responses": {}
         },
         {
-          "v": "14",
+          "v": "15",
           "name": "team",
           "method": "DELETE",
           "endpoint": "http://localhost:4000/teams/1",
@@ -297,7 +344,7 @@
           "responses": {}
         },
         {
-          "v": "14",
+          "v": "15",
           "name": "team",
           "method": "PATCH",
           "endpoint": "http://localhost:4000/teams/1",
@@ -318,7 +365,7 @@
           "responses": {}
         },
         {
-          "v": "14",
+          "v": "15",
           "name": "team",
           "method": "POST",
           "endpoint": "http://localhost:4000/teams",
@@ -339,7 +386,7 @@
           "responses": {}
         },
         {
-          "v": "14",
+          "v": "15",
           "name": "teams by room",
           "method": "GET",
           "endpoint": "http://localhost:4000/teams/room?room_code=1TvX1wTGjSDI__9aa98098",
@@ -365,15 +412,15 @@
         "authActive": true
       },
       "headers": [],
-      "_ref_id": "coll_mcos7hz0_a8353216-dbf6-4d0f-b850-0d3863c2437b"
+      "_ref_id": "coll_mcos7hz0_a8353216-dbf6-4d0f-b850-0d3863c2437b",
+      "folders": []
     },
     {
-      "v": 8,
+      "v": 9,
       "name": "clients",
-      "folders": [],
       "requests": [
         {
-          "v": "14",
+          "v": "15",
           "name": "clients",
           "method": "GET",
           "endpoint": "http://localhost:4000/clients",
@@ -393,7 +440,7 @@
           "responses": {}
         },
         {
-          "v": "14",
+          "v": "15",
           "name": "client",
           "method": "GET",
           "endpoint": "http://localhost:4000/clients/1",
@@ -414,7 +461,7 @@
           "responses": {}
         },
         {
-          "v": "14",
+          "v": "15",
           "name": "client",
           "method": "PATCH",
           "endpoint": "http://localhost:4000/clients/1",
@@ -435,7 +482,7 @@
           "responses": {}
         },
         {
-          "v": "14",
+          "v": "15",
           "name": "client",
           "method": "DELETE",
           "endpoint": "http://localhost:4000/clients/1",
@@ -456,7 +503,7 @@
           "responses": {}
         },
         {
-          "v": "14",
+          "v": "15",
           "name": "client",
           "method": "POST",
           "endpoint": "http://localhost:4000/clients",
@@ -482,15 +529,15 @@
         "authActive": true
       },
       "headers": [],
-      "_ref_id": "coll_mcqfhk28_de75f552-d3bb-4b21-98c9-afdbb4d7091f"
+      "_ref_id": "coll_mcqfhk28_de75f552-d3bb-4b21-98c9-afdbb4d7091f",
+      "folders": []
     },
     {
-      "v": 8,
+      "v": 9,
       "name": "stories",
-      "folders": [],
       "requests": [
         {
-          "v": "14",
+          "v": "15",
           "name": "story",
           "method": "POST",
           "endpoint": "http://localhost:4000/stories",
@@ -516,27 +563,27 @@
         "authActive": true
       },
       "headers": [],
-      "_ref_id": "coll_mcrxhzz0_7b7d205b-9128-4ca3-a9c0-1ddad6d092ce"
+      "_ref_id": "coll_mcrxhzz0_7b7d205b-9128-4ca3-a9c0-1ddad6d092ce",
+      "folders": []
     },
     {
-      "v": 8,
+      "v": 9,
       "name": "story_points",
-      "folders": [],
       "requests": [
         {
-          "v": "14",
-          "endpoint": "http://localhost:4000/story-points",
+          "v": "15",
           "name": "story_point",
+          "method": "POST",
+          "endpoint": "http://localhost:4000/story-points",
           "params": [],
           "headers": [],
-          "method": "POST",
-          "auth": {
-            "authType": "bearer",
-            "authActive": true,
-            "token": "USER__0c4647da-0b85-460b-86fd-84055100776b"
-          },
           "preRequestScript": "",
           "testScript": "",
+          "auth": {
+            "authType": "bearer",
+            "token": "USER__0c4647da-0b85-460b-86fd-84055100776b",
+            "authActive": true
+          },
           "body": {
             "contentType": null,
             "body": null
@@ -550,14 +597,8 @@
         "authActive": true
       },
       "headers": [],
-      "_ref_id": "coll_mcydjk6p_f80a5660-63a4-4606-b08d-8e26c23bb458"
+      "_ref_id": "coll_mcydjk6p_f80a5660-63a4-4606-b08d-8e26c23bb458",
+      "folders": []
     }
-  ],
-  "requests": [],
-  "auth": {
-    "authType": "none",
-    "authActive": true
-  },
-  "headers": [],
-  "_ref_id": "coll_mcnm115f_d677d749-9a88-4473-8c33-2d9e0f3a2f48"
+  ]
 }
