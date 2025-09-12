@@ -14,7 +14,6 @@ import { RoomsModule } from './rooms/rooms.module';
 import { TeamsModule } from './teams/teams.module';
 import { ClientsModule } from './clients/clients.module';
 import { StoriesModule } from './stories/stories.module';
-import { StoryPointsModule } from './story_points/story_points.module';
 import { CommonModule } from './common/common.module';
 import { CleanupModule } from './utils/cleanup.module';
 
@@ -24,7 +23,6 @@ import { Client as ClientEntities } from './clients/entities/client.entity';
 import { Room as RoomEntities } from './rooms/entities/room.entity';
 import { Team as TeamEntities } from './teams/entities/team.entity';
 import { Story as StoryEntities } from './stories/entities/story.entity';
-import { StoryPoint as StoryPointEntities } from './story_points/entities/story_point.entity';
 
 @Module({
   imports: [
@@ -46,7 +44,6 @@ import { StoryPoint as StoryPointEntities } from './story_points/entities/story_
         RoomEntities,
         TeamEntities,
         StoryEntities,
-        StoryPointEntities,
       ],
       synchronize: true,
     }),
@@ -55,7 +52,6 @@ import { StoryPoint as StoryPointEntities } from './story_points/entities/story_
     TeamsModule,
     ClientsModule,
     StoriesModule,
-    StoryPointsModule,
     CommonModule,
     CleanupModule,
   ],

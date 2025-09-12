@@ -6,7 +6,6 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { CreateTeamDto } from './dto/create-team.dto';
-import { UpdateTeamDto } from './dto/update-team.dto';
 import { extractToken } from 'src/utils/utils';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Team } from './entities/team.entity';
@@ -203,18 +202,6 @@ export class TeamsService {
         },
       );
     }
-  }
-
-  async update(
-    id: number,
-    updateTeamDto: UpdateTeamDto,
-    token: string | undefined,
-  ): Promise<boolean> {
-    return false;
-  }
-
-  async remove(id: number, token: string | undefined): Promise<boolean> {
-    return false;
   }
 
   async updateHeartbeat(

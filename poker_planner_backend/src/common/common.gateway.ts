@@ -24,7 +24,6 @@ import {
   Story,
   STORY_POINT_EVALUATION_STATUSES,
 } from 'src/stories/entities/story.entity';
-import { StoryPoint } from 'src/story_points/entities/story_point.entity';
 
 type Action =
   | {
@@ -70,9 +69,6 @@ export class CommonGateway {
 
     @InjectRepository(Story)
     private readonly storiesRepository: Repository<Story>,
-
-    @InjectRepository(StoryPoint)
-    private readonly storyPointsRepository: Repository<StoryPoint>,
   ) {}
 
   async checkToken(token: string | undefined): Promise<User> {
@@ -100,60 +96,6 @@ export class CommonGateway {
     }
 
     return user;
-  }
-
-  async storyPointsStats(storyId: number) {
-    let result = {
-      averageStoryPoint: 0,
-      groupByStoryPointArray: [] as { name: string; value: number }[],
-    };
-
-    if (!storyId) {
-      return;
-    }
-
-    const storyPoints = await this.storyPointsRepository.find({
-      where: {
-        story: { id: storyId },
-      },
-      relations: {
-        story: true,
-        user: true,
-      },
-    });
-
-    // grouped as object with key for sprint point and value for no of votes
-    const groupByStoryPoint = storyPoints.reduce(
-      (acc, storyPoint) => {
-        if (!acc[storyPoint.story_point]) {
-          acc[storyPoint.story_point] = 0;
-        }
-        acc[storyPoint.story_point] += 1;
-        return acc;
-      },
-      {} as { [key: string]: number },
-    );
-
-    // grouped as array of objects with key for sprint point and value for no of votes
-    const groupByStoryPointArray = groupByStoryPoint
-      ? Object.entries(groupByStoryPoint).map(([key, value]) => ({
-          name: `${key}`,
-          value: value,
-        }))
-      : [];
-
-    // average story point
-    const averageStoryPoint =
-      storyPoints.reduce((acc, storyPoint) => {
-        return acc + storyPoint.story_point;
-      }, 0) / storyPoints.length;
-
-    result = {
-      averageStoryPoint,
-      groupByStoryPointArray,
-    };
-
-    return result;
   }
 
   @SubscribeMessage('common:check')
@@ -240,26 +182,24 @@ export class CommonGateway {
       order: { id: 'DESC' },
     });
 
-    let inProgressStoryPoints: StoryPoint[] | null = null;
-
-    // Get the story points for the in-progress stories
-    if (body.story_id || inProgressStories?.length > 0) {
-      const storyId = body.story_id
-        ? Number(body.story_id)
-        : inProgressStories?.[0]?.id;
-
-      const storyPoints = await this.storyPointsRepository.find({
-        where: {
-          story: { id: storyId },
-        },
-        relations: {
-          story: true,
-          user: true,
-        },
-      });
-
-      inProgressStoryPoints = storyPoints;
-    }
+    // Get votes for current in-progress story
+    const currentStory = inProgressStories?.[0];
+    const votes = currentStory?.votes || [];
+    
+    // Transform votes to match frontend expectations
+    const storyPoints = votes.map(vote => ({
+      id: `${currentStory?.id || 0}-${vote.user_id}`, // synthetic ID
+      story_point: vote.vote,
+      is_active: true,
+      created_at: vote.voted_at,
+      updated_at: vote.voted_at,
+      deleted_at: null,
+      user: {
+        id: vote.user_id,
+        username: vote.username,
+      },
+      story: currentStory,
+    }));
 
     const result = {
       clientId: socket.id,
@@ -268,8 +208,8 @@ export class CommonGateway {
       team, // user's record from team
       teamMembers, // all the team members
       inProgressStories, // all the in-progress stories
-      inProgressStory: inProgressStories?.[0] ?? null, // story in-progress for this room
-      storyPoints: inProgressStoryPoints, // if already voted for the story
+      inProgressStory: currentStory ?? null, // story in-progress for this room
+      storyPoints, // transformed votes to match frontend structure
     };
 
     // emit to the whole room with callback
@@ -312,13 +252,53 @@ export class CommonGateway {
       return;
     }
 
-    const storyPointsStats = await this.storyPointsStats(body.storyId);
+    // Fetch the updated story to get current status and votes
+    const story = await this.storiesRepository.findOne({
+      where: { id: body.storyId },
+      relations: { created_by: true },
+    });
 
-    this.server.to(body.room_code).emit('story:updated', {
+    if (!story) {
+      return;
+    }
+
+    const isCompleted = story.story_point_evaluation_status === 'completed';
+    let responseData: any = {
       clientId: socket.id,
       message: 'story updated',
       storyId: body.storyId,
-      ...storyPointsStats,
-    });
+      body: story,
+    };
+
+    // If story is completed, include vote statistics for the chart
+    if (isCompleted && story.votes && story.votes.length > 0) {
+      // Group votes by story point value and count them
+      const voteGroups: { [key: string]: number } = {};
+      let totalVotes = 0;
+      let totalPoints = 0;
+
+      story.votes.forEach(vote => {
+        const voteValue = vote.vote.toString();
+        voteGroups[voteValue] = (voteGroups[voteValue] || 0) + 1;
+        totalVotes++;
+        totalPoints += vote.vote;
+      });
+
+      // Convert to array format expected by chart
+      const groupByStoryPointArray = Object.entries(voteGroups).map(([name, value]) => ({
+        name,
+        value
+      }));
+
+      const averageStoryPoint = totalVotes > 0 ? totalPoints / totalVotes : 0;
+
+      responseData = {
+        ...responseData,
+        groupByStoryPointArray,
+        averageStoryPoint: Number(averageStoryPoint.toFixed(2))
+      };
+    }
+
+    this.server.to(body.room_code).emit('story:updated', responseData);
   }
 }

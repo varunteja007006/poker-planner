@@ -70,96 +70,6 @@ export class StoriesService {
     }
   }
 
-  async findAll(
-    token: string | undefined,
-    room_code: string | undefined,
-    story_point_evaluation_status: StoryPointEvaluationStatus | undefined,
-  ): Promise<Story[]> {
-    try {
-      if (!token) {
-        throw new Error('Token not found');
-      }
-
-      if (!room_code) {
-        throw new Error('Room code not found');
-      }
-
-      const user_token = extractToken(token);
-
-      const user = await this.usersRepository.findOne({
-        where: { user_token },
-      });
-
-      if (!user) {
-        throw new Error('User not found');
-      }
-
-      const room = await this.roomsRepository.findOne({
-        where: { room_code },
-      });
-
-      if (!room) {
-        throw new Error('Room not found');
-      }
-
-      const stories = await this.storiesRepository.find({
-        where: { room: { id: room.id }, story_point_evaluation_status },
-      });
-
-      return stories;
-    } catch (error) {
-      throw new HttpException(
-        {
-          status: HttpStatus.BAD_REQUEST,
-          error: error.message,
-        },
-        HttpStatus.BAD_REQUEST,
-        {
-          cause: error.message,
-        },
-      );
-    }
-  }
-
-  async findOne(id: number, token: string | undefined): Promise<Story> {
-    try {
-      if (!token) {
-        throw new Error('Token not found');
-      }
-
-      const user_token = extractToken(token);
-
-      const user = await this.usersRepository.findOne({
-        where: { user_token },
-      });
-
-      if (!user) {
-        throw new Error('User not found');
-      }
-
-      const story = await this.storiesRepository.findOne({
-        where: { id },
-      });
-
-      if (!story) {
-        throw new Error('Story not found');
-      }
-
-      return story;
-    } catch (error) {
-      throw new HttpException(
-        {
-          status: HttpStatus.BAD_REQUEST,
-          error: error.message,
-        },
-        HttpStatus.BAD_REQUEST,
-        {
-          cause: error.message,
-        },
-      );
-    }
-  }
-
   async update(
     id: number,
     updateStoryDto: UpdateStoryDto,
@@ -208,14 +118,17 @@ export class StoriesService {
     }
   }
 
-  async remove(id: number, token: string | undefined): Promise<boolean> {
+  async submitVote(
+    storyId: number, 
+    voteValue: number, 
+    token: string | undefined
+  ): Promise<{ success: boolean; votes: any[]; averageVote?: number }> {
     try {
       if (!token) {
         throw new Error('Token not found');
       }
 
       const user_token = extractToken(token);
-
       const user = await this.usersRepository.findOne({
         where: { user_token },
       });
@@ -225,16 +138,66 @@ export class StoriesService {
       }
 
       const story = await this.storiesRepository.findOne({
-        where: { id },
+        where: { id: storyId },
       });
 
       if (!story) {
         throw new Error('Story not found');
       }
 
-      const deletedStory = await this.storiesRepository.delete(id);
+      // Initialize votes array if null
+      const currentVotes = story.votes || [];
+      
+      // Remove any existing vote from this user
+      const filteredVotes = currentVotes.filter(vote => vote.user_id !== user.id);
+      
+      // Add new vote
+      const newVote = {
+        user_id: user.id,
+        username: user.username,
+        vote: voteValue,
+        voted_at: new Date(),
+      };
+      
+      const updatedVotes = [...filteredVotes, newVote];
 
-      return !!deletedStory.affected;
+      // Update story with new votes
+      await this.storiesRepository.update(storyId, {
+        votes: updatedVotes,
+      });
+
+      // Calculate average
+      const average = updatedVotes.length > 0 
+        ? updatedVotes.reduce((sum, vote) => sum + vote.vote, 0) / updatedVotes.length 
+        : 0;
+
+      return {
+        success: true,
+        votes: updatedVotes,
+        averageVote: average,
+      };
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          error: error.message,
+        },
+        HttpStatus.BAD_REQUEST,
+        {
+          cause: error.message,
+        },
+      );
+    }
+  }
+
+  async getVotes(storyId: number): Promise<any[]> {
+    try {
+      const story = await this.storiesRepository.findOne({
+        where: { id: storyId },
+        select: ['votes'],
+      });
+
+      return story?.votes || [];
     } catch (error) {
       throw new HttpException(
         {

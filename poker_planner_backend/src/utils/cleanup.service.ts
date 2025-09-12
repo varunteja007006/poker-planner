@@ -8,7 +8,6 @@ import { User } from '../users/entities/user.entity';
 import { Room } from '../rooms/entities/room.entity';
 import { Team } from '../teams/entities/team.entity';
 import { Story } from '../stories/entities/story.entity';
-import { StoryPoint } from '../story_points/entities/story_point.entity';
 import { Client } from '../clients/entities/client.entity';
 
 @Injectable()
@@ -24,8 +23,6 @@ export class CleanupService {
     private readonly teamRepository: Repository<Team>,
     @InjectRepository(Story)
     private readonly storyRepository: Repository<Story>,
-    @InjectRepository(StoryPoint)
-    private readonly storyPointRepository: Repository<StoryPoint>,
     @InjectRepository(Client)
     private readonly clientRepository: Repository<Client>,
   ) {}
@@ -56,7 +53,6 @@ export class CleanupService {
       await this.cleanupSoftDeletedRecords('Rooms', this.roomRepository, oneDayAgo);
       await this.cleanupSoftDeletedRecords('Teams', this.teamRepository, oneDayAgo);
       await this.cleanupSoftDeletedRecords('Stories', this.storyRepository, oneDayAgo);
-      await this.cleanupSoftDeletedRecords('StoryPoints', this.storyPointRepository, oneDayAgo);
       await this.cleanupSoftDeletedRecords('Clients', this.clientRepository, oneDayAgo);
 
       // Clean up inactive sessions after 2 hours
@@ -213,20 +209,9 @@ export class CleanupService {
           deleted_at: new Date(),
           is_active: false 
         });
-
-        // Clean up associated story points
-        await this.storyPointRepository
-          .createQueryBuilder()
-          .update()
-          .set({ 
-            deleted_at: new Date(),
-            is_active: false 
-          })
-          .where('story = :storyId', { storyId: story.id })
-          .execute();
       }
 
-      this.logger.log(`Stories: Soft-deleted ${completedStories.length} completed stories and their story points`);
+      this.logger.log(`Stories: Soft-deleted ${completedStories.length} completed stories`);
     } catch (error) {
       this.logger.error('Failed to cleanup completed stories:', error);
     }
@@ -238,7 +223,6 @@ export class CleanupService {
   private async deepCleanupAllRecords(cutoffDate: Date): Promise<void> {
     try {
       const tables = [
-        { name: 'StoryPoints', repository: this.storyPointRepository },
         { name: 'Stories', repository: this.storyRepository },
         { name: 'Teams', repository: this.teamRepository },
         { name: 'Clients', repository: this.clientRepository },
@@ -277,7 +261,6 @@ export class CleanupService {
     
     try {
       const tables = [
-        { name: 'StoryPoints', repository: this.storyPointRepository },
         { name: 'Stories', repository: this.storyRepository },
         { name: 'Teams', repository: this.teamRepository },
         { name: 'Clients', repository: this.clientRepository },
@@ -323,14 +306,12 @@ export class CleanupService {
         roomCount,
         teamCount,
         storyCount,
-        storyPointCount,
         clientCount,
       ] = await Promise.all([
         this.userRepository.count(),
         this.roomRepository.count(),
         this.teamRepository.count(),
         this.storyRepository.count(),
-        this.storyPointRepository.count(),
         this.clientRepository.count(),
       ]);
 
@@ -339,7 +320,6 @@ export class CleanupService {
         rooms: roomCount,
         teams: teamCount,
         stories: storyCount,
-        storyPoints: storyPointCount,
         clients: clientCount,
       };
 
@@ -381,7 +361,6 @@ export class CleanupService {
         roomCount,
         teamCount,
         storyCount,
-        storyPointCount,
         clientCount,
         inactiveClientCount,
         completedStoriesCount,
@@ -403,11 +382,6 @@ export class CleanupService {
           },
         }),
         this.storyRepository.count({
-          where: { 
-            deleted_at: LessThan(oneDayAgo),
-          },
-        }),
-        this.storyPointRepository.count({
           where: { 
             deleted_at: LessThan(oneDayAgo),
           },
@@ -443,7 +417,6 @@ export class CleanupService {
           rooms: roomCount,
           teams: teamCount,
           stories: storyCount,
-          storyPoints: storyPointCount,
           clients: clientCount,
         },
         inactiveClientCount,

@@ -8,10 +8,8 @@ import {
 
 import { Server, Socket } from 'socket.io';
 import { Story } from './entities/story.entity';
-import { StoryPoint } from 'src/story_points/entities/story_point.entity';
-import { Repository } from 'typeorm';
-import { InjectRepository } from '@nestjs/typeorm';
 import { Injectable } from '@nestjs/common';
+import { StoriesService } from './stories.service';
 
 @WebSocketGateway({
   cors: {
@@ -25,10 +23,7 @@ export class StoriesGateway {
   @WebSocketServer()
   server: Server;
 
-  constructor(
-    @InjectRepository(StoryPoint)
-    private storyPointsRepository: Repository<StoryPoint>,
-  ) {}
+  constructor(private readonly storiesService: StoriesService) {}
 
   @SubscribeMessage('stories:check')
   check(@ConnectedSocket() socket: Socket) {
@@ -53,67 +48,109 @@ export class StoriesGateway {
   @SubscribeMessage('stories:update')
   async updated(@ConnectedSocket() socket: Socket, @MessageBody() body: Story) {
     const isCompleted = body.story_point_evaluation_status === 'completed';
-
     const message = isCompleted ? 'ended game' : 'started game';
-
-    let storyPoints = await this.storyPointsRepository.find({
-      where: { story: { id: body.id } },
-      relations: {
-        story: true,
-        user: true,
-      },
-    });
-
-    // if storyPoints is not an array or is empty, set it to an empty array
-    if (!storyPoints || !Array.isArray(storyPoints)) {
-      storyPoints = [];
-    }
-
-    // key is the story point number and value is the count
-    const groupByStoryPoint = storyPoints.reduce(
-      (acc, storyPoint) => {
-        if (!acc[storyPoint.story_point]) {
-          acc[storyPoint.story_point] = 0;
-        }
-        acc[storyPoint.story_point] += 1;
-        return acc;
-      },
-      {} as { [key: string]: number },
-    );
-
-    const groupByStoryPointArray = groupByStoryPoint
-      ? Object.entries(groupByStoryPoint).map(([key, value]) => ({
-          name: `${key}`,
-          value: value,
-        }))
-      : [];
-
-    // average story point
-    const averageStoryPoint =
-      storyPoints.reduce((acc, storyPoint) => {
-        return acc + storyPoint.story_point;
-      }, 0) / storyPoints.length;
 
     if (!body.room?.room_code) {
       console.error('Room code is missing in the request body');
       return;
     }
 
-    // emit the updated story to the room
-    this.server.to(body.room.room_code).emit('stories:updated', {
+    let responseData: any = {
       clientId: socket.id,
       message: `${body.created_by.username} ${message}`,
       body,
-      storyPoints,
-      groupByStoryPoint,
-      averageStoryPoint,
-    });
+    };
+
+    // If story is completed, include vote statistics for the chart
+    if (isCompleted && body.votes && body.votes.length > 0) {
+      // Group votes by story point value and count them
+      const voteGroups: { [key: string]: number } = {};
+      let totalVotes = 0;
+      let totalPoints = 0;
+
+      body.votes.forEach(vote => {
+        const voteValue = vote.vote.toString();
+        voteGroups[voteValue] = (voteGroups[voteValue] || 0) + 1;
+        totalVotes++;
+        totalPoints += vote.vote;
+      });
+
+      // Convert to array format expected by chart
+      const groupByStoryPointArray = Object.entries(voteGroups).map(([name, value]) => ({
+        name,
+        value
+      }));
+
+      const averageStoryPoint = totalVotes > 0 ? totalPoints / totalVotes : 0;
+
+      responseData = {
+        ...responseData,
+        groupByStoryPointArray,
+        averageStoryPoint: Number(averageStoryPoint.toFixed(2))
+      };
+    }
+
+    // emit the updated story to the room
+    this.server.to(body.room.room_code).emit('stories:updated', responseData);
 
     return {
-      storyPoints,
-      groupByStoryPoint,
-      groupByStoryPointArray,
-      averageStoryPoint,
+      story: body,
     };
+  }
+
+  @SubscribeMessage('story-points:create')
+  async createVote(
+    @ConnectedSocket() socket: Socket, 
+    @MessageBody() body: { 
+      story_point: number; 
+      story_id: number; 
+      token: string; 
+      room_code: string;
+    }
+  ) {
+    try {
+      const result = await this.storiesService.submitVote(
+        body.story_id, 
+        body.story_point, 
+        body.token
+      );
+
+      // Transform votes to match frontend expectations
+      const storyPoints = result.votes.map(vote => ({
+        id: `${body.story_id}-${vote.user_id}`, // synthetic ID
+        story_point: vote.vote,
+        is_active: true,
+        created_at: vote.voted_at,
+        updated_at: vote.voted_at,
+        deleted_at: null,
+        user: {
+          id: vote.user_id,
+          username: vote.username,
+        },
+      }));
+
+      // Emit to room about the new vote
+      this.server.to(body.room_code).emit('vote:submitted', {
+        clientId: socket.id,
+        storyId: body.story_id,
+        votes: storyPoints,
+        averageVote: result.averageVote,
+      });
+
+      // Find the current user's vote for the response
+      const currentUserVote = storyPoints.find(sp => 
+        sp.user.id === result.votes.find(v => v.vote === body.story_point)?.user_id
+      );
+
+      return {
+        success: true,
+        vote: currentUserVote,
+        votes: storyPoints,
+        averageVote: result.averageVote,
+      };
+    } catch (error) {
+      console.error('Error creating vote:', error);
+      return { success: false, error: error.message };
+    }
   }
 }

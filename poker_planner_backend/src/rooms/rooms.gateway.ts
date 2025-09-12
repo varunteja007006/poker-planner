@@ -23,7 +23,6 @@ import {
   Story,
   STORY_POINT_EVALUATION_STATUSES,
 } from 'src/stories/entities/story.entity';
-import { StoryPointsService } from 'src/story_points/story_points.service';
 import { Team } from 'src/teams/entities/team.entity';
 
 @WebSocketGateway({
@@ -46,8 +45,6 @@ export class RoomsGateway {
     private readonly teamsService: TeamsService,
 
     private readonly storiesService: StoriesService,
-
-    private readonly storyPointsService: StoryPointsService,
   ) {}
 
   async checkToken(token: string | undefined): Promise<User> {

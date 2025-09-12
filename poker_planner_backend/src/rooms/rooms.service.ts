@@ -2,12 +2,9 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
-  NotFoundException,
 } from '@nestjs/common';
 
 import { CreateRoomDto } from './dto/create-room.dto';
-import { UpdateRoomDto } from './dto/update-room.dto';
-
 import { Room } from './entities/room.entity';
 
 import { InjectRepository } from '@nestjs/typeorm';
@@ -20,12 +17,12 @@ import { TeamsService } from 'src/teams/teams.service';
 export class RoomsService {
   constructor(
     @InjectRepository(Room)
-    private roomsRepository: Repository<Room>,
+    private readonly roomsRepository: Repository<Room>,
 
     @InjectRepository(User)
-    private usersRepository: Repository<User>,
+    private readonly usersRepository: Repository<User>,
 
-    private teamsService: TeamsService,
+    private readonly teamsService: TeamsService,
   ) {}
 
   async create(
@@ -91,77 +88,5 @@ export class RoomsService {
     });
 
     return rooms;
-  }
-
-  async findOne(id: number): Promise<Room> {
-    const room = await this.roomsRepository.findOne({
-      relations: {
-        created_by: true,
-        updated_by: true,
-      },
-      where: { id },
-    });
-
-    if (!room) {
-      throw new NotFoundException('Room not found');
-    }
-
-    return room;
-  }
-
-  async update(id: number, updateRoomDto: UpdateRoomDto): Promise<boolean> {
-    try {
-      const user = await this.usersRepository.findOne({
-        where: { id: updateRoomDto['userId'] },
-      });
-
-      if (!user) {
-        throw new HttpException(
-          {
-            status: HttpStatus.NOT_FOUND,
-            error: 'User not found',
-          },
-          HttpStatus.NOT_FOUND,
-          {
-            cause: 'User not found',
-          },
-        );
-      }
-
-      const updatedRoom = await this.roomsRepository.update(id, {
-        ...updateRoomDto,
-        updated_by: user,
-      });
-      return !!updatedRoom.affected;
-    } catch (error) {
-      throw new HttpException(
-        {
-          status: HttpStatus.NOT_FOUND,
-          error: 'Something went wrong with updating the room',
-        },
-        HttpStatus.NOT_FOUND,
-        {
-          cause: 'Something went wrong with updating the room',
-        },
-      );
-    }
-  }
-
-  async remove(id: number): Promise<boolean> {
-    try {
-      const deletedRoom = await this.roomsRepository.delete(id);
-      return !!deletedRoom.affected;
-    } catch (error) {
-      throw new HttpException(
-        {
-          status: HttpStatus.NOT_FOUND,
-          error: 'Something went wrong with deleting the room',
-        },
-        HttpStatus.NOT_FOUND,
-        {
-          cause: 'Something went wrong with deleting the room',
-        },
-      );
-    }
   }
 }

@@ -1,12 +1,10 @@
 import { Room } from 'src/rooms/entities/room.entity';
-import { StoryPoint } from 'src/story_points/entities/story_point.entity';
 import { User } from 'src/users/entities/user.entity';
 import {
   Column,
   Entity,
   JoinColumn,
   ManyToOne,
-  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -45,6 +43,19 @@ export class Story {
     nullable: true,
   })
   finalized_story_points: number;
+
+  @Column({
+    type: 'json',
+    nullable: true,
+    default: '[]',
+    comment: 'Array of user votes: [{user_id: number, username: string, vote: number, voted_at: timestamp}]'
+  })
+  votes: Array<{
+    user_id: number;
+    username: string;
+    vote: number;
+    voted_at: Date;
+  }>;
 
   @Column({
     type: 'enum',
@@ -93,7 +104,4 @@ export class Story {
   @ManyToOne(() => User, (user) => user.id)
   @JoinColumn({ name: 'updated_by' })
   updated_by: User;
-
-  @OneToMany(() => StoryPoint, (story_point) => story_point.story)
-  story_points: StoryPoint[];
 }
