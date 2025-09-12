@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ScheduleModule } from '@nestjs/schedule';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -15,6 +16,7 @@ import { ClientsModule } from './clients/clients.module';
 import { StoriesModule } from './stories/stories.module';
 import { StoryPointsModule } from './story_points/story_points.module';
 import { CommonModule } from './common/common.module';
+import { CleanupModule } from './utils/cleanup.module';
 
 //entities
 import { User as UserEntities } from './users/entities/user.entity';
@@ -30,6 +32,7 @@ import { StoryPoint as StoryPointEntities } from './story_points/entities/story_
       isGlobal: true,
       load: [configuration],
     }),
+    ScheduleModule.forRoot(),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: configuration().database.host,
@@ -54,6 +57,7 @@ import { StoryPoint as StoryPointEntities } from './story_points/entities/story_
     StoriesModule,
     StoryPointsModule,
     CommonModule,
+    CleanupModule,
   ],
   controllers: [AppController],
   providers: [AppService],
