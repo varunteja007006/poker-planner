@@ -44,3 +44,10 @@ export const getRoomFromLocalStorage = (): Room | null => {
 export const removeRoomFromLocalStorage = (): void => {
   localStorage.removeItem(ROOM);
 };
+
+// Utility function to perform reset actions
+export const performReset = (): void => {
+  clearLocalStorage();
+  // Redirect to home page after reset
+  window.location.href = "/";
+};

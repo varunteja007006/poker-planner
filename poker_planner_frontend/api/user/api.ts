@@ -5,6 +5,11 @@ class UserApi {
     const response = await axiosInstance.post("/users", { username });
     return response.data;
   }
+
+  static async getUserById(id: number) {
+    const response = await axiosInstance.get(`/users/${id}`);
+    return response.data;
+  }
 }
 
 export default UserApi;
