@@ -269,6 +269,95 @@ export class CleanupService {
   }
 
   /**
+   * 💥 NUCLEAR CLEANUP 💥
+   * Deletes ALL records regardless of age or status - ULTIMATE RESET!
+   */
+  async nuclearCleanup(): Promise<void> {
+    this.logger.warn('🚨 NUCLEAR CLEANUP INITIATED - DELETING ALL DATA! 🚨');
+    
+    try {
+      const tables = [
+        { name: 'StoryPoints', repository: this.storyPointRepository },
+        { name: 'Stories', repository: this.storyRepository },
+        { name: 'Teams', repository: this.teamRepository },
+        { name: 'Clients', repository: this.clientRepository },
+        { name: 'Rooms', repository: this.roomRepository },
+        { name: 'Users', repository: this.userRepository },
+      ];
+
+      let totalDeleted = 0;
+
+      for (const table of tables) {
+        this.logger.warn(`💣 Obliterating ALL ${table.name} records...`);
+        
+        const result = await table.repository
+          .createQueryBuilder()
+          .delete()
+          .execute(); // No WHERE clause = DELETE EVERYTHING!
+
+        const deletedCount = result.affected || 0;
+        totalDeleted += deletedCount;
+        
+        this.logger.warn(`💥 ${table.name}: ${deletedCount} records VAPORIZED!`);
+      }
+
+      this.logger.warn(`🔥 NUCLEAR CLEANUP COMPLETE: ${totalDeleted} total records OBLITERATED! 🔥`);
+      this.logger.warn('🧹 Database is now completely clean - fresh start achieved!');
+      
+    } catch (error) {
+      this.logger.error('💀 Nuclear cleanup failed - some data survived the blast:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * 🎯 Get nuclear cleanup statistics - shows ALL records that would be deleted
+   */
+  async getNuclearStats(): Promise<{
+    totalRecords: Record<string, number>;
+    grandTotal: number;
+  }> {
+    try {
+      const [
+        userCount,
+        roomCount,
+        teamCount,
+        storyCount,
+        storyPointCount,
+        clientCount,
+      ] = await Promise.all([
+        this.userRepository.count(),
+        this.roomRepository.count(),
+        this.teamRepository.count(),
+        this.storyRepository.count(),
+        this.storyPointRepository.count(),
+        this.clientRepository.count(),
+      ]);
+
+      const totalRecords = {
+        users: userCount,
+        rooms: roomCount,
+        teams: teamCount,
+        stories: storyCount,
+        storyPoints: storyPointCount,
+        clients: clientCount,
+      };
+
+      const grandTotal = Object.values(totalRecords).reduce((sum, count) => sum + count, 0);
+
+      this.logger.warn(`💣 Nuclear preview: ${grandTotal} total records would be OBLITERATED!`);
+
+      return {
+        totalRecords,
+        grandTotal,
+      };
+    } catch (error) {
+      this.logger.error('Failed to get nuclear statistics:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Get cleanup statistics without performing cleanup
    */
   async getCleanupStatistics(): Promise<{

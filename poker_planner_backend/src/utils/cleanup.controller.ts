@@ -27,6 +27,28 @@ export class CleanupController {
   }
 
   /**
+   * 🎯 Get nuclear cleanup preview - see what's about to be OBLITERATED
+   */
+  @Get('nuclear-preview')
+  async getNuclearPreview() {
+    try {
+      const stats = await this.cleanupService.getNuclearStats();
+      return {
+        success: true,
+        data: stats,
+        message: '💣 Nuclear cleanup preview - ALL THESE RECORDS WILL BE DELETED!',
+        warning: '🚨 This shows ALL records that will be permanently deleted by nuclear cleanup',
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message,
+        message: 'Failed to get nuclear preview',
+      };
+    }
+  }
+
+  /**
    * Manually trigger cleanup (for testing/administrative purposes)
    */
   @Post('manual')
@@ -42,6 +64,28 @@ export class CleanupController {
         success: false,
         error: error.message,
         message: 'Manual cleanup failed',
+      };
+    }
+  }
+
+  /**
+   * 💥 NUCLEAR OPTION 💥
+   * Deletes ALL data regardless of status - USE WITH EXTREME CAUTION!
+   */
+  @Post('nuclear')
+  async nuclearCleanup() {
+    try {
+      await this.cleanupService.nuclearCleanup();
+      return {
+        success: true,
+        message: '💥 NUCLEAR CLEANUP COMPLETED - ALL DATA OBLITERATED! 💥',
+        warning: 'All records have been permanently deleted regardless of status',
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message,
+        message: '🔥 Nuclear cleanup failed - some data may have survived the blast 🔥',
       };
     }
   }
