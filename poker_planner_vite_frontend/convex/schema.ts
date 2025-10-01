@@ -33,6 +33,8 @@ export default defineSchema({
     created_by: v.id("users"),
   })
     .index("by_room", ["roomId"])
+    .index("by_room_status", ["roomId", "status"])
+    .index("by_status", ["status"])
     .index("created_at", ["created_at"]),
 
   storyPoints: defineTable({
