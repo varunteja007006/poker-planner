@@ -163,10 +163,12 @@ export const getStartedStory = query({
       };
     }
 
+    const { _creationTime, ...storyWithoutCreationTime } = story;
+
     return {
       success: true,
       message: "Started story found.",
-      story,
+      story: storyWithoutCreationTime,
     };
   },
 });
@@ -255,7 +257,8 @@ export const listStories = query({
         .order("asc");
     }
 
-    const stories = await storiesQuery.collect();
+    const storiesWithCreationTime = await storiesQuery.collect();
+    const stories = storiesWithCreationTime.map(({ _creationTime, ...s }) => s);
 
     return {
       success: true,
