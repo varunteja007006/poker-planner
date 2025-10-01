@@ -1,7 +1,8 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Users } from "lucide-react";
-import { Link } from "react-router";
+import { useJoinRoom } from "@/hooks/useJoinRoom";
+import CopyBtn from "@/components/atoms/CopyBtn";
 
 export default function RoomHistoryItem({
   label,
@@ -12,6 +13,12 @@ export default function RoomHistoryItem({
   roomCode: string;
   isNew?: boolean;
 }>) {
+  const { joinRoom, isJoining } = useJoinRoom();
+
+  const handleJoin = async () => {
+    await joinRoom(roomCode);
+  };
+
   return (
     <div className="text-primary bg-accent flex max-w-xl flex-row items-center justify-between gap-2 rounded p-2">
       <div className="flex flex-row items-center justify-between gap-2">
@@ -23,11 +30,17 @@ export default function RoomHistoryItem({
           </Badge>
         )}
       </div>
-      <Link to={`/room/${roomCode}`}>
-        <Button variant={"default"} size={"sm"} className="cursor-pointer">
-          Join
+      <div className="flex items-center gap-2">
+        <Button
+          onClick={handleJoin}
+          variant={"default"}
+          className="cursor-pointer"
+          disabled={isJoining}
+        >
+          {isJoining ? "Joining..." : "Join"}
         </Button>
-      </Link>
+        <CopyBtn text={roomCode} tooltipText="Copy Room Code" />
+      </div>
     </div>
   );
 }

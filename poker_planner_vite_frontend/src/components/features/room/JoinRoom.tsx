@@ -3,18 +3,13 @@ import React from "react";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
 import { Label } from "@/components/ui/label";
-import { useNavigate } from "react-router";
-import { useConvex } from "convex/react";
-import { api } from "../../../../convex/_generated/api";
 import { useUserStore } from "@/store/user.store";
+import { useJoinRoom } from "@/hooks/useJoinRoom";
 
 export default function JoinRoom() {
-  const navigate = useNavigate();
-  const convex = useConvex();
-
   const { userToken } = useUserStore();
+  const { joinRoom, isJoining } = useJoinRoom();
 
   const [roomCode, setRoomCode] = React.useState("");
 
@@ -27,34 +22,7 @@ export default function JoinRoom() {
   };
 
   const handleSubmit = async () => {
-    if (!roomCode) {
-      toast.error("Room code is required");
-      return;
-    }
-
-    if (!userToken) {
-      toast.error("User not authenticated");
-      return;
-    }
-
-    const checkResult = await convex.query(api.rooms.checkRoomExists, { roomCode });
-
-    if (!checkResult.success) {
-      toast.error(checkResult.message);
-      return;
-    }
-
-    const joinResult = await convex.mutation(api.rooms.joinRoom, {
-      roomCode,
-      userToken
-    });
-
-    if (joinResult.success) {
-      toast.success(joinResult.message);
-      navigate(`/room/${roomCode}`);
-    } else {
-      toast.error(joinResult.message);
-    }
+    await joinRoom(roomCode);
   };
 
   return (
@@ -70,13 +38,14 @@ export default function JoinRoom() {
             handleSubmit();
           }
         }}
+        disabled={isJoining}
       />
       <Button
         onClick={handleSubmit}
-        disabled={!userToken}
+        disabled={!userToken || isJoining}
         className="cursor-pointer w-full"
       >
-        Join
+        {isJoining ? "Joining..." : "Join"}
       </Button>
     </div>
   );
