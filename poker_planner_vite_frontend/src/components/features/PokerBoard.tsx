@@ -42,9 +42,9 @@ export default function PokerBoard() {
       const currentActive = startedStory.success && !!startedStory.story;
       if (prevActive !== currentActive) {
         if (currentActive) {
-          toast.success("Story started!");
+          toast.success("Game started!");
         } else {
-          toast.success("Story completed!");
+          toast.success("Game completed!");
         }
       }
     }
