@@ -1,43 +1,110 @@
 import React from "react";
 
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { SendHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+
+import { SendHorizontal } from "lucide-react";
+
 import { toast } from "sonner";
 
-export default function Registration() {
-  const [username, setUsername] = React.useState("");
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { createUserSchema } from "@/lib/validators";
+import { useMutation } from "convex/react";
+import { api } from "../../../../convex/_generated/api";
+import { useLocation, useNavigate } from "react-router";
+import { useUserStore } from "@/store/user.store";
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+type CreateUserSchema = z.infer<typeof createUserSchema>;
 
-    if (!username) {
-      toast.error("Please enter a valid name");
+export default function Registration({
+  onSuccess,
+}: {
+  onSuccess?: () => void;
+}) {
+  const { handleSetUserToken, userToken } = useUserStore();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const redirectFromHome = () => {
+    if (location.pathname === "/") {
+      navigate("/room");
     }
   };
 
+  const createUserMutation = useMutation(api.user.createUser);
+
+  const form = useForm<CreateUserSchema>({
+    resolver: zodResolver(createUserSchema),
+    defaultValues: {
+      name: "",
+    },
+  });
+
+  const onSubmit = async (data: CreateUserSchema) => {
+    try {
+      const token = await createUserMutation({ name: data.name });
+      localStorage.setItem("userToken", token);
+      handleSetUserToken(token);
+      toast.success("User registered successfully!");
+      form.reset();
+      onSuccess?.();
+      redirectFromHome();
+    } catch (error) {
+      toast.error("Failed to register user. Please try again.");
+      console.error(error);
+    }
+  };
+
+  React.useEffect(() => {
+    if (userToken) {
+      redirectFromHome();
+    }
+  }, [userToken]);
+
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-2 min-w-sm md:min-w-md">
-      <Label htmlFor="username" className="text-primary">
-        {`> What do you want to be called?`}
-      </Label>
-      <div className="flex gap-2">
-        <Input
-          name="username"
-          placeholder="Eg: John Doe"
-          value={username}
-          onChange={(e) => setUsername(e.target.value ?? "")}
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="w-sm lg:w-md">
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Username</FormLabel>
+              <FormControl>
+                <div className="flex gap-4 items-center">
+                  <Input
+                    placeholder="Eg: John Doe"
+                    className="flex-1"
+                    {...field}
+                  />
+                  <Button
+                    type="submit"
+                    size={"icon"}
+                    disabled={form.formState.isSubmitting}
+                  >
+                    <SendHorizontal />
+                  </Button>
+                </div>
+              </FormControl>
+              <FormDescription>
+                This is your public display name.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
         />
-        <Button
-          type="submit"
-          size={"icon"}
-          variant="default"
-          className="cursor-pointer"
-        >
-          <SendHorizontal />
-        </Button>
-      </div>
-    </form>
+      </form>
+    </Form>
   );
 }

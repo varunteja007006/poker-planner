@@ -6,6 +6,7 @@ import Navbar from "@/components/molecules/navbar/navbar";
 import Footer from "@/components/molecules/footer/footer";
 import Home from "@/components/features/Home";
 import Room from "@/components/features/Room";
+import { UserStoreProvider } from "@/store/user.store";
 
 const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL);
 
@@ -14,14 +15,16 @@ function App() {
     <BrowserRouter>
       <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
         <ConvexProvider client={convex}>
-          <Navbar />
-          <main className="min-h-screen">
-            <Routes>
-               <Route index element={<Home />} />
-               <Route path="room" element={<Room />} />
-            </Routes>
-          </main>
-          <Footer />
+          <UserStoreProvider>
+            <Navbar />
+            <main className="min-h-screen">
+              <Routes>
+                <Route index element={<Home />} />
+                <Route path="room" element={<Room />} />
+              </Routes>
+            </main>
+            <Footer />
+          </UserStoreProvider>
         </ConvexProvider>
       </ThemeProvider>
     </BrowserRouter>
