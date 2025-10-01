@@ -138,6 +138,15 @@ export const getUserRooms = query({
       .withIndex("by_owner", (q) => q.eq("ownerId", userResult.id!))
       .collect();
 
-    return { success: true, message: "Rooms found", rooms };
+    return {
+      success: true,
+      message: "Rooms found",
+      rooms: rooms.map((item) => ({
+        _id: item._id,
+        room_name: item.room_name,
+        room_code: item.room_code,
+        created_at: item.created_at,
+      })),
+    };
   },
 });
