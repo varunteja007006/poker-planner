@@ -1,0 +1,604 @@
+{
+  "v": 9,
+  "name": "poker planner collection",
+  "requests": [
+    {
+      "v": "15",
+      "endpoint": "http://localhost:4000/health/backend",
+      "name": "health backend",
+      "params": [],
+      "headers": [],
+      "method": "GET",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "preRequestScript": "",
+      "testScript": "",
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "endpoint": "http://localhost:4000/health/db",
+      "name": "health database",
+      "params": [],
+      "headers": [],
+      "method": "GET",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "preRequestScript": "",
+      "testScript": "",
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {}
+    }
+  ],
+  "auth": {
+    "authType": "none",
+    "authActive": true
+  },
+  "headers": [],
+  "_ref_id": "coll_mcnm115f_d677d749-9a88-4473-8c33-2d9e0f3a2f48",
+  "folders": [
+    {
+      "v": 9,
+      "name": "rooms",
+      "requests": [
+        {
+          "v": "15",
+          "name": "rooms",
+          "method": "GET",
+          "endpoint": "http://localhost:4000/rooms",
+          "params": [],
+          "headers": [],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": null,
+            "body": null
+          },
+          "requestVariables": [],
+          "responses": {}
+        },
+        {
+          "v": "15",
+          "name": "room",
+          "method": "POST",
+          "endpoint": "http://localhost:4000/rooms",
+          "params": [],
+          "headers": [],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": "application/json",
+            "body": "{\n  \"room_code\": \"xxxxx1asda2223as\"\n}"
+          },
+          "requestVariables": [],
+          "responses": {}
+        },
+        {
+          "v": "15",
+          "name": "room",
+          "method": "GET",
+          "endpoint": "http://localhost:4000/rooms/1",
+          "params": [],
+          "headers": [],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": null,
+            "body": null
+          },
+          "requestVariables": [],
+          "responses": {}
+        },
+        {
+          "v": "15",
+          "name": "room",
+          "method": "PATCH",
+          "endpoint": "http://localhost:4000/rooms/1",
+          "params": [],
+          "headers": [],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": "application/json",
+            "body": "{\n  \"room_code\": \"xxxxx123555\",\n  \"is_active\": false\n}"
+          },
+          "requestVariables": [],
+          "responses": {}
+        },
+        {
+          "v": "15",
+          "name": "room",
+          "method": "DELETE",
+          "endpoint": "http://localhost:4000/rooms/1",
+          "params": [],
+          "headers": [],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": "application/json",
+            "body": ""
+          },
+          "requestVariables": [],
+          "responses": {}
+        }
+      ],
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "headers": [],
+      "_ref_id": "coll_mcodmps8_2e9e7ccd-2ee1-4f0e-b6d9-91f44dbadfea",
+      "folders": []
+    },
+    {
+      "v": 9,
+      "name": "users",
+      "requests": [
+        {
+          "v": "15",
+          "name": "users",
+          "method": "PATCH",
+          "endpoint": "http://localhost:4000/users/4",
+          "params": [],
+          "headers": [],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": "application/json",
+            "body": "{\n  \"username\": \"vams babe\"\n}"
+          },
+          "requestVariables": [],
+          "responses": {}
+        },
+        {
+          "v": "15",
+          "name": "user",
+          "method": "DELETE",
+          "endpoint": "http://localhost:4000/users/2",
+          "params": [],
+          "headers": [],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": null,
+            "body": null
+          },
+          "requestVariables": [],
+          "responses": {}
+        },
+        {
+          "v": "15",
+          "name": "user",
+          "method": "POST",
+          "endpoint": "http://localhost:4000/users",
+          "params": [],
+          "headers": [],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": "application/json",
+            "body": "{\n  \"username\": \"datta\"\n}"
+          },
+          "requestVariables": [],
+          "responses": {}
+        },
+        {
+          "v": "15",
+          "name": "user",
+          "method": "GET",
+          "endpoint": "http://localhost:4000/users/5",
+          "params": [],
+          "headers": [],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": null,
+            "body": null
+          },
+          "requestVariables": [],
+          "responses": {}
+        },
+        {
+          "v": "15",
+          "name": "users",
+          "method": "GET",
+          "endpoint": "http://localhost:4000/users",
+          "params": [],
+          "headers": [],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": null,
+            "body": null
+          },
+          "requestVariables": [],
+          "responses": {}
+        }
+      ],
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "headers": [],
+      "_ref_id": "coll_mcodmud5_1c042d49-74d8-4894-8155-6e81f9c603c6",
+      "folders": []
+    },
+    {
+      "v": 9,
+      "name": "teams",
+      "requests": [
+        {
+          "v": "15",
+          "name": "teams",
+          "method": "GET",
+          "endpoint": "http://localhost:4000/teams",
+          "params": [],
+          "headers": [],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "bearer",
+            "token": "USER__fefd6125-6964-46d8-8781-2ada78dd93d0",
+            "authActive": true
+          },
+          "body": {
+            "contentType": null,
+            "body": null
+          },
+          "requestVariables": [],
+          "responses": {}
+        },
+        {
+          "v": "15",
+          "name": "team",
+          "method": "GET",
+          "endpoint": "http://localhost:4000/teams/1",
+          "params": [],
+          "headers": [],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "bearer",
+            "token": "USER__fefd6125-6964-46d8-8781-2ada78dd93d0",
+            "authActive": true
+          },
+          "body": {
+            "contentType": null,
+            "body": null
+          },
+          "requestVariables": [],
+          "responses": {}
+        },
+        {
+          "v": "15",
+          "name": "team",
+          "method": "DELETE",
+          "endpoint": "http://localhost:4000/teams/1",
+          "params": [],
+          "headers": [],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "bearer",
+            "token": "USER__fefd6125-6964-46d8-8781-2ada78dd93d0",
+            "authActive": true
+          },
+          "body": {
+            "contentType": null,
+            "body": null
+          },
+          "requestVariables": [],
+          "responses": {}
+        },
+        {
+          "v": "15",
+          "name": "team",
+          "method": "PATCH",
+          "endpoint": "http://localhost:4000/teams/1",
+          "params": [],
+          "headers": [],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "bearer",
+            "token": "USER__fefd6125-6964-46d8-8781-2ada78dd93d0",
+            "authActive": true
+          },
+          "body": {
+            "contentType": null,
+            "body": null
+          },
+          "requestVariables": [],
+          "responses": {}
+        },
+        {
+          "v": "15",
+          "name": "team",
+          "method": "POST",
+          "endpoint": "http://localhost:4000/teams",
+          "params": [],
+          "headers": [],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "bearer",
+            "token": "USER__229c84c3-18e7-4915-ba88-567cec50f2b2",
+            "authActive": true
+          },
+          "body": {
+            "contentType": "application/json",
+            "body": "{\n  \"room_id\": 15\n}"
+          },
+          "requestVariables": [],
+          "responses": {}
+        },
+        {
+          "v": "15",
+          "name": "teams by room",
+          "method": "GET",
+          "endpoint": "http://localhost:4000/teams/room?room_code=1TvX1wTGjSDI__9aa98098",
+          "params": [],
+          "headers": [],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "bearer",
+            "token": "USER__fefd6125-6964-46d8-8781-2ada78dd93d0",
+            "authActive": true
+          },
+          "body": {
+            "contentType": null,
+            "body": null
+          },
+          "requestVariables": [],
+          "responses": {}
+        }
+      ],
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "headers": [],
+      "_ref_id": "coll_mcos7hz0_a8353216-dbf6-4d0f-b850-0d3863c2437b",
+      "folders": []
+    },
+    {
+      "v": 9,
+      "name": "clients",
+      "requests": [
+        {
+          "v": "15",
+          "name": "clients",
+          "method": "GET",
+          "endpoint": "http://localhost:4000/clients",
+          "params": [],
+          "headers": [],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "inherit",
+            "authActive": true
+          },
+          "body": {
+            "contentType": null,
+            "body": null
+          },
+          "requestVariables": [],
+          "responses": {}
+        },
+        {
+          "v": "15",
+          "name": "client",
+          "method": "GET",
+          "endpoint": "http://localhost:4000/clients/1",
+          "params": [],
+          "headers": [],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "bearer",
+            "token": "USER__fefd6125-6964-46d8-8781-2ada78dd93d0",
+            "authActive": true
+          },
+          "body": {
+            "contentType": null,
+            "body": null
+          },
+          "requestVariables": [],
+          "responses": {}
+        },
+        {
+          "v": "15",
+          "name": "client",
+          "method": "PATCH",
+          "endpoint": "http://localhost:4000/clients/1",
+          "params": [],
+          "headers": [],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "bearer",
+            "token": "USER__fefd6125-6964-46d8-8781-2ada78dd93d0",
+            "authActive": true
+          },
+          "body": {
+            "contentType": null,
+            "body": null
+          },
+          "requestVariables": [],
+          "responses": {}
+        },
+        {
+          "v": "15",
+          "name": "client",
+          "method": "DELETE",
+          "endpoint": "http://localhost:4000/clients/1",
+          "params": [],
+          "headers": [],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "bearer",
+            "token": "USER__fefd6125-6964-46d8-8781-2ada78dd93d0",
+            "authActive": true
+          },
+          "body": {
+            "contentType": null,
+            "body": null
+          },
+          "requestVariables": [],
+          "responses": {}
+        },
+        {
+          "v": "15",
+          "name": "client",
+          "method": "POST",
+          "endpoint": "http://localhost:4000/clients",
+          "params": [],
+          "headers": [],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "bearer",
+            "token": "USER__fefd6125-6964-46d8-8781-2ada78dd93d0",
+            "authActive": true
+          },
+          "body": {
+            "contentType": "application/json",
+            "body": "{\n  \"client_id\": \"xxxxx\",\n  \"session_id\": \"xxxxx\"\n}\n"
+          },
+          "requestVariables": [],
+          "responses": {}
+        }
+      ],
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "headers": [],
+      "_ref_id": "coll_mcqfhk28_de75f552-d3bb-4b21-98c9-afdbb4d7091f",
+      "folders": []
+    },
+    {
+      "v": 9,
+      "name": "stories",
+      "requests": [
+        {
+          "v": "15",
+          "name": "story",
+          "method": "POST",
+          "endpoint": "http://localhost:4000/stories",
+          "params": [],
+          "headers": [],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "bearer",
+            "token": "USER__fefd6125-6964-46d8-8781-2ada78dd93d0",
+            "authActive": true
+          },
+          "body": {
+            "contentType": "application/json",
+            "body": "{\n  \"title\": \"dummy\",\n  \"description\": \"Some dummy descripiton\",\n  \"room_code\": \"1TvX1wTGjSDI__9aa98098\"\n}"
+          },
+          "requestVariables": [],
+          "responses": {}
+        }
+      ],
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "headers": [],
+      "_ref_id": "coll_mcrxhzz0_7b7d205b-9128-4ca3-a9c0-1ddad6d092ce",
+      "folders": []
+    },
+    {
+      "v": 9,
+      "name": "story_points",
+      "requests": [
+        {
+          "v": "15",
+          "name": "story_point",
+          "method": "POST",
+          "endpoint": "http://localhost:4000/story-points",
+          "params": [],
+          "headers": [],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "bearer",
+            "token": "USER__0c4647da-0b85-460b-86fd-84055100776b",
+            "authActive": true
+          },
+          "body": {
+            "contentType": null,
+            "body": null
+          },
+          "requestVariables": [],
+          "responses": {}
+        }
+      ],
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "headers": [],
+      "_ref_id": "coll_mcydjk6p_f80a5660-63a4-4606-b08d-8e26c23bb458",
+      "folders": []
+    }
+  ]
+}
