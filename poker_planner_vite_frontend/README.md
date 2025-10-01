@@ -1,3 +1,12 @@
+# LLM context
+
+```txt
+@/convex_rules.txt
+Create a query and mutation based on the good practices in file convex_rules.
+The return object should be consistent with success as boolean, message as string, and other items.
+
+```
+
 # Convex
 
 https://github.com/get-convex/convex-backend/blob/main/self-hosted/README.md
