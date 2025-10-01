@@ -41,14 +41,11 @@ export const createRoom = mutation({
     message: v.string(),
     roomId: v.optional(v.id("rooms")),
     roomCode: v.optional(v.string()),
+    teamId: v.optional(v.id("teams")),
   }),
   handler: async (ctx, args) => {
     // Get user by token
-    const userResult: {
-      success: boolean;
-      message: string;
-      id?: Id<"users">;
-    } = await ctx.runQuery(api.user.getUserByToken, {
+    const userResult: UserResult = await ctx.runQuery(api.user.getUserByToken, {
       token: args.userToken,
     });
 
@@ -91,11 +88,19 @@ export const createRoom = mutation({
       ownerId,
     });
 
+    // Create team record for owner
+    const teamId = await ctx.db.insert("teams", {
+      roomId,
+      userId: ownerId,
+      created_at: now,
+    });
+
     return {
       success: true,
       message: "Room created successfully",
       roomId,
       roomCode,
+      teamId,
     };
   },
 });
@@ -147,6 +152,146 @@ export const getUserRooms = query({
         room_code: item.room_code,
         created_at: item.created_at,
       })),
+    };
+  },
+});
+
+export const isUserInRoom = query({
+  args: {
+    roomCode: v.string(),
+    userToken: v.string(),
+  },
+  returns: v.object({
+    success: v.boolean(),
+    message: v.string(),
+    isMember: v.boolean(),
+    teamId: v.optional(v.id("teams")),
+  }),
+  handler: async (ctx, args) => {
+    // Get user by token
+    const userResult: UserResult = await ctx.runQuery(api.user.getUserByToken, {
+      token: args.userToken,
+    });
+
+    if (!userResult.success || !userResult.id) {
+      return {
+        success: false,
+        message: userResult.message || "User not found",
+        isMember: false,
+      };
+    }
+
+    const userId = userResult.id;
+
+    // Get room by code
+    const room: Doc<"rooms"> | null = await ctx.db
+      .query("rooms")
+      .withIndex("by_room_code", (q) => q.eq("room_code", args.roomCode))
+      .unique();
+
+    if (!room) {
+      return {
+        success: false,
+        message: "Room not found",
+        isMember: false,
+      };
+    }
+
+    const roomId = room._id;
+
+    // Check existing team membership
+    const teams: Doc<"teams">[] = await ctx.db
+      .query("teams")
+      .withIndex("by_room", (q) => q.eq("roomId", roomId))
+      .collect();
+
+    const existingTeam = teams.find((t) => t.userId === userId);
+
+    if (existingTeam) {
+      return {
+        success: true,
+        message: "User is already a member",
+        isMember: true,
+        teamId: existingTeam._id,
+      };
+    } else {
+      return {
+        success: true,
+        message: "User is not a member",
+        isMember: false,
+      };
+    }
+  },
+});
+
+export const joinRoom = mutation({
+  args: {
+    roomCode: v.string(),
+    userToken: v.string(),
+  },
+  returns: v.object({
+    success: v.boolean(),
+    message: v.string(),
+    teamId: v.optional(v.id("teams")),
+  }),
+  handler: async (ctx, args) => {
+    // Get user by token
+    const userResult: UserResult = await ctx.runQuery(api.user.getUserByToken, {
+      token: args.userToken,
+    });
+
+    if (!userResult.success || !userResult.id) {
+      return {
+        success: false,
+        message: userResult.message || "User not found",
+      };
+    }
+
+    const userId = userResult.id;
+
+    // Get room by code
+    const room: Doc<"rooms"> | null = await ctx.db
+      .query("rooms")
+      .withIndex("by_room_code", (q) => q.eq("room_code", args.roomCode))
+      .unique();
+
+    if (!room) {
+      return {
+        success: false,
+        message: "Room not found",
+      };
+    }
+
+    const roomId = room._id;
+
+    // Check if already a member
+    const teams: Doc<"teams">[] = await ctx.db
+      .query("teams")
+      .withIndex("by_room", (q) => q.eq("roomId", roomId))
+      .collect();
+
+    const existingTeam = teams.find((t) => t.userId === userId);
+
+    if (existingTeam) {
+      return {
+        success: true,
+        message: "Already a member of the room",
+        teamId: existingTeam._id,
+      };
+    }
+
+    // Create team record
+    const now = Date.now();
+    const teamId = await ctx.db.insert("teams", {
+      roomId,
+      userId,
+      created_at: now,
+    });
+
+    return {
+      success: true,
+      message: "Successfully joined the room",
+      teamId,
     };
   },
 });

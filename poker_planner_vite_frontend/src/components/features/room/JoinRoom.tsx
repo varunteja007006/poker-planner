@@ -32,12 +32,28 @@ export default function JoinRoom() {
       return;
     }
 
-    const result = await convex.query(api.rooms.checkRoomExists, { roomCode });
+    if (!userToken) {
+      toast.error("User not authenticated");
+      return;
+    }
 
-    if (result.success) {
+    const checkResult = await convex.query(api.rooms.checkRoomExists, { roomCode });
+
+    if (!checkResult.success) {
+      toast.error(checkResult.message);
+      return;
+    }
+
+    const joinResult = await convex.mutation(api.rooms.joinRoom, {
+      roomCode,
+      userToken
+    });
+
+    if (joinResult.success) {
+      toast.success(joinResult.message);
       navigate(`/room/${roomCode}`);
     } else {
-      toast.error(result.message);
+      toast.error(joinResult.message);
     }
   };
 
