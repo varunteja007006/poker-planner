@@ -6,6 +6,8 @@ import Navbar from "@/components/molecules/navbar/navbar";
 import Footer from "@/components/molecules/footer/footer";
 import Home from "@/components/features/Home";
 import Room from "@/components/features/Room";
+import PokerBoard from "@/components/features/PokerBoard";
+import { Toaster } from "@/components/ui/sonner";
 import { UserStoreProvider } from "@/store/user.store";
 
 const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL);
@@ -20,10 +22,12 @@ function App() {
             <main className="min-h-screen">
               <Routes>
                 <Route index element={<Home />} />
-                <Route path="room" element={<Room />} />
+                <Route path="/room" element={<Room />} />
+                <Route path="/room/:roomCode" element={<PokerBoard />} />
               </Routes>
             </main>
             <Footer />
+            <Toaster />
           </UserStoreProvider>
         </ConvexProvider>
       </ThemeProvider>

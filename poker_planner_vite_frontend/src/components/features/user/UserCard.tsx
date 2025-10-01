@@ -37,6 +37,10 @@ export function UserCard() {
   );
 
   React.useEffect(() => {
+    if (!user) {
+      return;
+    }
+
     if (location.pathname !== "/" && !user?.success && !openDialog) {
       setOpenDialog(true);
     }

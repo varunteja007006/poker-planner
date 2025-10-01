@@ -10,6 +10,7 @@ export default defineSchema({
   }).index("by_user_token", ["user_token"]),
 
   rooms: defineTable({
+    room_name: v.string(),
     room_code: v.string(),
     created_at: v.number(),
     ownerId: v.id("users"), // replaces inference from teams
@@ -26,14 +27,13 @@ export default defineSchema({
   stories: defineTable({
     title: v.string(),
     description: v.optional(v.string()),
-    status: v.union(
-      v.literal("started"),
-      v.literal("completed")
-    ),
+    status: v.union(v.literal("started"), v.literal("completed")),
     roomId: v.id("rooms"),
     created_at: v.number(),
     created_by: v.id("users"),
-  }).index("by_room", ["roomId"]).index("created_at", ["created_at"]),
+  })
+    .index("by_room", ["roomId"])
+    .index("created_at", ["created_at"]),
 
   storyPoints: defineTable({
     userId: v.id("users"),

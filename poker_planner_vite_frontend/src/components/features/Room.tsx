@@ -1,5 +1,10 @@
+import JoinRoom from "./room/JoinRoom";
+
 export default function Room() {
   return (
-    <div>Room</div>
+    <div>Room
+
+      <JoinRoom />
+    </div>
   )
 }

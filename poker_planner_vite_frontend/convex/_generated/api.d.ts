@@ -15,6 +15,7 @@ import type {
 } from "convex/server";
 import type * as cleanup from "../cleanup.js";
 import type * as crons from "../crons.js";
+import type * as rooms from "../rooms.js";
 import type * as user from "../user.js";
 
 /**
@@ -28,6 +29,7 @@ import type * as user from "../user.js";
 declare const fullApi: ApiFromModules<{
   cleanup: typeof cleanup;
   crons: typeof crons;
+  rooms: typeof rooms;
   user: typeof user;
 }>;
 export declare const api: FilterApi<
