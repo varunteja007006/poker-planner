@@ -5,70 +5,43 @@ export default defineSchema({
   users: defineTable({
     username: v.string(),
     user_token: v.string(),
-    is_active: v.boolean(),
     created_at: v.number(),
-    updated_at: v.number(),
-    deleted_at: v.optional(v.number()),
-    deleted_by: v.optional(v.id("users")),
-    created_by: v.id("users"),
-    updated_by: v.id("users"),
-  }),
+    last_active: v.optional(v.number()),
+  }).index("by_user_token", ["user_token"]),
 
   rooms: defineTable({
     room_code: v.string(),
-    is_active: v.boolean(),
     created_at: v.number(),
-    updated_at: v.number(),
-    deleted_at: v.optional(v.number()),
-    deleted_by: v.optional(v.id("users")),
-    created_by: v.id("users"),
-    updated_by: v.id("users"),
+    ownerId: v.id("users"), // replaces inference from teams
   }).index("by_room_code", ["room_code"]),
 
   teams: defineTable({
     roomId: v.id("rooms"),
     userId: v.id("users"),
-    is_room_owner: v.boolean(),
-    is_active: v.boolean(),
     created_at: v.number(),
-    updated_at: v.number(),
-    deleted_at: v.optional(v.number()),
-    is_online: v.boolean(),
-    last_active: v.optional(v.number()),
-    deleted_by: v.optional(v.id("users")),
-    created_by: v.id("users"),
-    updated_by: v.id("users"),
-  }).index("by_room", ["roomId"]),
+  })
+    .index("by_room", ["roomId"])
+    .index("by_user", ["userId"]),
 
   stories: defineTable({
     title: v.string(),
     description: v.optional(v.string()),
-    finalized_story_points: v.optional(v.number()),
-    story_point_evaluation_status: v.union(
-      v.literal("pending"),
-      v.literal("in progress"),
+    status: v.union(
+      v.literal("started"),
       v.literal("completed")
     ),
     roomId: v.id("rooms"),
-    is_active: v.boolean(),
     created_at: v.number(),
-    updated_at: v.number(),
-    deleted_at: v.optional(v.number()),
-    deleted_by: v.optional(v.id("users")),
     created_by: v.id("users"),
-    updated_by: v.id("users"),
-  }).index("by_room", ["roomId"]),
+  }).index("by_room", ["roomId"]).index("created_at", ["created_at"]),
 
   storyPoints: defineTable({
     userId: v.id("users"),
     storyId: v.id("stories"),
-    story_point: v.optional(v.number()),
-    is_active: v.boolean(),
+    story_point: v.optional(v.union(v.number(), v.string())), // flexible card deck
     created_at: v.number(),
-    updated_at: v.number(),
-    deleted_at: v.optional(v.number()),
-    deleted_by: v.optional(v.id("users")),
-    created_by: v.id("users"),
-    updated_by: v.id("users"),
-  }).index("by_story", ["storyId"]).index("by_user", ["userId"]),
+  })
+    .index("by_story", ["storyId"])
+    .index("by_user", ["userId"])
+    .index("by_story_and_user", ["storyId", "userId"]),
 });
