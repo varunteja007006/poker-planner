@@ -4,7 +4,7 @@ import { Button } from "../ui/button";
 import { Copy } from "lucide-react";
 import PokerCards from "./poker-board/PokerCards";
 import React from "react";
-import type { Id } from "convex/_generated/dataModel";
+import type { Id } from "../../../convex/_generated/dataModel";
 
 export default function PokerBoard() {
   const params = useParams();

@@ -3,9 +3,9 @@ import { Coffee } from "lucide-react";
 import React from "react";
 
 import { useMutation } from "convex/react";
-import { api } from "convex/_generated/api";
+import { api } from "../../../../convex/_generated/api";
 import { useUserStore } from "@/store/user.store";
-import type { Id } from "convex/_generated/dataModel";
+import type { Id } from "../../../../convex/_generated/dataModel";
 
 const POKER_CARDS = [
   {
