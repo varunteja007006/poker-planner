@@ -1,13 +1,17 @@
+import React from "react";
+
+import { Button } from "../ui/button";
+
+import { Copy } from "lucide-react";
+
+import { toast } from "sonner";
+
 import { useParams } from "react-router";
 import CopyBtn from "../atoms/CopyBtn";
-import { Button } from "../ui/button";
-import { Copy } from "lucide-react";
 import PokerCards from "./poker-board/PokerCards";
-import React from "react";
-import type { Id } from "../../../convex/_generated/dataModel";
-
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
+import type { Id } from "../../../convex/_generated/dataModel";
 import { useUserStore } from "../../store/user.store";
 
 export default function PokerBoard() {
@@ -17,6 +21,7 @@ export default function PokerBoard() {
   const { userToken } = useUserStore();
 
   const [storyId, setStoryId] = React.useState<Id<"stories"> | null>(null);
+  const prevStartedStoryRef = React.useRef<any>(undefined);
 
   const startedStory = useQuery(api.stories.getStartedStory, {
     userToken,
@@ -27,11 +32,28 @@ export default function PokerBoard() {
   const completeMutation = useMutation(api.stories.completeStory);
 
   React.useEffect(() => {
+    if (
+      startedStory !== undefined &&
+      prevStartedStoryRef.current !== undefined
+    ) {
+      const prevActive =
+        prevStartedStoryRef.current?.success &&
+        !!prevStartedStoryRef.current?.story;
+      const currentActive = startedStory.success && !!startedStory.story;
+      if (prevActive !== currentActive) {
+        if (currentActive) {
+          toast.success("Story started!");
+        } else {
+          toast.success("Story completed!");
+        }
+      }
+    }
     if (startedStory?.success && startedStory.story) {
       setStoryId(startedStory.story._id);
     } else {
       setStoryId(null);
     }
+    prevStartedStoryRef.current = startedStory;
   }, [startedStory]);
 
   const handleClick = async () => {
@@ -40,6 +62,7 @@ export default function PokerBoard() {
     if (startedStory?.success && startedStory.story) {
       // Stop the story
       await completeMutation({ storyId: startedStory.story._id, userToken });
+      setStoryId(null);
     } else {
       // Start a new story
       const result = await createMutation({ roomCode, userToken });
