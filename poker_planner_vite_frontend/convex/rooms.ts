@@ -295,3 +295,64 @@ export const joinRoom = mutation({
     };
   },
 });
+
+export const listJoinedRooms = query({
+  args: {
+    userToken: v.string(),
+  },
+  returns: v.object({
+    success: v.boolean(),
+    message: v.string(),
+    rooms: v.array(
+      v.object({
+        _id: v.id("rooms"),
+        room_name: v.string(),
+        room_code: v.string(),
+        created_at: v.number(),
+      })
+    ),
+  }),
+  handler: async (ctx, args) => {
+    // Get user by token
+    const userResult: UserResult = await ctx.runQuery(api.user.getUserByToken, {
+      token: args.userToken,
+    });
+
+    if (!userResult.success || !userResult.id) {
+      return { success: false, message: userResult.message || "User not found", rooms: [] };
+    }
+
+    const userId = userResult.id;
+
+    // Get all teams for the user
+    const teams: Doc<"teams">[] = await ctx.db
+      .query("teams")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .collect();
+
+    const joinedRooms: {
+      _id: Id<"rooms">;
+      room_name: string;
+      room_code: string;
+      created_at: number;
+    }[] = [];
+
+    for (const team of teams) {
+      const room = await ctx.db.get(team.roomId);
+      if (room && room.ownerId !== userId) {
+        joinedRooms.push({
+          _id: room._id,
+          room_name: room.room_name,
+          room_code: room.room_code,
+          created_at: room.created_at,
+        });
+      }
+    }
+
+    return {
+      success: true,
+      message: "Joined rooms retrieved successfully",
+      rooms: joinedRooms,
+    };
+  },
+});

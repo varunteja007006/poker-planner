@@ -1,5 +1,6 @@
 import CreatedRoomList from "./room/CreatedRoomList";
 import CreateRoom from "./room/CreateRoom";
+import JoinedRoomList from "./room/JoinedRoomList";
 import JoinRoom from "./room/JoinRoom";
 
 export default function Room() {
@@ -9,8 +10,9 @@ export default function Room() {
         <CreateRoom />
         <JoinRoom />
       </div>
-      <div>
+      <div className="space-y-6">
         <CreatedRoomList />
+        <JoinedRoomList />
       </div>
     </div>
   );
