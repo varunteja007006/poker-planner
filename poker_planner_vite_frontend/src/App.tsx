@@ -2,8 +2,8 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { ConvexProvider, ConvexReactClient } from "convex/react";
 import { BrowserRouter, Routes, Route } from "react-router";
 
-import Navbar from "@/components/molecules/navbar/navbar";
-import Footer from "@/components/molecules/footer/footer";
+import Navbar from "@/components/molecules/navbar/Navbar";
+import Footer from "@/components/molecules/footer/Footer";
 import Home from "@/components/features/Home";
 import Room from "@/components/features/Room";
 import PokerBoard from "@/components/features/PokerBoard";

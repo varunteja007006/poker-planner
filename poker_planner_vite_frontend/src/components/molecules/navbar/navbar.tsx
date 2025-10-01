@@ -1,4 +1,4 @@
-import ResetBtn from "./reset-btn";
+import LogoutBtn from "./LogoutBtn";
 import { UserCard } from "@/components/features/user/UserCard";
 import { ModeToggle } from "@/components/mode-toggle";
 import { Link } from "react-router";
@@ -15,7 +15,7 @@ export default function Navbar() {
       <div className="flex items-center gap-2">
         <UserCard />
         <ModeToggle />
-        <ResetBtn />
+        <LogoutBtn />
       </div>
     </nav>
   );

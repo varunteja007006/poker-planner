@@ -23,26 +23,23 @@ export default function CopyBtn({
   const handleCopyRoomCode = () => {
     try {
       navigator.clipboard.writeText(text);
-      toast.success("Room code copied to clipboard");
+      toast.success("Copied to clipboard");
     } catch (error) {
-      toast.error("Failed to copy room code");
-      console.error("Failed to copy room code: ", error);
+      toast.error("Failed to copy");
+      console.error("Failed to copy: ", error);
     }
   };
 
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        {children ?? (
-          <Button
-            size={"icon"}
-            onClick={handleCopyRoomCode}
-            className="cursor-pointer"
-            {...props}
-          >
-            <Copy />
-          </Button>
-        )}
+        <Button
+          onClick={handleCopyRoomCode}
+          className="cursor-pointer"
+          {...props}
+        >
+          {children ?? <Copy />}
+        </Button>
       </TooltipTrigger>
       <TooltipContent>
         <p>{tooltipText ?? "Click to copy"}</p>
