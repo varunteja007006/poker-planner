@@ -13,6 +13,7 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { useUserStore } from "../../store/user.store";
+import Participants from "./poker-board/Participants";
 
 export default function PokerBoard() {
   const params = useParams();
@@ -104,7 +105,9 @@ export default function PokerBoard() {
             <PokerCards storyId={storyId} />
           </div>
         </div>
-        <div className="min-w-xs"></div>
+        <div className="w-xs">
+          <Participants storyId={storyId} />
+        </div>
       </div>
     </div>
   );

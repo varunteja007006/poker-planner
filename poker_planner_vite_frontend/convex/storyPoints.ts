@@ -61,7 +61,7 @@ export const captureStoryPoint = mutation({
   },
 });
 
-export const getStoryPoints = query({
+export const getRoomStoryVotes = query({
   args: {
     storyId: v.id("stories"),
     token: v.string(),
@@ -104,20 +104,35 @@ export const getStoryPoints = query({
       };
     }
 
+    const roomId = story.roomId;
+
+    // Get all story points for this story, map userId to story_point
     const storyPoints = await ctx.db
       .query("storyPoints")
       .withIndex("by_story", (q) => q.eq("storyId", args.storyId))
       .collect();
 
-    const result = [];
+    const storyPointMap = new Map();
     for (const sp of storyPoints) {
-      const user = await ctx.db.get(sp.userId);
+      storyPointMap.set(sp.userId.toString(), sp.story_point);
+    }
+
+    // Get all users in the room via teams
+    const teams = await ctx.db
+      .query("teams")
+      .withIndex("by_room", (q) => q.eq("roomId", roomId))
+      .collect();
+
+    const result = [];
+    for (const team of teams) {
+      const user = await ctx.db.get(team.userId);
       if (user) {
+        const story_point = storyPointMap.get(team.userId.toString());
         result.push({
-          userId: sp.userId,
+          userId: team.userId,
           username: user.username,
-          story_point: sp.story_point,
-          isCurrentUser: sp.userId === currentUser._id,
+          story_point,
+          isCurrentUser: team.userId === currentUser._id,
         });
       }
     }
