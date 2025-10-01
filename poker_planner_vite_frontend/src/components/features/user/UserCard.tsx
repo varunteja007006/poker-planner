@@ -1,12 +1,8 @@
-import React from "react";
-
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 import { useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 import { useUserStore } from "@/store/user.store";
-import { useLocation } from "react-router";
-import RegistrationDialog from "./RegistrationDialog";
 
 const avatars = [
   { name: "ape", path: "/ape.png" },
@@ -26,28 +22,15 @@ const avatars = [
 ];
 
 export function UserCard() {
-  const location = useLocation();
   const { userToken } = useUserStore();
-
-  const [openDialog, setOpenDialog] = React.useState(false);
 
   const user = useQuery(
     api.user.getUserByToken,
     userToken ? { token: userToken } : "skip"
   );
 
-  React.useEffect(() => {
-    if (!user) {
-      return;
-    }
-
-    if (location.pathname !== "/" && !user?.success && !openDialog) {
-      setOpenDialog(true);
-    }
-  }, [user?.success, location]);
-
   if (!userToken || !user?.success) {
-    return <RegistrationDialog defaultOpen={openDialog} />;
+    return null;
   }
 
   const avatar = avatars[Math.floor(Math.random() * avatars.length)];

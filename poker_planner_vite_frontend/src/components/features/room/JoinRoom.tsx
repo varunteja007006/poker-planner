@@ -8,10 +8,13 @@ import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router";
 import { useConvex } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
+import { useUserStore } from "@/store/user.store";
 
 export default function JoinRoom() {
   const navigate = useNavigate();
   const convex = useConvex();
+
+  const { userToken } = useUserStore();
 
   const [roomCode, setRoomCode] = React.useState("");
 
@@ -39,8 +42,8 @@ export default function JoinRoom() {
   };
 
   return (
-    <div className="mx-auto flex max-w-lg flex-col gap-2">
-      <Label className="text-primary" htmlFor="roomCode">{`> Join Room`}</Label>
+    <div className="w-sm lg:w-md space-y-2">
+      <Label className="font-semibold" htmlFor="roomCode">{`Join Room`}</Label>
       <Input
         name="roomCode"
         placeholder="Room code"
@@ -53,9 +56,9 @@ export default function JoinRoom() {
         }}
       />
       <Button
-        variant={"default"}
         onClick={handleSubmit}
-        className="cursor-pointer"
+        disabled={!userToken}
+        className="cursor-pointer w-full"
       >
         Join
       </Button>

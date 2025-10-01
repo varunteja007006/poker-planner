@@ -29,9 +29,9 @@ type CreateUserSchema = z.infer<typeof createUserSchema>;
 
 export default function Registration({
   onSuccess,
-}: {
+}: Readonly<{
   onSuccess?: () => void;
-}) {
+}>) {
   const { handleSetUserToken, userToken } = useUserStore();
   const navigate = useNavigate();
   const location = useLocation();
@@ -92,6 +92,7 @@ export default function Registration({
                     type="submit"
                     size={"icon"}
                     disabled={form.formState.isSubmitting}
+                    className="cursor-pointer"
                   >
                     <SendHorizontal />
                   </Button>
