@@ -9,12 +9,12 @@ export default function ParticipantCard({
   isOwner,
 }: Readonly<{
   name: string;
-  isActive?: boolean;
+  isActive: boolean;
   hasVoted: boolean;
   isOwner?: boolean;
 }>) {
   return (
-    <div className="border-primary/25 flex w-full flex-row items-center justify-between gap-2 overflow-hidden rounded-lg border bg-white p-2 pr-4 pl-2 shadow dark:bg-black">
+    <div className="border-primary/25 flex w-full flex-row items-center justify-between gap-2 overflow-hidden rounded-md border bg-white p-2 pr-4 pl-2 shadow dark:bg-black">
       <div className="flex flex-row items-center gap-2">
         <CircleUserRound className={cn("shrink-0")} />
         <div className="flex flex-col items-start">

@@ -29,6 +29,11 @@ export default function PokerBoard() {
     roomCode,
   });
 
+  const roomDetails = useQuery(api.rooms.getRoomDetails, {
+    roomCode,
+    userToken,
+  });
+
   const createMutation = useMutation(api.stories.createStory);
   const completeMutation = useMutation(api.stories.completeStory);
 
@@ -82,17 +87,23 @@ export default function PokerBoard() {
   const isDisabled = !userToken || !roomCode || startedStory === undefined;
 
   return (
-    <div className="p-2 flex flex-col gap-4 w-full">
-      <div className="w-full flex justify-end gap-2 items-center">
-        <Button variant={"secondary"}>View Results</Button>
-        <Button variant={"destructive"}>Leave Room</Button>
-        <CopyBtn text={roomCode}>
-          <Copy className="mr-2" />
-          Copy Room Code
-        </CopyBtn>
+    <div className="px-4 py-2 flex flex-col gap-4 w-full">
+      <div className="w-full flex justify-between gap-2 items-center">
+        <div>
+          <p className="font-semibold text-lg">
+            {roomDetails?.room?.room_name}
+          </p>
+        </div>
+        <div className="flex flex-row items-center gap-2 justify-end">
+          <Button variant={"destructive"}>Leave Room</Button>
+          <CopyBtn text={roomCode}>
+            <Copy className="mr-2" />
+            Copy Room Code
+          </CopyBtn>
+        </div>
       </div>
       <div className="w-full flex flex-col gap-4 md:flex-row ">
-        <div className="flex-1 flex flex-col items-center justify-center min-h-[300px] gap-10 bg-accent">
+        <div className="flex-1 flex flex-col items-center justify-center min-h-[300px] gap-10 bg-accent rounded-md">
           <button
             onClick={handleClick}
             disabled={isDisabled}
