@@ -103,7 +103,7 @@ export default function PokerBoard() {
             <button
               onClick={handleClick}
               disabled={isDisabled}
-              className="bg-primary-foreground shadow font-bold border hover:shadow-lg text-primary hover:bg-primary-foreground/80 h-[50px] w-[140px] cursor-pointer rounded-lg p-2 transition-all disabled:cursor-not-allowed disabled:opacity-50"
+              className="bg-white dark:bg-secondary dark:border-primary/50 shadow font-bold border hover:shadow-lg text-primary hover:dark:border-primary hover:bg-primary-foreground/80 h-[50px] w-[140px] cursor-pointer rounded-lg p-2 transition-all disabled:cursor-not-allowed disabled:opacity-50"
             >
               {buttonText}
             </button>
