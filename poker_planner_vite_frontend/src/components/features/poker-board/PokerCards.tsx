@@ -74,9 +74,9 @@ export default function PokerCards({
   // Reset when story is completed
   React.useEffect(() => {
     if (!storyId) {
-      setSelectedCard(null)
+      setSelectedCard(null);
     }
-  },[storyId])
+  }, [storyId]);
 
   return (
     <div className="flex flex-row flex-wrap items-center justify-center gap-5">
@@ -84,10 +84,11 @@ export default function PokerCards({
         <button
           key={card.value}
           className={cn(
-            "bg-primary-foreground border-primary/30 flex h-[80px] w-[60px] scale-[0.9] cursor-pointer flex-col items-center justify-center rounded-lg border transition-all hover:scale-[1] hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50",
+            "bg-primary-foreground text-primary font-semibold border-primary/80 flex h-[80px] w-[60px] scale-[0.9] cursor-pointer flex-col items-center justify-center rounded-lg border-2 transition-all hover:scale-[1] hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50",
             selectedCard === card.value && "bg-primary text-primary-foreground"
           )}
           onClick={() => onCardClick(card.value)}
+          disabled={!storyId}
         >
           {card.name}
         </button>

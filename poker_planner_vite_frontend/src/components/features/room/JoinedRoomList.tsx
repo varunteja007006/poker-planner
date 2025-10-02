@@ -16,7 +16,7 @@ export default function JoinedRoomList() {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-xl font-semibold">Your Joined Rooms</h2>
+      <h2 className="text-xl font-semibold text-primary">Your Joined Rooms</h2>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {rooms.rooms.length === 0 ? (
           <div className="text-base">No rooms joined yet.</div>

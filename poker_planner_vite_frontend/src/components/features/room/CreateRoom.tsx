@@ -73,7 +73,7 @@ export default function CreateRoom({
           name="roomName"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{`Room Name`}</FormLabel>
+              <FormLabel className="text-primary">{`Room Name`}</FormLabel>
               <FormControl>
                 <Input
                   placeholder="Enter room name"

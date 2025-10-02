@@ -19,15 +19,15 @@ export default function PokerResultTable({
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>Points</TableHead>
-          <TableHead>Votes</TableHead>
+          <TableHead className="font-bold text-primary">Points</TableHead>
+          <TableHead className="font-bold text-primary">Votes</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {chartData.map((item) => (
           <TableRow key={item.name}>
-            <TableCell>{item.name}</TableCell>
-            <TableCell>{item.value}</TableCell>
+            <TableCell className="font-semibold text-primary">{item.name}</TableCell>
+            <TableCell className="font-semibold text-primary">{item.value}</TableCell>
           </TableRow>
         ))}
       </TableBody>

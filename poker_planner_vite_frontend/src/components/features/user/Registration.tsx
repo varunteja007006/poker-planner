@@ -85,7 +85,7 @@ export default function Registration({
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Username</FormLabel>
+              <FormLabel className="text-primary">Username</FormLabel>
               <FormControl>
                 <div className="flex gap-4 items-center">
                   <Input
