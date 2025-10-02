@@ -357,23 +357,34 @@ export const listJoinedRooms = query({
   },
 });
 
-export const getRoomUsers = query({
+export const getRoomDetails = query({
   args: {
-    userToken: v.string(),
     roomCode: v.string(),
+    userToken: v.string(),
   },
   returns: v.object({
     success: v.boolean(),
     message: v.string(),
-    users: v.array(
+    room: v.optional(
       v.object({
-        _id: v.id("users"),
+        _id: v.id("rooms"),
+        room_name: v.string(),
+        room_code: v.string(),
+        created_at: v.number(),
+        ownerId: v.id("users"),
+      })
+    ),
+    owner: v.optional(
+      v.object({
+        id: v.id("users"),
         username: v.string(),
+        created_at: v.number(),
+        last_active: v.optional(v.number()),
       })
     ),
   }),
   handler: async (ctx, args) => {
-    // Get user by token
+    // Get calling user by token
     const userResult: UserResult = await ctx.runQuery(api.user.getUserByToken, {
       token: args.userToken,
     });
@@ -382,7 +393,8 @@ export const getRoomUsers = query({
       return {
         success: false,
         message: userResult.message || "User not found",
-        users: [],
+        room: undefined,
+        owner: undefined,
       };
     }
 
@@ -398,52 +410,56 @@ export const getRoomUsers = query({
       return {
         success: false,
         message: "Room not found",
-        users: [],
+        room: undefined,
+        owner: undefined,
       };
     }
 
     const roomId = room._id;
 
-    // Check if user is in the room
+    // Check if calling user is in the room
     const userTeams: Doc<"teams">[] = await ctx.db
-      .query("teams")
-      .withIndex("by_user", (q) => q.eq("userId", userId))
-      .collect();
-
-    const isInRoom = userTeams.some(team => team.roomId === roomId);
-    if (!isInRoom) {
-      return {
-        success: false,
-        message: "User not authorized to view room users",
-        users: [],
-      };
-    }
-
-    // Get all teams for the room
-    const teams: Doc<"teams">[] = await ctx.db
       .query("teams")
       .withIndex("by_room", (q) => q.eq("roomId", roomId))
       .collect();
 
-    const users: {
-      _id: Id<"users">;
-      username: string;
-    }[] = [];
+    const isInRoom = userTeams.some((team) => team.userId === userId);
+    if (!isInRoom) {
+      return {
+        success: false,
+        message: "User not authorized to view room details",
+        room: undefined,
+        owner: undefined,
+      };
+    }
 
-    for (const team of teams) {
-      const user = await ctx.db.get(team.userId);
-      if (user) {
-        users.push({
-          _id: user._id,
-          username: user.username,
-        });
-      }
+    // Get owner details
+    const owner: Doc<"users"> | null = await ctx.db.get(room.ownerId);
+    if (!owner) {
+      return {
+        success: false,
+        message: "Owner not found",
+        room: undefined,
+        owner: undefined,
+      };
     }
 
     return {
       success: true,
-      message: "Room users retrieved successfully",
-      users,
+      message: "Room details retrieved successfully",
+      room: {
+        _id: room._id,
+        room_name: room.room_name,
+        room_code: room.room_code,
+        created_at: room.created_at,
+        ownerId: room.ownerId,
+      },
+      owner: {
+        id: owner._id,
+        username: owner.username,
+        created_at: owner.created_at,
+        last_active: owner.last_active,
+      },
     };
   },
 });

@@ -26,7 +26,7 @@ export default function Participants({
   const { userToken } = useUserStore();
 
   const roomTeamMembers = useQuery(
-    api.rooms.getRoomUsers,
+    api.presence.getActiveUsersInRoom,
     roomCode && userToken
       ? {
           roomCode,

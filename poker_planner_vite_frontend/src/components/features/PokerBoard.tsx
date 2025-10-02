@@ -10,6 +10,7 @@ import { useParams } from "react-router";
 import CopyBtn from "../atoms/CopyBtn";
 import PokerCards from "./poker-board/PokerCards";
 import { useMutation, useQuery } from "convex/react";
+import { useEffect } from "react";
 import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { useUserStore } from "../../store/user.store";
@@ -23,6 +24,21 @@ export default function PokerBoard() {
 
   const [storyId, setStoryId] = React.useState<Id<"stories"> | null>(null);
   const prevStartedStoryRef = React.useRef<any>(undefined);
+
+  const updatePresenceMutation = useMutation(api.presence.updatePresence);
+
+  useEffect(() => {
+    if (!userToken || !roomCode) return;
+
+    const interval = setInterval(async () => {
+      const result = await updatePresenceMutation({ userToken, roomCode });
+      if (!result.success) {
+        console.error("Failed to update presence:", result.message);
+      }
+    }, 15000); // Every 15 seconds
+
+    return () => clearInterval(interval);
+  }, [userToken, roomCode, updatePresenceMutation]);
 
   const startedStory = useQuery(api.stories.getStartedStory, {
     userToken,
