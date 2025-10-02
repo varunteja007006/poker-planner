@@ -1,6 +1,7 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import type { Doc } from "./_generated/dataModel";
+import { getUserFromToken } from "./utils";
 
 export const captureStoryPoint = mutation({
   args: {
@@ -15,16 +16,15 @@ export const captureStoryPoint = mutation({
   }),
   handler: async (ctx, args) => {
     // Validate user token
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_user_token", (q) => q.eq("user_token", args.token))
-      .unique();
-    if (!user) {
+    const userResult = await getUserFromToken(ctx, args.token);
+    if (!userResult.success || !userResult?.id) {
       return {
         success: false,
-        message: "User not found.",
+        message: userResult.message,
       };
     }
+
+    const userId = userResult.id;
 
     // Check if story exists
     const story = await ctx.db.get(args.storyId);
@@ -38,16 +38,17 @@ export const captureStoryPoint = mutation({
     const existing = await ctx.db
       .query("storyPoints")
       .withIndex("by_story_and_user", (q) =>
-        q.eq("storyId", args.storyId).eq("userId", user._id)
+        q.eq("storyId", args.storyId).eq("userId", userId)
       )
       .unique();
+
     let storyPointId;
     if (existing) {
       storyPointId = existing._id;
       await ctx.db.patch(existing._id, { story_point: args.storypoint });
     } else {
       storyPointId = await ctx.db.insert("storyPoints", {
-        userId: user._id,
+        userId,
         storyId: args.storyId,
         story_point: args.storypoint,
         created_at: Date.now(),
@@ -83,17 +84,15 @@ export const getStoryPoints = query({
   }),
   handler: async (ctx, args) => {
     // Validate user token
-    const currentUser = await ctx.db
-      .query("users")
-      .withIndex("by_user_token", (q) => q.eq("user_token", args.token))
-      .unique();
-    if (!currentUser) {
+    const currentUserResult = await getUserFromToken(ctx, args.token);
+    if (!currentUserResult.success || !currentUserResult.id) {
       return {
         success: false,
-        message: "User not found.",
+        message: currentUserResult.message,
         storyPoints: undefined,
       };
     }
+    const currentUserId = currentUserResult.id;
 
     // Check if story exists
     const story = await ctx.db.get(args.storyId);
@@ -118,7 +117,7 @@ export const getStoryPoints = query({
           userId: sp.userId,
           username: user.username,
           story_point: sp.story_point,
-          isCurrentUser: sp.userId === currentUser._id,
+          isCurrentUser: sp.userId === currentUserId,
         });
       }
     }
@@ -153,14 +152,11 @@ export const getStoryPointsStats = query({
   }),
   handler: async (ctx, args) => {
     // Validate user token
-    const currentUser = await ctx.db
-      .query("users")
-      .withIndex("by_user_token", (q) => q.eq("user_token", args.token))
-      .unique();
-    if (!currentUser) {
+    const currentUserResult = await getUserFromToken(ctx, args.token);
+    if (!currentUserResult.success) {
       return {
         success: false,
-        message: "User not found.",
+        message: currentUserResult.message,
         chartData: undefined,
         avgPoints: undefined,
         totalVoters: undefined,
@@ -220,7 +216,9 @@ export const getStoryPointsStats = query({
       // Get the last completed story in the room
       const lastStory = await ctx.db
         .query("stories")
-        .withIndex("by_room_status", (q) => q.eq("roomId", room!._id).eq("status", "completed"))
+        .withIndex("by_room_status", (q) =>
+          q.eq("roomId", room!._id).eq("status", "completed")
+        )
         .order("desc")
         .first();
       if (!lastStory) {
@@ -265,15 +263,18 @@ export const getStoryPointsStats = query({
       }
     }
 
-    const chartData = Array.from(pointCounts.entries()).map(([name, value]) => ({
-      name,
-      value: value as number,
-    }));
+    const chartData = Array.from(pointCounts.entries()).map(
+      ([name, value]) => ({
+        name,
+        value: value as number,
+      })
+    );
 
     // Sort by numeric value ascending
     chartData.sort((a, b) => parseFloat(a.name) - parseFloat(b.name));
 
-    const avgPoints = validCount > 0 ? Math.round((total / validCount) * 10) / 10 : 0;
+    const avgPoints =
+      validCount > 0 ? Math.round((total / validCount) * 10) / 10 : 0;
 
     return {
       success: true,

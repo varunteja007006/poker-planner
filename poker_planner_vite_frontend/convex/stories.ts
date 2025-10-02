@@ -1,5 +1,6 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { getUserFromToken } from "./utils";
 
 export const createStory = mutation({
   args: {
@@ -15,16 +16,14 @@ export const createStory = mutation({
   }),
   handler: async (ctx, args) => {
     // Validate user token
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_user_token", (q) => q.eq("user_token", args.userToken))
-      .unique();
-    if (!user) {
+    const userResult = await getUserFromToken(ctx, args.userToken);
+    if (!userResult.success || !userResult.id) {
       return {
         success: false,
-        message: "User not found.",
+        message: userResult.message,
       };
     }
+    const userId = userResult.id;
 
     // Find room by code
     const room = await ctx.db
@@ -50,7 +49,7 @@ export const createStory = mutation({
       status: "started",
       roomId: room._id,
       created_at: Date.now(),
-      created_by: user._id,
+      created_by: userId,
     });
 
     return {
@@ -73,14 +72,11 @@ export const completeStory = mutation({
   }),
   handler: async (ctx, args) => {
     // Validate user token
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_user_token", (q) => q.eq("user_token", args.userToken))
-      .unique();
-    if (!user) {
+    const userResult = await getUserFromToken(ctx, args.userToken);
+    if (!userResult.success) {
       return {
         success: false,
-        message: "User not found.",
+        message: userResult.message,
       };
     }
 
@@ -128,14 +124,11 @@ export const getStartedStory = query({
   }),
   handler: async (ctx, args) => {
     // Validate user token
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_user_token", (q) => q.eq("user_token", args.userToken))
-      .unique();
-    if (!user) {
+    const userResult = await getUserFromToken(ctx, args.userToken);
+    if (!userResult.success) {
       return {
         success: false,
-        message: "User not found.",
+        message: userResult.message,
       };
     }
 
@@ -169,101 +162,6 @@ export const getStartedStory = query({
       success: true,
       message: "Started story found.",
       story: storyWithoutCreationTime,
-    };
-  },
-});
-
-export const listStories = query({
-  args: {
-    userToken: v.string(),
-    roomCode: v.optional(v.string()),
-    status: v.optional(v.union(v.literal("started"), v.literal("completed"))),
-  },
-  returns: v.object({
-    success: v.boolean(),
-    message: v.string(),
-    stories: v.optional(
-      v.array(
-        v.object({
-          _id: v.id("stories"),
-          title: v.string(),
-          description: v.optional(v.string()),
-          status: v.union(v.literal("started"), v.literal("completed")),
-          roomId: v.id("rooms"),
-          created_at: v.number(),
-          created_by: v.id("users"),
-        })
-      )
-    ),
-  }),
-  handler: async (ctx, args) => {
-    // Validate user token
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_user_token", (q) => q.eq("user_token", args.userToken))
-      .unique();
-    if (!user) {
-      return {
-        success: false,
-        message: "User not found.",
-        stories: undefined,
-      };
-    }
-
-    let storiesQuery;
-    const roomCode = args.roomCode;
-    const status = args.status;
-
-    if (roomCode && status) {
-      const room = await ctx.db
-        .query("rooms")
-        .withIndex("by_room_code", (q) => q.eq("room_code", roomCode))
-        .unique();
-      if (!room) {
-        return {
-          success: false,
-          message: "Room not found.",
-          stories: undefined,
-        };
-      }
-      storiesQuery = ctx.db
-        .query("stories")
-        .withIndex("by_room_status", (q) => q.eq("roomId", room._id).eq("status", status))
-        .order("asc");
-    } else if (roomCode) {
-      const room = await ctx.db
-        .query("rooms")
-        .withIndex("by_room_code", (q) => q.eq("room_code", roomCode))
-        .unique();
-      if (!room) {
-        return {
-          success: false,
-          message: "Room not found.",
-          stories: undefined,
-        };
-      }
-      storiesQuery = ctx.db
-        .query("stories")
-        .withIndex("by_room", (q) => q.eq("roomId", room._id))
-        .order("asc");
-    } else if (status) {
-      storiesQuery = ctx.db
-        .query("stories")
-        .withIndex("by_status", (q) => q.eq("status", status))
-        .order("asc");
-    } else {
-      storiesQuery = ctx.db
-        .query("stories")
-        .order("asc");
-    }
-
-    const storiesWithCreationTime = await storiesQuery.collect();
-    const stories = storiesWithCreationTime.map(({ _creationTime, ...s }) => s);
-
-    return {
-      success: true,
-      message: "Stories retrieved successfully.",
-      stories,
     };
   },
 });

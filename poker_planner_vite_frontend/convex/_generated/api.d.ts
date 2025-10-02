@@ -20,6 +20,7 @@ import type * as rooms from "../rooms.js";
 import type * as stories from "../stories.js";
 import type * as storyPoints from "../storyPoints.js";
 import type * as user from "../user.js";
+import type * as utils from "../utils.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -37,6 +38,7 @@ declare const fullApi: ApiFromModules<{
   stories: typeof stories;
   storyPoints: typeof storyPoints;
   user: typeof user;
+  utils: typeof utils;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,

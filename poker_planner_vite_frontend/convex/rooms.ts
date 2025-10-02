@@ -1,7 +1,7 @@
 import { query, mutation } from "./_generated/server";
-import { api } from "./_generated/api";
 import type { Doc, Id } from "./_generated/dataModel";
 import { v } from "convex/values";
+import { getUserFromToken } from "./utils";
 
 export const checkRoomExists = query({
   args: {
@@ -45,9 +45,7 @@ export const createRoom = mutation({
   }),
   handler: async (ctx, args) => {
     // Get user by token
-    const userResult: UserResult = await ctx.runQuery(api.user.getUserByToken, {
-      token: args.userToken,
-    });
+    const userResult = await getUserFromToken(ctx, args.userToken);
 
     if (!userResult.success) {
       return {
@@ -105,13 +103,6 @@ export const createRoom = mutation({
   },
 });
 
-interface UserResult {
-  success: boolean;
-  message: string;
-  id?: Id<"users">;
-  username?: string;
-}
-
 export const getUserRooms = query({
   args: {
     userToken: v.string(),
@@ -130,9 +121,7 @@ export const getUserRooms = query({
   }),
   handler: async (ctx, args) => {
     // Get user by token
-    const userResult: UserResult = await ctx.runQuery(api.user.getUserByToken, {
-      token: args.userToken,
-    });
+    const userResult = await getUserFromToken(ctx, args.userToken);
 
     if (!userResult.success || !userResult.id) {
       return { success: false, message: "User not found", rooms: [] };
@@ -140,7 +129,7 @@ export const getUserRooms = query({
 
     const rooms: Doc<"rooms">[] = await ctx.db
       .query("rooms")
-      .withIndex("by_owner", (q) => q.eq("ownerId", userResult.id!))
+      .withIndex("by_owner", (q) => q.eq("ownerId", userResult.id))
       .collect();
 
     return {
@@ -156,74 +145,6 @@ export const getUserRooms = query({
   },
 });
 
-export const isUserInRoom = query({
-  args: {
-    roomCode: v.string(),
-    userToken: v.string(),
-  },
-  returns: v.object({
-    success: v.boolean(),
-    message: v.string(),
-    isMember: v.boolean(),
-    teamId: v.optional(v.id("teams")),
-  }),
-  handler: async (ctx, args) => {
-    // Get user by token
-    const userResult: UserResult = await ctx.runQuery(api.user.getUserByToken, {
-      token: args.userToken,
-    });
-
-    if (!userResult.success || !userResult.id) {
-      return {
-        success: false,
-        message: userResult.message || "User not found",
-        isMember: false,
-      };
-    }
-
-    const userId = userResult.id;
-
-    // Get room by code
-    const room: Doc<"rooms"> | null = await ctx.db
-      .query("rooms")
-      .withIndex("by_room_code", (q) => q.eq("room_code", args.roomCode))
-      .unique();
-
-    if (!room) {
-      return {
-        success: false,
-        message: "Room not found",
-        isMember: false,
-      };
-    }
-
-    const roomId = room._id;
-
-    // Check existing team membership
-    const teams: Doc<"teams">[] = await ctx.db
-      .query("teams")
-      .withIndex("by_room", (q) => q.eq("roomId", roomId))
-      .collect();
-
-    const existingTeam = teams.find((t) => t.userId === userId);
-
-    if (existingTeam) {
-      return {
-        success: true,
-        message: "User is already a member",
-        isMember: true,
-        teamId: existingTeam._id,
-      };
-    } else {
-      return {
-        success: true,
-        message: "User is not a member",
-        isMember: false,
-      };
-    }
-  },
-});
-
 export const joinRoom = mutation({
   args: {
     roomCode: v.string(),
@@ -236,9 +157,7 @@ export const joinRoom = mutation({
   }),
   handler: async (ctx, args) => {
     // Get user by token
-    const userResult: UserResult = await ctx.runQuery(api.user.getUserByToken, {
-      token: args.userToken,
-    });
+    const userResult = await getUserFromToken(ctx, args.userToken);
 
     if (!userResult.success || !userResult.id) {
       return {
@@ -314,9 +233,7 @@ export const listJoinedRooms = query({
   }),
   handler: async (ctx, args) => {
     // Get user by token
-    const userResult: UserResult = await ctx.runQuery(api.user.getUserByToken, {
-      token: args.userToken,
-    });
+    const userResult = await getUserFromToken(ctx, args.userToken);
 
     if (!userResult.success || !userResult.id) {
       return { success: false, message: userResult.message || "User not found", rooms: [] };
@@ -385,9 +302,7 @@ export const getRoomDetails = query({
   }),
   handler: async (ctx, args) => {
     // Get calling user by token
-    const userResult: UserResult = await ctx.runQuery(api.user.getUserByToken, {
-      token: args.userToken,
-    });
+    const userResult = await getUserFromToken(ctx, args.userToken);
 
     if (!userResult.success || !userResult.id) {
       return {
