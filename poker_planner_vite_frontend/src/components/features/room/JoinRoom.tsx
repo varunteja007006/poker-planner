@@ -27,7 +27,7 @@ export default function JoinRoom() {
 
   return (
     <div className="w-sm lg:w-md space-y-2">
-      <Label className="font-semibold" htmlFor="roomCode">{`Join Room`}</Label>
+      <Label className="font-semibold text-primary" htmlFor="roomCode">{`Join Room`}</Label>
       <Input
         name="roomCode"
         placeholder="Room code"

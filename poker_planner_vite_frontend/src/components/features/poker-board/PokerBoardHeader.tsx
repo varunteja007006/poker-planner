@@ -21,7 +21,7 @@ export default function PokerBoardHeader() {
   return (
     <div className="w-full flex justify-between gap-2 items-center">
       <div>
-        <p className="font-semibold text-lg">{roomDetails?.room?.room_name}</p>
+        <p className="font-bold text-lg text-primary">{roomDetails?.room?.room_name}</p>
       </div>
       <div className="flex flex-row items-center gap-2 justify-end">
         <Link to={"/room"}>

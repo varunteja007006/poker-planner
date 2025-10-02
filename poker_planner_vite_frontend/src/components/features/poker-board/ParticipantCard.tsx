@@ -16,9 +16,9 @@ export default function ParticipantCard({
   return (
     <div className="border-primary/25 flex w-full flex-row items-center justify-between gap-2 overflow-hidden rounded-md border bg-white p-2 pr-4 pl-2 shadow dark:bg-black">
       <div className="flex flex-row items-center gap-2">
-        <CircleUserRound className={cn("shrink-0")} />
+        <CircleUserRound className={cn("shrink-0 text-primary")} />
         <div className="flex flex-col items-start">
-          <p className="truncate overflow-hidden text-ellipsis capitalize">
+          <p className="truncate overflow-hidden text-ellipsis capitalize text-primary font-semibold">
             {name}
           </p>
 
