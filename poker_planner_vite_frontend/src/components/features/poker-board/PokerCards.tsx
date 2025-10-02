@@ -1,8 +1,9 @@
-import { cn } from "@/lib/utils";
-import { Coffee } from "lucide-react";
 import React from "react";
 
+import { Coffee } from "lucide-react";
+
 import { useMutation } from "convex/react";
+import { cn } from "@/lib/utils";
 import { api } from "../../../../convex/_generated/api";
 import { useUserStore } from "@/store/user.store";
 import type { Id } from "../../../../convex/_generated/dataModel";
@@ -69,6 +70,13 @@ export default function PokerCards({
       }
     }
   };
+
+  // Reset when story is completed
+  React.useEffect(() => {
+    if (!storyId) {
+      setSelectedCard(null)
+    }
+  },[storyId])
 
   return (
     <div className="flex flex-row flex-wrap items-center justify-center gap-5">
