@@ -356,3 +356,94 @@ export const listJoinedRooms = query({
     };
   },
 });
+
+export const getRoomUsers = query({
+  args: {
+    userToken: v.string(),
+    roomCode: v.string(),
+  },
+  returns: v.object({
+    success: v.boolean(),
+    message: v.string(),
+    users: v.array(
+      v.object({
+        _id: v.id("users"),
+        username: v.string(),
+      })
+    ),
+  }),
+  handler: async (ctx, args) => {
+    // Get user by token
+    const userResult: UserResult = await ctx.runQuery(api.user.getUserByToken, {
+      token: args.userToken,
+    });
+
+    if (!userResult.success || !userResult.id) {
+      return {
+        success: false,
+        message: userResult.message || "User not found",
+        users: [],
+      };
+    }
+
+    const userId = userResult.id;
+
+    // Get room by code
+    const room: Doc<"rooms"> | null = await ctx.db
+      .query("rooms")
+      .withIndex("by_room_code", (q) => q.eq("room_code", args.roomCode))
+      .unique();
+
+    if (!room) {
+      return {
+        success: false,
+        message: "Room not found",
+        users: [],
+      };
+    }
+
+    const roomId = room._id;
+
+    // Check if user is in the room
+    const userTeams: Doc<"teams">[] = await ctx.db
+      .query("teams")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .collect();
+
+    const isInRoom = userTeams.some(team => team.roomId === roomId);
+    if (!isInRoom) {
+      return {
+        success: false,
+        message: "User not authorized to view room users",
+        users: [],
+      };
+    }
+
+    // Get all teams for the room
+    const teams: Doc<"teams">[] = await ctx.db
+      .query("teams")
+      .withIndex("by_room", (q) => q.eq("roomId", roomId))
+      .collect();
+
+    const users: {
+      _id: Id<"users">;
+      username: string;
+    }[] = [];
+
+    for (const team of teams) {
+      const user = await ctx.db.get(team.userId);
+      if (user) {
+        users.push({
+          _id: user._id,
+          username: user.username,
+        });
+      }
+    }
+
+    return {
+      success: true,
+      message: "Room users retrieved successfully",
+      users,
+    };
+  },
+});
