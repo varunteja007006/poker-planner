@@ -129,3 +129,88 @@ export const getStoryPoints = query({
     };
   },
 });
+
+export const getStoryPointsStats = query({
+  args: {
+    token: v.string(),
+    storyId: v.id("stories"),
+  },
+  returns: v.object({
+    success: v.boolean(),
+    message: v.string(),
+    chartData: v.optional(
+      v.array(
+        v.object({
+          name: v.string(),
+          value: v.number(),
+        })
+      )
+    ),
+    avgPoints: v.optional(v.number()),
+  }),
+  handler: async (ctx, args) => {
+    // Validate user token
+    const currentUser = await ctx.db
+      .query("users")
+      .withIndex("by_user_token", (q) => q.eq("user_token", args.token))
+      .unique();
+    if (!currentUser) {
+      return {
+        success: false,
+        message: "User not found.",
+        chartData: undefined,
+        avgPoints: undefined,
+      };
+    }
+
+    // Check if story exists
+    const story = await ctx.db.get(args.storyId);
+    if (!story) {
+      return {
+        success: false,
+        message: "Story not found.",
+        chartData: undefined,
+        avgPoints: undefined,
+      };
+    }
+
+    const storyPoints = await ctx.db
+      .query("storyPoints")
+      .withIndex("by_story", (q) => q.eq("storyId", args.storyId))
+      .collect();
+
+    const pointCounts = new Map();
+    let total = 0;
+    let validCount = 0;
+
+    for (const sp of storyPoints) {
+      const point = sp.story_point;
+      if (point !== undefined) {
+        const numPoint = typeof point === "string" ? parseFloat(point) : point;
+        if (!isNaN(numPoint)) {
+          const key = point.toString();
+          pointCounts.set(key, (pointCounts.get(key) || 0) + 1);
+          total += numPoint;
+          validCount++;
+        }
+      }
+    }
+
+    const chartData = Array.from(pointCounts.entries()).map(([name, value]) => ({
+      name,
+      value: value as number,
+    }));
+
+    // Sort by numeric value ascending
+    chartData.sort((a, b) => parseFloat(a.name) - parseFloat(b.name));
+
+    const avgPoints = validCount > 0 ? Math.round((total / validCount) * 10) / 10 : 0;
+
+    return {
+      success: true,
+      message: "Story points stats retrieved successfully.",
+      chartData,
+      avgPoints,
+    };
+  },
+});

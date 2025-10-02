@@ -15,6 +15,7 @@ import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { useUserStore } from "../../store/user.store";
 import Participants from "./poker-board/Participants";
+import PokerResults from "./poker-board/PokerResults";
 
 export default function PokerBoard() {
   const params = useParams();
@@ -119,19 +120,25 @@ export default function PokerBoard() {
         </div>
       </div>
       <div className="w-full flex flex-col gap-4 md:flex-row ">
-        <div className="flex-1 flex flex-col items-center justify-center min-h-[300px] gap-10 bg-accent rounded-md">
-          <button
-            onClick={handleClick}
-            disabled={isDisabled}
-            className="bg-primary-foreground text-primary hover:bg-primary-foreground/80 h-[50px] w-[140px] cursor-pointer rounded-lg p-2 transition-all disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {buttonText}
-          </button>
+        <div className="flex flex-col w-full">
+          <div className="flex-1 flex flex-col items-center justify-center min-h-[300px] gap-10 bg-accent rounded-md">
+            <button
+              onClick={handleClick}
+              disabled={isDisabled}
+              className="bg-primary-foreground text-primary hover:bg-primary-foreground/80 h-[50px] w-[140px] cursor-pointer rounded-lg p-2 transition-all disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {buttonText}
+            </button>
 
+            <div>
+              <PokerCards storyId={storyId} />
+            </div>
+          </div>
           <div>
-            <PokerCards storyId={storyId} />
+            <PokerResults storyId={storyId} />
           </div>
         </div>
+
         <div className="w-xs">
           <Participants storyId={storyId} />
         </div>
