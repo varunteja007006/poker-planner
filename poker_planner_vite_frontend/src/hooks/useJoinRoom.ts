@@ -8,9 +8,10 @@ import { useUserStore } from "@/store/user.store";
 import { useState } from "react";
 
 export function useJoinRoom() {
+  const { userToken } = useUserStore();
+
   const convex = useConvex();
   const navigate = useNavigate();
-  const { userToken } = useUserStore();
   const [isJoining, setIsJoining] = useState(false);
 
   const joinRoom = async (roomCode: string) => {
