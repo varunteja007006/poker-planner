@@ -171,12 +171,21 @@ export const getStoryPointsStats = query({
     let room: Doc<"rooms"> | null = null;
 
     if (storyId) {
-      // Validate story exists
+      // Validate story exists and is completed
       const story = await ctx.db.get(storyId);
       if (!story) {
         return {
           success: false,
           message: "Story not found.",
+          chartData: undefined,
+          avgPoints: undefined,
+          totalVoters: undefined,
+        };
+      }
+      if (story.status !== "completed") {
+        return {
+          success: true,
+          message: "Story is not completed.",
           chartData: undefined,
           avgPoints: undefined,
           totalVoters: undefined,
