@@ -1,5 +1,6 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { Doc } from "./_generated/dataModel";
 
 export const captureStoryPoint = mutation({
   args: {
@@ -133,7 +134,8 @@ export const getStoryPoints = query({
 export const getStoryPointsStats = query({
   args: {
     token: v.string(),
-    storyId: v.id("stories"),
+    storyId: v.optional(v.id("stories")),
+    roomCode: v.optional(v.string()),
   },
   returns: v.object({
     success: v.boolean(),
@@ -147,6 +149,7 @@ export const getStoryPointsStats = query({
       )
     ),
     avgPoints: v.optional(v.number()),
+    totalVoters: v.optional(v.number()),
   }),
   handler: async (ctx, args) => {
     // Validate user token
@@ -160,23 +163,80 @@ export const getStoryPointsStats = query({
         message: "User not found.",
         chartData: undefined,
         avgPoints: undefined,
+        totalVoters: undefined,
       };
     }
 
-    // Check if story exists
-    const story = await ctx.db.get(args.storyId);
-    if (!story) {
+    let storyId = args.storyId;
+    let room: Doc<"rooms"> | null = null;
+
+    if (storyId) {
+      // Validate story exists
+      const story = await ctx.db.get(storyId);
+      if (!story) {
+        return {
+          success: false,
+          message: "Story not found.",
+          chartData: undefined,
+          avgPoints: undefined,
+          totalVoters: undefined,
+        };
+      }
+      room = await ctx.db.get(story.roomId);
+      if (!room) {
+        return {
+          success: false,
+          message: "Room not found.",
+          chartData: undefined,
+          avgPoints: undefined,
+          totalVoters: undefined,
+        };
+      }
+    } else if (args.roomCode) {
+      // Get room from roomCode
+      room = await ctx.db
+        .query("rooms")
+        .withIndex("by_room_code", (q) => q.eq("room_code", args.roomCode!))
+        .unique();
+      if (!room) {
+        return {
+          success: false,
+          message: "Room not found.",
+          chartData: undefined,
+          avgPoints: undefined,
+          totalVoters: undefined,
+        };
+      }
+
+      // Get the last completed story in the room
+      const lastStory = await ctx.db
+        .query("stories")
+        .withIndex("by_room_status", (q) => q.eq("roomId", room!._id).eq("status", "completed"))
+        .order("desc")
+        .first();
+      if (!lastStory) {
+        return {
+          success: false,
+          message: "No completed stories found in the room.",
+          chartData: undefined,
+          avgPoints: undefined,
+          totalVoters: undefined,
+        };
+      }
+      storyId = lastStory._id;
+    } else {
       return {
         success: false,
-        message: "Story not found.",
+        message: "Either storyId or roomCode must be provided.",
         chartData: undefined,
         avgPoints: undefined,
+        totalVoters: undefined,
       };
     }
 
     const storyPoints = await ctx.db
       .query("storyPoints")
-      .withIndex("by_story", (q) => q.eq("storyId", args.storyId))
+      .withIndex("by_story", (q) => q.eq("storyId", storyId))
       .collect();
 
     const pointCounts = new Map();
@@ -211,6 +271,7 @@ export const getStoryPointsStats = query({
       message: "Story points stats retrieved successfully.",
       chartData,
       avgPoints,
+      totalVoters: validCount,
     };
   },
 });

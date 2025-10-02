@@ -6,7 +6,7 @@ import { Copy } from "lucide-react";
 
 import { toast } from "sonner";
 
-import { useParams } from "react-router";
+import { Link, useParams } from "react-router";
 import CopyBtn from "../atoms/CopyBtn";
 import PokerCards from "./poker-board/PokerCards";
 import { useMutation, useQuery } from "convex/react";
@@ -112,7 +112,9 @@ export default function PokerBoard() {
           </p>
         </div>
         <div className="flex flex-row items-center gap-2 justify-end">
-          <Button variant={"destructive"}>Leave Room</Button>
+          <Link to={"/room"}>
+            <Button variant={"destructive"} className="cursor-pointer">Leave Room</Button>
+          </Link>
           <CopyBtn text={roomCode}>
             <Copy className="mr-2" />
             Copy Room Code
@@ -120,7 +122,7 @@ export default function PokerBoard() {
         </div>
       </div>
       <div className="w-full flex flex-col gap-4 md:flex-row ">
-        <div className="flex flex-col w-full">
+        <div className="flex flex-col w-full gap-4">
           <div className="flex-1 flex flex-col items-center justify-center min-h-[300px] gap-10 bg-accent rounded-md">
             <button
               onClick={handleClick}

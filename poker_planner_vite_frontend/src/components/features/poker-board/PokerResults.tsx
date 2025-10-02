@@ -6,10 +6,19 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import type { Id } from "../../../../convex/_generated/dataModel";
 import { useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 import { useUserStore } from "@/store/user.store";
+import { useParams } from "react-router";
 
 const chartConfig = {
   value: {
@@ -24,15 +33,14 @@ export default function PokerResults({
   storyId: Id<"stories"> | null;
 }>) {
   const { userToken } = useUserStore();
-
+  const params = useParams();
+  const roomCode = params?.roomCode;
   const result = useQuery(
     api.storyPoints.getStoryPointsStats,
-    storyId && userToken ? { token: userToken, storyId } : "skip"
+    storyId && userToken
+      ? { token: userToken, storyId }
+      : { token: userToken, roomCode }
   );
-
-  if (!storyId) {
-    return null;
-  }
 
   if (!result?.success) {
     return <div>Error: {result?.message || "Failed to load results"}</div>;
@@ -41,6 +49,7 @@ export default function PokerResults({
   const stats = {
     chartData: result.chartData || [],
     avgPoints: result.avgPoints || 0,
+    totalVoters: result.totalVoters,
   };
 
   if (stats.chartData.length === 0) {
@@ -48,12 +57,41 @@ export default function PokerResults({
   }
 
   return (
-    <div className="flex flex-row gap-4 items-start p-2">
-      <div className="flex gap-2 p-2 leading-none font-medium">
-        Average points: {stats.avgPoints}
+    <div className="flex flex-row gap-4">
+      <div className="flex flex-col gap-4 items-stretch">
+        <div className="border rounded-md">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Points</TableHead>
+                <TableHead>Votes</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {stats.chartData.map((item) => (
+                <TableRow key={item.name}>
+                  <TableCell>{item.name}</TableCell>
+                  <TableCell>{item.value}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+
+        <div className="flex flex-col items-stretch gap-2">
+          <div className="flex gap-2">
+            Average points: <span className="font-bold">{stats.avgPoints}</span>
+          </div>
+          <div className="flex gap-2">
+            Voters: <span className="font-bold">{stats.totalVoters}</span>
+          </div>
+        </div>
       </div>
-      <div className="p-2 border">
-        <ChartContainer className="h-[240px] w-fit" config={chartConfig}>
+      <div className="p-2 border flex-1">
+        <ChartContainer
+          className="h-[240px] w-fit mx-auto"
+          config={chartConfig}
+        >
           <BarChart accessibilityLayer data={stats.chartData}>
             <CartesianGrid vertical={false} />
             <XAxis
