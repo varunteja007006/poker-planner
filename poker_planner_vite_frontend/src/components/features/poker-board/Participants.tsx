@@ -57,12 +57,13 @@ export default function Participants({
     return (
       <div className="space-y-2">
         {roomTeamMembers.users.map((user) => {
-          const hasVoted = findUserStoryPoint(user._id, updatedRoomStoryPoints);
+          const hasVoted = findUserStoryPoint(user.id, updatedRoomStoryPoints);
           return (
             <ParticipantCard
-              key={user._id}
+              key={user.id}
               name={user.username}
               hasVoted={!!hasVoted?.userId}
+              isActive={user.isActive}
             />
           );
         })}
