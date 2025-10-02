@@ -22,7 +22,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { createUserSchema } from "@/lib/validators";
 import { useMutation } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
-import { useLocation, useNavigate } from "react-router";
+import { useLocation, useNavigate, useParams } from "react-router";
 import { useUserStore } from "@/store/user.store";
 
 type CreateUserSchema = z.infer<typeof createUserSchema>;
@@ -35,6 +35,9 @@ export default function Registration({
   const { handleSetUserToken, userToken } = useUserStore();
   const navigate = useNavigate();
   const location = useLocation();
+  const params = useParams();
+
+  const roomCode = params?.roomCode;
 
   const redirectFromHome = () => {
     if (location.pathname === "/") {
@@ -53,9 +56,11 @@ export default function Registration({
 
   const onSubmit = async (data: CreateUserSchema) => {
     try {
-      const token = await createUserMutation({ name: data.name });
-      localStorage.setItem("userToken", token);
-      handleSetUserToken(token);
+      const res = await createUserMutation({ name: data.name, roomCode });
+      if (res.token) {
+        localStorage.setItem("userToken", res.token);
+        handleSetUserToken(res.token);
+      }
       toast.success("User registered successfully!");
       form.reset();
       onSuccess?.();
