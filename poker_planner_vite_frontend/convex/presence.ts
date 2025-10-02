@@ -1,14 +1,7 @@
 import { query, mutation, internalMutation } from "./_generated/server";
 import { v } from "convex/values";
-import { api } from "./_generated/api";
 import type { Id } from "./_generated/dataModel";
-
-interface UserResult {
-  success: boolean;
-  message: string;
-  id?: Id<"users">;
-  username?: string;
-}
+import { getUserFromToken } from "./utils";
 
 /**
  * Mutation to update or create presence for a user in a room (heartbeat).
@@ -26,9 +19,7 @@ export const updatePresence = mutation({
   }),
   handler: async (ctx, args) => {
     // Get user by token
-    const userResult: UserResult = await ctx.runQuery(api.user.getUserByToken, {
-      token: args.userToken,
-    });
+    const userResult = await getUserFromToken(ctx, args.userToken);
 
     if (!userResult.success || !userResult.id) {
       return {
@@ -61,6 +52,7 @@ export const updatePresence = mutation({
       .collect();
 
     const isInRoom = teams.some((team) => team.userId === userId);
+    
     if (!isInRoom) {
       return {
         success: false,
@@ -124,9 +116,7 @@ export const getActiveUsersInRoom = query({
   }),
   handler: async (ctx, args) => {
     // Get user by token
-    const userResult: UserResult = await ctx.runQuery(api.user.getUserByToken, {
-      token: args.userToken,
-    });
+    const userResult = await getUserFromToken(ctx, args.userToken);
 
     if (!userResult.success || !userResult.id) {
       return {

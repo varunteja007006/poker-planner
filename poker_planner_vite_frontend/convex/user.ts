@@ -1,6 +1,7 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import type { Id } from "./_generated/dataModel";
+import { getUserFromToken } from "./utils";
 
 export const createUser = mutation({
   args: {
@@ -14,6 +15,7 @@ export const createUser = mutation({
     userId: v.id("users"),
     teamId: v.optional(v.id("teams")),
   }),
+
   handler: async (ctx, args) => {
     const token = globalThis.crypto.randomUUID();
     const now = Date.now();
@@ -42,7 +44,8 @@ export const createUser = mutation({
         });
         message = "User created and joined room successfully";
       } else {
-        message = "User created successfully, but room not found. Please join the room separately.";
+        message =
+          "User created successfully, but room not found. Please join the room separately.";
       }
     }
 
@@ -74,58 +77,7 @@ export const getUserByToken = query({
   ),
 
   handler: async (ctx, args) => {
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_user_token", (q) => q.eq("user_token", args.token))
-      .unique();
-    if (!user) {
-      return {
-        success: false,
-        message: "User not found.",
-      };
-    }
-    return {
-      success: true,
-      id: user._id,
-      username: user.username,
-      message: "User found.",
-    };
-  },
-});
-
-export const updateUserLastActive = mutation({
-  args: {
-    token: v.string(),
-  },
-  returns: v.union(
-    v.object({
-      success: v.boolean(),
-      message: v.string(),
-      id: v.id("users"),
-      username: v.string(),
-    }),
-    v.object({
-      success: v.boolean(),
-      message: v.string(),
-    })
-  ),
-  handler: async (ctx, args) => {
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_user_token", (q) => q.eq("user_token", args.token))
-      .unique();
-    if (!user) {
-      return {
-        success: false,
-        message: "Last active update failed.",
-      };
-    }
-    await ctx.db.patch(user._id, { last_active: Date.now() });
-    return {
-      success: true,
-      message: "Last active updated.",
-      id: user._id,
-      username: user.username,
-    };
+    const user = await getUserFromToken(ctx, args.token);
+    return user;
   },
 });
