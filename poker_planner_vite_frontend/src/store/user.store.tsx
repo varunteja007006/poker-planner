@@ -2,7 +2,7 @@ import React from "react";
 
 const userStore = React.createContext({
   userToken: "",
-  handleSetUserToken: (token: string) => {},
+  handleSetUserToken: (_token: string) => {},
 });
 
 export const UserStoreProvider = ({

@@ -1,7 +1,7 @@
 import { query, mutation, internalMutation } from "./_generated/server";
 import { v } from "convex/values";
 import { api } from "./_generated/api";
-import { Doc, Id } from "./_generated/dataModel";
+import type { Id } from "./_generated/dataModel";
 
 interface UserResult {
   success: boolean;
@@ -224,7 +224,7 @@ export const getActiveUsersInRoom = query({
 export const deleteStalePresence = internalMutation({
   args: {},
   returns: v.null(),
-  handler: async (ctx: any, args: {}) => {
+  handler: async (ctx: any, _args: {}) => {
     const now = Date.now();
     const cutoff = now - 5 * 60 * 1000; // 5 minutes ago
 

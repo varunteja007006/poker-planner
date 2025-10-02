@@ -1,6 +1,6 @@
 import { query, mutation } from "./_generated/server";
 import { api } from "./_generated/api";
-import { Doc, Id } from "./_generated/dataModel";
+import type { Doc, Id } from "./_generated/dataModel";
 import { v } from "convex/values";
 
 export const checkRoomExists = query({
