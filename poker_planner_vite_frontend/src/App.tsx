@@ -9,6 +9,7 @@ import Room from "@/components/features/Room";
 import PokerBoard from "@/components/features/PokerBoard";
 import { Toaster } from "@/components/ui/sonner";
 import { UserStoreProvider } from "@/store/user.store";
+import RoomWrapper from "./components/features/RoomWrapper";
 
 const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL);
 
@@ -22,8 +23,10 @@ function App() {
             <main className="min-h-screen">
               <Routes>
                 <Route index element={<Home />} />
-                <Route path="/room" element={<Room />} />
-                <Route path="/room/:roomCode" element={<PokerBoard />} />
+                <Route path="/room" element={<RoomWrapper />}>
+                  <Route index element={<Room />} />
+                  <Route path=":roomCode" element={<PokerBoard />} />
+                </Route>
               </Routes>
             </main>
             <Footer />
