@@ -1,4 +1,4 @@
-import { QueryCtx } from "./_generated/server";
+import type { QueryCtx } from "./_generated/server";
 
 export const getUserFromToken = async (ctx: QueryCtx, token: string) => {
   const user = await ctx.db
