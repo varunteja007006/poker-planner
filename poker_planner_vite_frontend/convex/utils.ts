@@ -9,6 +9,7 @@ export const getUserFromToken = async (ctx: QueryCtx, token: string) => {
     return {
       success: false,
       message: "User not found.",
+      isFound: false,
     };
   }
   return {
@@ -16,5 +17,6 @@ export const getUserFromToken = async (ctx: QueryCtx, token: string) => {
     id: user._id,
     username: user.username,
     message: "User found.",
+    isFound: true,
   };
 };

@@ -69,10 +69,12 @@ export const getUserByToken = query({
       username: v.string(),
       success: v.boolean(),
       message: v.string(),
+      isFound: v.boolean(),
     }),
     v.object({
       success: v.boolean(),
       message: v.string(),
+      isFound: v.boolean(),
     })
   ),
 

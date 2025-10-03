@@ -58,7 +58,6 @@ export default function Registration({
     try {
       const res = await createUserMutation({ name: data.name, roomCode });
       if (res.token) {
-        localStorage.setItem("userToken", res.token);
         handleSetUserToken?.(res.token);
       }
       toast.success("User registered successfully!");
