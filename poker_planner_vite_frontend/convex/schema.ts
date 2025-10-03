@@ -46,10 +46,4 @@ export default defineSchema({
     .index("by_story", ["storyId"])
     .index("by_user", ["userId"])
     .index("by_story_and_user", ["storyId", "userId"]),
-
-  presence: defineTable({
-    roomId: v.id("rooms"),
-    userId: v.id("users"),
-    lastSeen: v.number(),
-  }).index("by_room", ["roomId"]).index("by_user_room", ["userId", "roomId"]),
 });

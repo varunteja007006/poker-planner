@@ -1,5 +1,5 @@
 import { cronJobs } from "convex/server";
-import { api, internal } from "./_generated/api";
+import { api } from "./_generated/api";
 
 const crons = cronJobs();
 
@@ -10,15 +10,9 @@ crons.interval(
 );
 
 crons.interval(
-  "cleanup stale presence",
-  { minutes: 1 }, // every minute
-  internal.presence.deleteStalePresence,
-  {},
-);
-
-crons.interval(
   "clear stories and points",
   { minutes: 30240 }, // every 3 weeks (21 days)
   api.cleanup.clearStoriesAndPoints,
 );
+
 export default crons
