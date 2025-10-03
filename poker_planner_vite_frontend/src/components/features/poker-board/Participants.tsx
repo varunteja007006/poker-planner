@@ -1,14 +1,18 @@
+import React from "react";
+
 import { useQuery } from "convex/react";
 import type { Id } from "../../../../convex/_generated/dataModel";
 import { api } from "../../../../convex/_generated/api";
 import { useUserStore } from "@/store/user.store";
 import { useParams } from "react-router";
+import usePresence from "@convex-dev/presence/react";
+
 import ParticipantCard from "./ParticipantCard";
 
 const findUserStoryPoint = (
-  userId: Id<"users">,
+  userId: string,
   list: {
-    userId: Id<"users">;
+    userId: string;
     isCurrentUser: boolean;
     storyPoint: string | number | undefined;
   }[]
@@ -23,16 +27,13 @@ export default function Participants({
 }>) {
   const params = useParams();
   const roomCode = params?.roomCode;
-  const { userToken } = useUserStore();
 
-  const roomTeamMembers = useQuery(
-    api.presence.getActiveUsersInRoom,
-    roomCode && userToken
-      ? {
-          roomCode,
-          userToken,
-        }
-      : "skip"
+  const { user, userToken } = useUserStore();
+
+  const presenceState = usePresence(
+    api.presence,
+    roomCode ?? "unknown-room",
+    user?.id!
   );
 
   const roomStoryPoints = useQuery(
@@ -40,34 +41,49 @@ export default function Participants({
     storyId && userToken ? { storyId, token: userToken } : "skip"
   );
 
-  const updatedRoomStoryPoints =
-    roomStoryPoints?.success && roomStoryPoints.storyPoints
-      ? roomStoryPoints.storyPoints.map((item) => ({
-          userId: item.userId,
-          isCurrentUser: item.isCurrentUser,
-          storyPoint: item.story_point,
-        }))
-      : [];
+  const updatedRoomStoryPoints = React.useMemo(
+    () =>
+      roomStoryPoints?.success && roomStoryPoints.storyPoints
+        ? roomStoryPoints.storyPoints.map((item) => ({
+            userId: item.userId,
+            isCurrentUser: item.isCurrentUser,
+            storyPoint: item.story_point,
+          }))
+        : [],
+    [roomStoryPoints]
+  );
 
-  if (!roomTeamMembers?.success) {
+  const participantList = React.useMemo(
+    () =>
+      presenceState?.map((p) => {
+        const foundUser = findUserStoryPoint(p.userId, updatedRoomStoryPoints);
+        return {
+          ...p,
+          isCurrentUser: foundUser?.isCurrentUser,
+          hasVoted: !!foundUser?.userId,
+        };
+      }) ?? [],
+    [presenceState, updatedRoomStoryPoints]
+  );
+
+  if (!presenceState) {
     return null;
   }
 
-  if (roomTeamMembers.success) {
-    return (
-      <div className="space-y-2">
-        {roomTeamMembers.users.map((user) => {
-          const hasVoted = findUserStoryPoint(user.id, updatedRoomStoryPoints);
-          return (
-            <ParticipantCard
-              key={user.id}
-              name={user.username}
-              hasVoted={!!hasVoted?.userId}
-              isActive={user.isActive}
-            />
-          );
-        })}
-      </div>
-    );
-  }
+  return (
+    <div className="space-y-2">
+      {participantList.map((user) => {
+        return (
+          <ParticipantCard
+            key={user.userId}
+            name={user.name ?? "Unknown User"}
+            online={user.online}
+            hasVoted={user?.hasVoted}
+            lastDisconnected={user.lastDisconnected}
+            emojiId={user.userId}
+          />
+        );
+      })}
+    </div>
+  );
 }

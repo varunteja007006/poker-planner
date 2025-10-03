@@ -1,8 +1,17 @@
 import React from "react";
 
-const userStore = React.createContext({
+import { useQuery } from "convex/react";
+import { api } from "../../convex/_generated/api";
+
+export type User = ReturnType<typeof useQuery<typeof api.user.getUserByToken>>;
+
+const userStore = React.createContext<{
+  userToken: string;
+  handleSetUserToken?: (token: string) => void;
+  user: User;
+}>({
   userToken: "",
-  handleSetUserToken: (_token: string) => {},
+  user: undefined,
 });
 
 export const UserStoreProvider = ({
@@ -11,6 +20,11 @@ export const UserStoreProvider = ({
   children: React.ReactNode;
 }) => {
   const [userToken, setUserToken] = React.useState("");
+
+  const user = useQuery(
+    api.user.getUserByToken,
+    userToken ? { token: userToken } : "skip"
+  );
 
   const handleSetUserToken = React.useCallback(
     (token: string) => setUserToken(token),
@@ -28,8 +42,9 @@ export const UserStoreProvider = ({
     return {
       userToken,
       handleSetUserToken,
+      user,
     };
-  }, [userToken, handleSetUserToken]);
+  }, [userToken, handleSetUserToken, user]);
 
   return <userStore.Provider value={valueObj}>{children}</userStore.Provider>;
 };
