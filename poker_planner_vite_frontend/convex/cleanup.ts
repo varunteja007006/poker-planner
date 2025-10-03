@@ -15,3 +15,11 @@ export const deleteStaleStories = mutation(async ({ db }) => {
     }
   }
 });
+
+export const clearStoriesAndPoints = mutation(async ({ db }) => {
+  const stories = await db.query("stories").collect();
+  await Promise.all(stories.map(story => db.delete(story._id)));
+
+  const storyPoints = await db.query("storyPoints").collect();
+  await Promise.all(storyPoints.map(point => db.delete(point._id)));
+});
