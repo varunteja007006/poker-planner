@@ -16,4 +16,9 @@ crons.interval(
   {},
 );
 
+crons.interval(
+  "clear stories and points",
+  { minutes: 30240 }, // every 3 weeks (21 days)
+  api.cleanup.clearStoriesAndPoints,
+);
 export default crons
