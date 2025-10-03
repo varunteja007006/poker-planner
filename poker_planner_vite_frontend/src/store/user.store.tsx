@@ -26,8 +26,15 @@ export const UserStoreProvider = ({
     userToken ? { token: userToken } : "skip"
   );
 
+  if (user?.success === false && user.isFound === false) {
+    localStorage.removeItem("userToken");
+  }
+
   const handleSetUserToken = React.useCallback(
-    (token: string) => setUserToken(token),
+    (token: string) => {
+      localStorage.setItem("userToken", token);
+      setUserToken(token);
+    },
     [setUserToken]
   );
 
