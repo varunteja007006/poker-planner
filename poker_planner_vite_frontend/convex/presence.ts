@@ -2,7 +2,7 @@ import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { components } from "./_generated/api";
 import { Presence } from "@convex-dev/presence";
-import { Id } from "./_generated/dataModel";
+import type { Id } from "./_generated/dataModel";
 
 export const presence = new Presence(components.presence);
 

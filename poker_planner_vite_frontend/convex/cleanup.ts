@@ -1,5 +1,4 @@
-import { v } from "convex/values";
-import { internalMutation, mutation } from "./_generated/server";
+import { mutation } from "./_generated/server";
 
 export const deleteStaleStories = mutation(async ({ db }) => {
   const now = Date.now();
