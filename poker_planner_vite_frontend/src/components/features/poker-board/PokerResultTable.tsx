@@ -11,7 +11,7 @@ export default function PokerResultTable({
   chartData,
 }: Readonly<{
   chartData: {
-    name: any;
+    name: string;
     value: number;
   }[];
 }>) {
@@ -26,8 +26,12 @@ export default function PokerResultTable({
       <TableBody>
         {chartData.map((item) => (
           <TableRow key={item.name}>
-            <TableCell className="font-semibold text-primary">{item.name}</TableCell>
-            <TableCell className="font-semibold text-primary">{item.value}</TableCell>
+            <TableCell className="font-semibold text-primary">
+              {item.name}
+            </TableCell>
+            <TableCell className="font-semibold text-primary">
+              {item.value}
+            </TableCell>
           </TableRow>
         ))}
       </TableBody>

@@ -18,7 +18,7 @@ export default function PokerResultChart({
   chartData,
 }: Readonly<{
   chartData: {
-    name: any;
+    name: string;
     value: number;
   }[];
 }>) {
